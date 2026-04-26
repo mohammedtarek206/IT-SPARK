@@ -45,7 +45,9 @@ export async function GET() {
             .limit(4)
             .lean();
 
-        let adminVideos: any[] = [];
+        let allVideos: any[] = [];
+        
+        // Add track lessons
         tracks.forEach((track: any) => {
             if (track.lessons && Array.isArray(track.lessons)) {
                 const trackImage = sanitizeImageUrl(track.imageUrl);
@@ -53,14 +55,47 @@ export async function GET() {
                     ...lesson,
                     _id: track._id + '-' + lesson.title,
                     trackTitle: track.title,
-                    trackImage: trackImage, // Sanitized
+                    trackImage: trackImage,
                     createdAt: track.createdAt
                 }));
-                adminVideos = [...adminVideos, ...lessonsWithMeta];
+                allVideos = [...allVideos, ...lessonsWithMeta];
             }
         });
 
-        const lessons = adminVideos.slice(0, 8);
+        // Add course lessons
+        const courseLessons = await Lesson.find({ type: 'video' })
+            .sort({ createdAt: -1 })
+            .limit(8)
+            .populate({
+                path: 'module',
+                populate: {
+                    path: 'course',
+                    select: 'title thumbnail',
+                    model: Course
+                },
+                model: Module
+            })
+            .lean();
+
+        courseLessons.forEach((lesson: any) => {
+            if (lesson.module && lesson.module.course) {
+                allVideos.push({
+                    title: lesson.title,
+                    description: lesson.description || '',
+                    videoUrl: lesson.contentUrl || '',
+                    duration: lesson.duration || '0:00',
+                    _id: lesson._id.toString(),
+                    trackTitle: lesson.module.course.title,
+                    trackImage: sanitizeImageUrl(lesson.module.course.thumbnail),
+                    createdAt: lesson.createdAt
+                });
+            }
+        });
+
+        // Sort all videos by date and limit to 8
+        const lessons = allVideos
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .slice(0, 8);
 
         return NextResponse.json({
             courses,

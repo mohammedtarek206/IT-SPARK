@@ -24,15 +24,9 @@ export default function Partners() {
             .catch(err => console.error('Failed to fetch partners:', err));
     }, []);
 
-    // Fallback constants if no partners are found in DB
-    const defaultPartners = [
-        { name: 'TechCorp', icon: FiHexagon },
-        { name: 'GrowthScale', icon: FiZap },
-        { name: 'GlobalNet', icon: FiGlobe },
-        { name: 'VisionAI', icon: FiTarget },
-        { name: 'Streamline', icon: FiRadio },
-        { name: 'SoftSys', icon: FiSmile },
-    ];
+    if (partners.length === 0) {
+        return null;
+    }
 
     return (
         <section className="py-24 bg-surface/30 border-y border-border">
@@ -49,43 +43,25 @@ export default function Partners() {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
-                    {partners.length > 0 ? (
-                        partners.map((partner, index) => (
-                            <motion.div
-                                key={partner._id}
-                                initial={{ opacity: 0 }}
-                                whileInView={{ opacity: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                                className="flex items-center gap-2 md:gap-3 group px-4 py-2 md:px-6 md:py-3 rounded-2xl hover:bg-white/5 hover:opacity-100 transition-all cursor-default border border-transparent hover:border-white/10"
-                            >
-                                <img
-                                    src={partner.logoUrl}
-                                    alt={partner.name}
-                                    className="h-6 sm:h-8 md:h-10 w-auto object-contain group-hover:scale-110 transition-transform"
-                                />
-                                <span className="text-lg sm:text-xl md:text-2xl font-black text-white/50 group-hover:text-white transition-colors tracking-tighter">
-                                    {partner.name}
-                                </span>
-                            </motion.div>
-                        ))
-                    ) : (
-                        defaultPartners.map((partner, index) => (
-                            <motion.div
-                                key={index}
-                                initial={{ opacity: 0 }}
-                                whileInView={{ opacity: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                                className="flex items-center gap-2 md:gap-3 group px-4 py-2 md:px-6 md:py-3 rounded-2xl hover:bg-foreground/5 hover:opacity-100 transition-all cursor-default border border-transparent hover:border-border"
-                            >
-                                <partner.icon className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:scale-125 transition-transform" />
-                                <span className="text-lg sm:text-xl md:text-2xl font-black text-foreground/40 group-hover:text-foreground transition-colors tracking-tighter">
-                                    {partner.name}
-                                </span>
-                            </motion.div>
-                        ))
-                    )}
+                    {partners.map((partner, index) => (
+                        <motion.div
+                            key={partner._id}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className="flex items-center gap-2 md:gap-3 group px-4 py-2 md:px-6 md:py-3 rounded-2xl hover:bg-white/5 hover:opacity-100 transition-all cursor-default border border-transparent hover:border-white/10"
+                        >
+                            <img
+                                src={partner.logoUrl}
+                                alt={partner.name}
+                                className="h-6 sm:h-8 md:h-10 w-auto object-contain group-hover:scale-110 transition-transform"
+                            />
+                            <span className="text-lg sm:text-xl md:text-2xl font-black text-white/50 group-hover:text-white transition-colors tracking-tighter">
+                                {partner.name}
+                            </span>
+                        </motion.div>
+                    ))}
                 </div>
             </div>
         </section>
