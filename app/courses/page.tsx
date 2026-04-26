@@ -12,20 +12,28 @@ export default function PublicCoursesPage() {
     const router = useRouter();
     const [filter, setFilter] = useState('all');
     const [courses, setCourses] = useState<any[]>([]);
+    const [tracks, setTracks] = useState<any[]>([]);
     const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchCourses = async () => {
+        const fetchData = async () => {
             try {
-                // Fetch ALL courses for now to debug, ignoring isActive if needed
-                const res = await fetch('/api/courses');
-                if (res.ok) {
-                    const data = await res.json();
-                    setCourses(data);
+                // Fetch Courses
+                const coursesRes = await fetch('/api/courses');
+                if (coursesRes.ok) {
+                    const coursesData = await coursesRes.json();
+                    setCourses(coursesData);
+                }
+
+                // Fetch Tracks for categories
+                const tracksRes = await fetch('/api/tracks');
+                if (tracksRes.ok) {
+                    const tracksData = await tracksRes.json();
+                    setTracks(tracksData);
                 }
             } catch (err) {
-                console.error('Failed to fetch courses:', err);
+                console.error('Failed to fetch data:', err);
             } finally {
                 setLoading(false);
             }
@@ -49,7 +57,7 @@ export default function PublicCoursesPage() {
             }
         };
 
-        fetchCourses();
+        fetchData();
         fetchEnrolledCourses();
     }, []);
 
@@ -92,8 +100,8 @@ export default function PublicCoursesPage() {
     const filteredCourses = filter === 'all'
         ? courses
         : courses.filter(c =>
-            c.track?.title?.toLowerCase().includes(filter.toLowerCase()) ||
-            c.level?.toLowerCase().includes(filter.toLowerCase())
+            c.track?._id === filter || 
+            c.track?.title?.toLowerCase().includes(filter.toLowerCase())
         );
 
     if (loading) {
@@ -121,23 +129,25 @@ export default function PublicCoursesPage() {
 
                 {/* Filter Bar */}
                 <div className="flex flex-wrap justify-center gap-2">
-                    {[
-                        { id: 'all', name: 'All Courses' },
-                        { id: 'web', name: 'Web Dev' },
-                        { id: 'mobile', name: 'Mobile Dev' },
-                        { id: 'cyber', name: 'Cyber Security' },
-                        { id: 'ai', name: 'AI & Data' },
-                    ].map(f => (
+                    <button
+                        onClick={() => setFilter('all')}
+                        className={`px-6 py-2 rounded-xl text-xs font-black uppercase transition-all ${filter === 'all' ? 'bg-primary text-white shadow-lg' : 'bg-surface text-foreground/40 hover:text-primary hover:bg-foreground/5'
+                            }`}
+                    >
+                        All Courses
+                    </button>
+                    {tracks.map(track => (
                         <button
-                            key={f.id}
-                            onClick={() => setFilter(f.id)}
-                            className={`px-6 py-2 rounded-xl text-xs font-black uppercase transition-all ${filter === f.id ? 'bg-primary text-white shadow-lg' : 'bg-surface text-foreground/40 hover:text-primary hover:bg-foreground/5'
+                            key={track._id}
+                            onClick={() => setFilter(track._id)}
+                            className={`px-6 py-2 rounded-xl text-xs font-black uppercase transition-all ${filter === track._id ? 'bg-primary text-white shadow-lg' : 'bg-surface text-foreground/40 hover:text-primary hover:bg-foreground/5'
                                 }`}
                         >
-                            {f.name}
+                            {track.title}
                         </button>
                     ))}
                 </div>
+
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredCourses.map((course, i) => (
