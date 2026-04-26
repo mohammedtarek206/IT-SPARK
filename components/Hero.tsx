@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiCode, FiShield, FiCpu, FiPlay } from 'react-icons/fi';
+import { FiCode, FiShield, FiCpu, FiPlay, FiVolume2, FiVolumeX } from 'react-icons/fi';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/LanguageContext';
 import { getDriveDirectLink, getDriveEmbedLink, getDriveStreamLink } from '@/lib/media';
@@ -10,43 +10,15 @@ import { getDriveDirectLink, getDriveEmbedLink, getDriveStreamLink } from '@/lib
 export default function Hero() {
   const { t, lang } = useLanguage();
   const [videoLink, setVideoLink] = useState('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
-  const [gallery, setGallery] = useState<any[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-
+  const [isMuted, setIsMuted] = useState(true);
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
       .then(data => {
         if (data.introVideoUrl) setVideoLink(data.introVideoUrl);
-        if (data.hero_gallery && Array.isArray(data.hero_gallery)) {
-          setGallery(data.hero_gallery);
-        }
       })
       .catch(err => console.error('Failed to fetch Hero settings:', err));
   }, []);
-
-  useEffect(() => {
-    if (gallery.length <= 1) return;
-
-    const currentAsset = gallery[activeIndex];
-
-    // Auto-advance logic
-    // Images: 7s
-    // Videos: 30s (Default for stealth iframes as we can't detect end event)
-    const transitionTime = currentAsset?.type === 'video' ? 30000 : 7000;
-
-    const timer = setTimeout(() => {
-      setActiveIndex((prev) => (prev + 1) % gallery.length);
-    }, transitionTime);
-
-    return () => clearTimeout(timer);
-  }, [activeIndex, gallery]);
-
-  const handleVideoEnd = () => {
-    if (gallery.length > 1) {
-      setActiveIndex((prev) => (prev + 1) % gallery.length);
-    }
-  };
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-32 lg:pt-20">
@@ -115,83 +87,29 @@ export default function Hero() {
             className="flex-1 w-full max-w-2xl"
           >
             <div className="relative aspect-video rounded-2xl md:rounded-3xl overflow-hidden glass border border-white/10 shadow-2xl group bg-black/20">
-              <AnimatePresence mode="wait">
-                {gallery && gallery.length > 0 ? (
-                  <motion.div
-                    key={activeIndex}
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 1.2, ease: "easeInOut" }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    {gallery[activeIndex]?.type === 'video' ? (
-                      <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-                        {gallery[activeIndex].url.includes('drive.google.com') ? (
-                          <div className="absolute inset-0 w-full h-full scale-[1.25] origin-center -translate-y-[5%]">
-                            <iframe
-                              key={gallery[activeIndex].url}
-                              className="w-full h-full border-0"
-                              src={`${getDriveEmbedLink(gallery[activeIndex].url)}?autoplay=1&mute=1&controls=0&rm=minimal`}
-                              allow="autoplay"
-                              referrerPolicy="no-referrer"
-                            />
-                          </div>
-                        ) : (
-                          <video
-                            key={gallery[activeIndex].url}
-                            className="w-full h-full object-contain"
-                            src={getDriveDirectLink(gallery[activeIndex].url)}
-                            muted
-                            autoPlay
-                            playsInline
-                            onEnded={handleVideoEnd}
-                            onError={() => handleVideoEnd()}
-                          />
-                        )}
-                        {/* Transparent overlay to block interaction with iframe controls */}
-                        <div className="absolute inset-0 z-10 bg-transparent" />
-                      </div>
-                    ) : (
-                      <img
-                        className="w-full h-full object-contain bg-black/40"
-                        src={getDriveDirectLink(gallery[activeIndex]?.url)}
-                        alt="Hero Asset"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          // Remove onError to prevent infinite cycling if all images fail
-                          (e.target as any).onerror = null;
-                          // Optionally show a placeholder or just let handleVideoEnd move to next after timeout
-                        }}
-                      />
-                    )}
-                  </motion.div>
+              <video
+                src="/intro.mp4"
+                className="w-full h-full object-cover rounded-2xl md:rounded-3xl"
+                autoPlay
+                loop
+                muted={isMuted}
+                playsInline
+                controls={false}
+              />
+              
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className="absolute bottom-4 right-4 md:bottom-6 md:right-6 p-3 md:p-4 rounded-xl bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 z-30 transition-all text-white group"
+                aria-label="Toggle Mute"
+              >
+                {isMuted ? (
+                  <FiVolumeX className="w-5 h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-white" />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary/10 backdrop-blur-md flex items-center justify-center border border-primary/20">
-                      <FiPlay className="w-6 h-6 md:w-8 md:h-8 text-primary fill-primary" />
-                    </div>
-                  </div>
+                  <FiVolume2 className="w-5 h-5 md:w-6 md:h-6 text-primary group-hover:scale-110 transition-transform" />
                 )}
-              </AnimatePresence>
+              </button>
+              
 
-
-              <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6 p-3 md:p-4 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 z-20 pointer-events-none">
-                <p className="text-white font-bold text-xs md:text-sm">Welcome to IT-SPARK</p>
-                <p className="text-gray-400 text-[10px] md:text-xs mt-1">{lang === 'ar' ? 'اكتشف شغفك ومهاراتك معنا' : 'Discover your potential with us'}</p>
-              </div>
-
-              {/* Progress Indicators */}
-              {gallery.length > 1 && (
-                <div className="absolute top-4 right-4 flex gap-1 z-30">
-                  {gallery.map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-1 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-6 bg-primary' : 'w-2 bg-white/30'}`}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
           </motion.div>
         </div>

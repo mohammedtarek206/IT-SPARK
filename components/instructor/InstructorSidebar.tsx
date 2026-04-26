@@ -52,7 +52,7 @@ export default function InstructorSidebar({ isOpen, onClose }: { isOpen?: boolea
                         <div className="relative w-14 h-14 md:w-16 md:h-16 flex items-center justify-center group-hover:scale-105 transition-transform">
                             <Image
                                 src="/logo.png"
-                                alt="Arqam Academy Logo"
+                                alt="IT-SPARK Logo"
                                 width={64}
                                 height={64}
                                 className="object-contain"
@@ -60,8 +60,7 @@ export default function InstructorSidebar({ isOpen, onClose }: { isOpen?: boolea
                             />
                         </div>
                         <div>
-                            <span className="text-lg font-black text-foreground uppercase tracking-tighter block leading-none">Arqam</span>
-                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] block">Academy</span>
+                            <span className="text-lg font-black text-foreground uppercase tracking-tighter block leading-none">IT-SPARK</span>
                             <span className="inline-block mt-2 px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest rounded-full border border-primary/20">
                                 Instructor
                             </span>

@@ -56,15 +56,14 @@ export default function StudentSidebar({ isOpen, onClose }: { isOpen?: boolean; 
                         <div className="relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
                             <Image
                                 src="/logo.png"
-                                alt="Arqam Academy Logo"
+                                alt="IT-SPARK Logo"
                                 fill
                                 className="object-contain"
                                 priority
                             />
                         </div>
                         <div className="text-center">
-                            <span className="text-xl md:text-2xl font-black text-foreground uppercase tracking-tighter block leading-none">Arqam</span>
-                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] block">Academy</span>
+                            <span className="text-xl md:text-2xl font-black text-foreground uppercase tracking-tighter block leading-none">IT-SPARK</span>
                             <span className="inline-block mt-3 px-3 py-1 bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest rounded-full border border-primary/20 shadow-sm">
                                 {t('role_student')}
                             </span>
