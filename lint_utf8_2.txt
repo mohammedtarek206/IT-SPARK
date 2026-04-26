@@ -1,0 +1,1087 @@
+﻿
+> switch-code-platform@1.0.0 lint
+> next lint
+
+node.exe : 
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (:Stri  
+  ng) [], RemoteException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+./app/admin/analytics/page.t
+sx
+3:10  Error: 'useState' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:60  Error: 'FiCalendar' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+
+./app/admin/codes/page.tsx
+4:10  Error: 'motion' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:17  Error: 'FiPlus' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:42  Error: 'FiTrash2' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:52  Error: 'FiClock' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/admin/dashboard/page.t
+sx
+8:45  Error: 'FiAward' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+13:79  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+42:12  Error: 'loading' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+105:100  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+105:107  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+
+./app/admin/exams/page.tsx
+14:16  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+19:42  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+28:26  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/admin/layout.tsx
+8:23  Error: 'FiKey' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+10:5  Error: 'FiDollarSign' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+10:40  Error: 'FiSettings' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+35:18  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/admin/login/page.tsx
+36:18  Error: 'err' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/admin/notifications/pa
+ge.tsx
+5:10  Error: 'FiSearch' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/admin/partners/page.ts
+x
+5:42  Error: 'FiCheck' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+100:29  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./app/admin/payments/page.ts
+x
+5:80  Error: 'FiEye' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+20:12  Error: 'loading' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+76:11  Error: 'rejected' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+233:29  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./app/admin/projects/page.ts
+x
+5:28  Error: 'FiImage' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:42  Error: 
+'FiExternalLink' is defined 
+but never used.  @typescript
+-eslint/no-unused-vars
+101:29  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./app/admin/results/page.tsx
+4:10  Error: 'motion' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:10  Error: 'FiAward' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:19  Error: 'FiUser' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:27  Error: 'FiCalendar' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+
+./app/admin/students/page.ts
+x
+5:20  Error: 'FiEdit2' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:39  Error: 'FiPlusCircle' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+5:87  Error: 'FiFilter' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:97  Error: 
+'FiMoreVertical' is defined 
+but never used.  @typescript
+-eslint/no-unused-vars
+5:113  Error: 'FiEye' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:120  Error: 
+'FiDollarSign' is defined 
+but never used.  @typescript
+-eslint/no-unused-vars
+61:91  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/admin/subscriptions/pa
+ge.tsx
+14:19  Error: 'setPlans' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+
+./app/admin/tracks/page.tsx
+5:45  Error: 'FiSave' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+5:58  Error: 
+'FiCheckCircle' is defined 
+but never used.  @typescript
+-eslint/no-unused-vars
+
+./app/api/admin/codes/route.
+ts
+31:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+31:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+61:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/admin/exams/route.
+ts
+11:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+27:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+46:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/api/admin/partners/rou
+te.ts
+11:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+27:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+46:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/api/admin/payments/rou
+te.ts
+20:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/admin/payments/[id
+]/route.ts
+47:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/admin/projects/rou
+te.ts
+11:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+27:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+46:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/api/admin/students/rou
+te.ts
+17:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+17:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/certificates/route
+.ts
+23:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/contact/route.ts
+36:19  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+45:27  Error: 'request' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+50:12  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+50:19  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/exams/id/route.ts
+19:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+19:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/exams/submit/route
+.ts
+32:36  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+99:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/exams/[id]/route.t
+s
+19:14  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+19:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/instructor/stats/r
+oute.ts
+8:27  Error: 'request' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+34:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/partners/route.ts
+1:10  Error: 'NextRequest' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+10:12  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/api/projects/route.ts
+6:27  Error: 'request' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+12:19  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+38:12  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+38:19  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/seed-admin/route.t
+s
+1:10  Error: 'NextRequest' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+26:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/student/dashboard/
+route.ts
+51:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/student/leaderboar
+d/route.ts
+5:27  Error: 'req' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+16:21  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/team/route.ts
+6:27  Error: 'request' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+11:19  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+37:12  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+37:19  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/api/tracks/route.ts
+6:27  Error: 'request' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+11:19  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+37:12  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+37:19  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/contact/page.tsx
+40:31  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+40:81  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+54:19  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+105:50  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+
+./app/courses/page.tsx
+6:10  Error: 'FiMonitor' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+6:21  Error: 'FiSmartphone' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+6:35  Error: 'FiShield' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+6:45  Error: 'FiCpu' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+6:52  Error: 'FiBriefcase' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+6:65  Error: 'FiCheck' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+6:74  Error: 'FiArrowRight' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+10:13  Error: 't' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+118:37  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./app/courses/[id]/page.tsx
+7:8  Error: 'Link' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+108:33  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+165:37  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+
+./app/dashboard/certificates
+/page.tsx
+11:54  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/dashboard/courses/page
+.tsx
+115:29  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./app/dashboard/leaderboard/
+page.tsx
+5:19  Error: 'FiStar' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+14:13  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+18:13  Error: 't' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+33:18  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+40:11  Error: 
+'getMedalColor' is assigned 
+a value but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+47:11  Error: 'getMedalBg' 
+is assigned a value but 
+never used.  @typescript-esl
+int/no-unused-vars
+
+./app/dashboard/page.tsx
+11:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+107:33  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./app/dashboard/progress/pag
+e.tsx
+5:10  Error: 'FiActivity' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+
+./app/exams/page.tsx
+9:40  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/exams/[id]/page.tsx
+11:38  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+13:44  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+16:42  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+57:8  Warning: React Hook 
+useEffect has a missing 
+dependency: 'handleSubmit'. 
+Either include it or remove 
+the dependency array.  
+react-hooks/exhaustive-deps
+59:34  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+181:45  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/forgot-password/page.t
+sx
+6:54  Error: 'FiShield' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+15:12  Error: 'error' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+15:19  Error: 'setError' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+90:65  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+
+./app/instructor/communicati
+ons/page.tsx
+8:5  Error: 
+'FiMoreVertical' is defined 
+but never used.  @typescript
+-eslint/no-unused-vars
+12:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+
+./app/instructor/courses/pag
+e.tsx
+7:21  Error: 
+'FiMoreVertical' is defined 
+but never used.  @typescript
+-eslint/no-unused-vars
+8:41  Error: 'FiFileText' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+68:21  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+199:37  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+257:86  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+
+./app/instructor/exams/page.
+tsx
+5:18  Error: 
+'AnimatePresence' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+13:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+15:54  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/instructor/page.tsx
+9:29  Error: 
+'FiCheckCircle' is defined 
+but never used.  @typescript
+-eslint/no-unused-vars
+
+./app/instructor/projects/pa
+ge.tsx
+8:30  Error: 'FiFilter' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+12:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+
+./app/instructor/stats/page.
+tsx
+8:5  Error: 'FiClock' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+12:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+
+./app/layout.tsx
+11:7  Error: 'cairo' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+
+./app/learn/[courseId]/page.
+tsx
+8:20  Error: 'FiChevronUp' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+14:13  Error: 't' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+14:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+16:11  Error: 'courseId' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+88:33  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./app/login/page.tsx
+8:26  Error: 'FiPhone' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+8:64  Error: 'FiKey' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+16:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+40:18  Error: 'err' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/partners/page.tsx
+7:44  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+40:15  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./app/pricing/page.tsx
+10:13  Error: 't' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+
+./app/signup/page.tsx
+9:38  Error: 'FiBookOpen' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+10:5  Error: 'FiFileText' 
+is defined but never used.  
+@typescript-eslint/no-unused
+-vars
+10:17  Error: 'FiImage' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+34:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+37:51  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+40:56  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+88:18  Error: 'err' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/team/page.tsx
+5:43  Error: 'FiMail' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./app/tracks/[id]/lessons/pa
+ge.tsx
+17:40  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+46:60  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+162:61  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+
+./app/tracks/[id]/page.tsx
+21:40  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+95:68  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+455:53  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./components/instructor/Cour
+seBuilder.tsx
+109:72  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+110:13  Error: 't' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+355:37  Warning: Using 
+`<img>` could result in 
+slower LCP and higher 
+bandwidth. Consider using 
+`<Image />` from 
+`next/image` to 
+automatically optimize 
+images. This may incur 
+additional usage or cost 
+from your provider. See: htt
+ps://nextjs.org/docs/message
+s/no-img-element  
+@next/next/no-img-element
+
+./components/instructor/Exam
+Builder.tsx
+6:18  Error: 'FiPlus' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+7:43  Error: 
+'FiMoreHorizontal' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+21:66  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+22:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+
+./components/Navbar.tsx
+13:39  Error: 
+'FiPlusCircle' is defined 
+but never used.  @typescript
+-eslint/no-unused-vars
+14:19  Error: 'FiInfo' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+25:9  Error: 'router' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+37:47  Error: Unexpected 
+any. Specify a different 
+type.  @typescript-eslint/no
+-explicit-any
+230:73  Error: `'` can be 
+escaped with `&apos;`, 
+`&lsquo;`, `&#39;`, 
+`&rsquo;`.  
+react/no-unescaped-entities
+
+./components/Reviews.tsx
+8:16  Error: 'lang' is 
+assigned a value but never 
+used.  @typescript-eslint/no
+-unused-vars
+56:84  Error: `"` can be 
+escaped with `&quot;`, 
+`&ldquo;`, `&#34;`, 
+`&rdquo;`.  
+react/no-unescaped-entities
+56:98  Error: `"` can be 
+escaped with `&quot;`, 
+`&ldquo;`, `&#34;`, 
+`&rdquo;`.  
+react/no-unescaped-entities
+
+./lib/auth.ts
+22:12  Error: 'error' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./lib/AuthContext.tsx
+41:22  Error: 'e' is 
+defined but never used.  @ty
+pescript-eslint/no-unused-va
+rs
+
+./lib/mongodb.ts
+15:3  Error: Unexpected 
+var, use let or const 
+instead.  no-var
+18:5  Error: 'cached' is 
+never reassigned. Use 
+'const' instead.  
+prefer-const
+
+info  - Need to disable 
+some ESLint rules? Learn 
+more here: https://nextjs.or
+g/docs/basic-features/eslint
+#disabling-rules

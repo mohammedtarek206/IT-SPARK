@@ -1,0 +1,30 @@
+﻿
+> switch-code-platform@1.0.0 build
+> next build
+
+node.exe :  ΓÜá Invalid next.config.mjs options detected: 
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( ΓÜá Invalid ne...ions detected: :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ ΓÜá     Expected object, received boolean at "experimental.serverActions"
+ ΓÜá See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ΓÜá Server Actions are available by default now, `experimental.serverActions` option can be safely removed.
+  Γû▓ Next.js 14.2.33
+  - Environments: .env.local
+
+
+> Build error occurred
+Error: You cannot use different slug names for the same dynamic path ('id' !== 'slug').
+    at handleSlug (D:\arqam\node_modules\next\dist\shared\lib\router\utils\sorted-routes.js:94:31)
+    at UrlNode._insert (D:\arqam\node_modules\next\dist\shared\lib\router\utils\sorted-routes.js:131:17)
+    at UrlNode._insert (D:\arqam\node_modules\next\dist\shared\lib\router\utils\sorted-routes.js:142:40)
+    at UrlNode.insert (D:\arqam\node_modules\next\dist\shared\lib\router\utils\sorted-routes.js:13:14)
+    at D:\arqam\node_modules\next\dist\shared\lib\router\utils\sorted-routes.js:165:46
+    at Array.forEach (<anonymous>)
+    at getSortedRoutes (D:\arqam\node_modules\next\dist\shared\lib\router\utils\sorted-routes.js:165:21)
+    at D:\arqam\node_modules\next\dist\build\index.js:625:65
+    at Span.traceFn (D:\arqam\node_modules\next\dist\trace\trace.js:147:20)
+    at D:\arqam\node_modules\next\dist\build\index.js:624:89
