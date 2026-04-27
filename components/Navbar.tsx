@@ -168,7 +168,7 @@ export default function Navbar() {
                 priority
               />
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="hidden md:flex flex-col justify-center">
                 <div className="flex flex-col">
                   <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-primary via-accent to-accent/50 bg-clip-text text-transparent uppercase tracking-tight leading-none">IT-SPARK</span>
                   <span className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] block mt-1 leading-none">EXCELLENCE IN TECH</span>

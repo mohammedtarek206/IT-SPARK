@@ -77,7 +77,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} overflow-x-hidden`}>
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
