@@ -136,7 +136,7 @@ export default function Navbar() {
         ];
       case 'instructor':
         return [
-          { href: '/instructor/dashboard', label: t('instructor_dashboard'), icon: FiLayout },
+          { href: '/instructor', label: t('instructor_dashboard'), icon: FiLayout },
           { href: '/instructor/courses', label: t('manage_courses'), icon: FiBook },
           { href: '/instructor/exams', label: t('manage_exams'), icon: FiAward },
           { href: '/instructor/stats', label: t('earnings'), icon: FiDollarSign },
