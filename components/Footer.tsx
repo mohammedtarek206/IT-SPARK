@@ -18,7 +18,7 @@ export default function Footer() {
                   className="object-contain"
                 />
               </div>
-              <span className="text-xl font-bold text-foreground">IT-SPARK</span>
+              <span className="text-xl font-bold text-foreground" dir="ltr">IT-SPARK</span>
             </div>
             <p className="text-foreground/60 text-sm">
               Empowering the next generation of tech leaders through world-class education.
@@ -79,7 +79,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-primary/20 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-          <p>© {new Date().getFullYear()} IT-SPARK. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} <span dir="ltr">IT-SPARK</span>. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/privacy" className="hover:text-accent transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-accent transition-colors">Terms of Service</Link>

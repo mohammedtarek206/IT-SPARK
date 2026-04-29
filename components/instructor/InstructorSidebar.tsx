@@ -60,7 +60,7 @@ export default function InstructorSidebar({ isOpen, onClose }: { isOpen?: boolea
                             />
                         </div>
                         <div>
-                            <span className="text-lg font-black text-foreground uppercase tracking-tighter block leading-none">IT-SPARK</span>
+                            <span className="text-lg font-black text-foreground uppercase tracking-tighter block leading-none" dir="ltr">IT-SPARK</span>
                             <span className="inline-block mt-2 px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest rounded-full border border-primary/20">
                                 Instructor
                             </span>

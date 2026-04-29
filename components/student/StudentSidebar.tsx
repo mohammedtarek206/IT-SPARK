@@ -63,7 +63,7 @@ export default function StudentSidebar({ isOpen, onClose }: { isOpen?: boolean; 
                             />
                         </div>
                         <div className="text-center">
-                            <span className="text-xl md:text-2xl font-black text-foreground uppercase tracking-tighter block leading-none">IT-SPARK</span>
+                            <span className="text-xl md:text-2xl font-black text-foreground uppercase tracking-tighter block leading-none" dir="ltr">IT-SPARK</span>
                             <span className="inline-block mt-3 px-3 py-1 bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest rounded-full border border-primary/20 shadow-sm">
                                 {t('role_student')}
                             </span>

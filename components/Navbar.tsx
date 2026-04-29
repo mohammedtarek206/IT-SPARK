@@ -170,8 +170,8 @@ export default function Navbar() {
             </div>
             <div className="hidden md:flex flex-col justify-center">
                 <div className="flex flex-col">
-                  <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-primary via-accent to-accent/50 bg-clip-text text-transparent uppercase tracking-tight leading-none">IT-SPARK</span>
-                  <span className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] block mt-1 leading-none">EXCELLENCE IN TECH</span>
+                  <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tight leading-none pr-1 pb-1" dir="ltr">IT-SPARK</span>
+                  <span className="text-[9px] font-black text-foreground/40 uppercase tracking-[0.15em] block mt-1 leading-none" dir="ltr">THERE IS MUCH MORE TO LEARN</span>
                 </div>
             </div>
           </Link>
@@ -399,8 +399,8 @@ export default function Navbar() {
                     <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shrink-0">
                       <Image src="/logo.png" alt="Logo" width={24} height={24} className="object-contain" />
                     </div>
-                    <span className="font-black text-lg uppercase tracking-tighter text-foreground">
-                      'IT-SPARK'
+                    <span className="font-black text-lg uppercase tracking-tighter text-foreground" dir="ltr">
+                      IT-SPARK
                     </span>
                   </Link>
                   <button onClick={() => setMenuOpen(false)} className="p-2 text-foreground/40 hover:text-foreground hover:bg-foreground/5 rounded-xl transition-colors">

@@ -34,7 +34,8 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary via-accent to-accent/50 bg-clip-text text-transparent"
+              className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent inline-block pr-2 pb-2"
+              dir="ltr"
             >
               {t('hero_title')}
             </motion.h1>

@@ -111,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         />
                     </div>
                     <div className={`overflow-hidden whitespace-nowrap`}>
-                        <span className="text-sm font-black text-foreground uppercase tracking-widest block leading-none">IT-SPARK</span>
+                        <span className="text-sm font-black text-foreground uppercase tracking-widest block leading-none" dir="ltr">IT-SPARK</span>
                         <span className="text-[10px] font-black text-primary uppercase tracking-widest">Admin Panel</span>
                     </div>
                 </div>
