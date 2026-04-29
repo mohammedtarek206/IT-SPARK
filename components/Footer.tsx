@@ -52,15 +52,15 @@ export default function Footer() {
             <ul className="space-y-3 text-gray-400 text-sm">
               <li className="flex items-center">
                 <FiMail className="mr-2 text-accent" />
-                itspark.co1@gmail.com
+                itspark2018@gmail.com
               </li>
               <li className="flex items-center">
                 <FiPhone className="mr-2 text-accent" />
-                01008465861
+                01010710656
               </li>
-              <li className="flex items-center">
-                <FiMapPin className="mr-2 text-accent" />
-                Global (Online)
+              <li className="flex items-start">
+                <FiMapPin className="mr-2 mt-1 text-accent shrink-0" />
+                <span dir="rtl">أسيوط/ شارع المكتبات أعلي صيدلية منال الريفي أبراج الزراعيين - برج أ الدور الثاني علوي</span>
               </li>
             </ul>
             <div className="flex space-x-4 mt-6">

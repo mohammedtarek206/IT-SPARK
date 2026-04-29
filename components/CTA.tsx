@@ -34,7 +34,7 @@ export default function CTA() {
               Get Started <FiArrowRight className="ml-2" />
             </Link>
             <Link
-              href="mailto:itspark.co1@gmail.com"
+              href="mailto:itspark2018@gmail.com"
               className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-semibold hover:bg-white/10 transition-colors"
             >
               <FiMail className="mr-2" />

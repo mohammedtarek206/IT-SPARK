@@ -62,7 +62,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-foreground font-semibold mb-1">Email</h3>
-                  <p className="text-foreground/60">itspark.co1@gmail.com</p>
+                  <p className="text-foreground/60">itspark2018@gmail.com</p>
                 </div>
               </div>
 
@@ -72,7 +72,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-foreground font-semibold mb-1">Phone</h3>
-                  <p className="text-foreground/60">01008465861</p>
+                  <p className="text-foreground/60" dir="ltr">01010710656</p>
                 </div>
               </div>
 
@@ -82,7 +82,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-foreground font-semibold mb-1">Address</h3>
-                  <p className="text-foreground/60">Global (Online Platform)</p>
+                  <p className="text-foreground/60" dir="rtl">أسيوط/ شارع المكتبات أعلي صيدلية منال الريفي أبراج الزراعيين - برج أ الدور الثاني علوي</p>
                 </div>
               </div>
             </div>
