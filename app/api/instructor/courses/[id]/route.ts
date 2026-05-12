@@ -123,16 +123,29 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         }
 
         await connectDB();
-        const course = await Course.findOneAndDelete({ _id: params.id, instructor: user.userId });
+        
+        // If user is admin, allow deleting any course. If instructor, only their own.
+        const query: any = { _id: params.id };
+        if (user.role !== 'admin') {
+            query.instructor = user.userId;
+        }
+
+        console.log('Attempting to delete course with query:', query);
+        const course = await Course.findOneAndDelete(query);
 
         if (!course) {
+            console.log('Course not found or unauthorized for deletion. User:', user.userId, 'ID:', params.id);
             return NextResponse.json({ error: 'Course not found or unauthorized' }, { status: 404 });
         }
 
+        console.log('Course deleted, cleaning up modules and lessons for course:', course._id);
         const existingModules = await Module.find({ course: course._id });
         const moduleIds = existingModules.map(m => m._id);
-        await Lesson.deleteMany({ module: { $in: moduleIds } });
-        await Module.deleteMany({ course: course._id });
+        
+        const lessonsDeleted = await Lesson.deleteMany({ module: { $in: moduleIds } });
+        const modulesDeleted = await Module.deleteMany({ course: course._id });
+        
+        console.log(`Deleted ${modulesDeleted.deletedCount} modules and ${lessonsDeleted.deletedCount} lessons.`);
 
         return NextResponse.json({ message: 'Course deleted successfully' }, { status: 200 });
     } catch (error: any) {

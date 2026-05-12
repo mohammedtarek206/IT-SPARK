@@ -121,22 +121,30 @@ export default function LearnCoursePage() {
                 <div className="flex-1 overflow-y-auto bg-black flex flex-col relative w-full">
 
                     {/* Player Container */}
-                    <div className="w-full aspect-video bg-[#0a0a0a] border-b border-white/5 relative flex items-center justify-center">
+                    <div className="w-full aspect-video bg-[#0a0a0a] border-b border-white/5 relative flex items-center justify-center overflow-hidden">
                         {currentLessonData?.type === 'video' ? (
                             <div className="w-full h-full group relative">
-                                {currentLessonData?.contentUrl?.includes('youtube.com') || currentLessonData?.contentUrl?.includes('youtu.be') ? (
-                                    <iframe
-                                        className="w-full h-full"
-                                        src={`https://www.youtube.com/embed/${currentLessonData.contentUrl.split('v=')[1] || currentLessonData.contentUrl.split('/').pop()}`}
-                                        title={currentLessonData.title}
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
-                                    ></iframe>
+                                {currentLessonData?.contentUrl && (currentLessonData.contentUrl.includes('youtube.com') || currentLessonData.contentUrl.includes('youtu.be')) ? (
+                                    <>
+                                        <iframe
+                                            className="w-full h-full relative z-10"
+                                            src={`https://www.youtube.com/embed/${
+                                                currentLessonData.contentUrl.includes('v=') 
+                                                ? currentLessonData.contentUrl.split('v=')[1].split('&')[0] 
+                                                : currentLessonData.contentUrl.split('/').pop()?.split('?')[0]
+                                            }?rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&controls=1&autohide=1`}
+                                            title={currentLessonData.title}
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
+                                        {/* Subtle overlay to prevent clicking top title/logo if possible, but keeping controls */}
+                                        <div className="absolute top-0 left-0 right-0 h-12 z-20 pointer-events-none" />
+                                    </>
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-white/5">
                                         <div className="text-center">
                                             <FiPlayCircle className="text-6xl text-primary mx-auto mb-4" />
-                                            <p className="text-gray-400">Video Content: {currentLessonData.contentUrl}</p>
+                                            <p className="text-gray-400">Video Content: {currentLessonData?.contentUrl}</p>
                                         </div>
                                     </div>
                                 )}

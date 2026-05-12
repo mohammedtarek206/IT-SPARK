@@ -39,10 +39,21 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         }
 
         await connectDB();
+        
+        // Import models for cleanup
+        const Module = (await import('@/models/Module')).default;
+        const Lesson = (await import('@/models/Lesson')).default;
+
         const course = await Course.findByIdAndDelete(params.id);
         if (!course) {
             return NextResponse.json({ error: 'Course not found' }, { status: 404 });
         }
+
+        // Cleanup modules and lessons
+        const existingModules = await Module.find({ course: course._id });
+        const moduleIds = existingModules.map((m: any) => m._id);
+        await Lesson.deleteMany({ module: { $in: moduleIds } });
+        await Module.deleteMany({ course: course._id });
 
         return NextResponse.json(
             { message: 'Course deleted successfully' },

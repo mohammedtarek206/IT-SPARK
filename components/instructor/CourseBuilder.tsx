@@ -5,9 +5,21 @@ import { useLanguage } from '@/lib/LanguageContext';
 import {
     FiArrowLeft, FiPlus, FiTrash2, FiMove,
     FiVideo, FiFileText, FiChevronDown, FiChevronUp,
-    FiSave, FiUpload, FiBook, FiCheckSquare, FiEdit2, FiX, FiClock
+    FiSave, FiUpload, FiBook, FiCheckSquare, FiEdit2, FiX, FiClock, FiLink
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Helper to convert Google Drive share link to direct image link
+const getDirectDriveLink = (url: string) => {
+    if (!url) return '';
+    if (url.includes('drive.google.com')) {
+        const idMatch = url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
+        if (idMatch && idMatch[1]) {
+            return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+        }
+    }
+    return url;
+};
 
 interface Lesson {
     id: string;
@@ -20,12 +32,21 @@ interface Lesson {
     duration?: string; // e.g. "10:30"
 }
 
+// Helper to extract YouTube ID
+const getYouTubeId = (url: string) => {
+    if (!url) return '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : '';
+};
+
 interface Module {
     id: string;
     title: string;
     isOpen: boolean;
     lessons: Lesson[];
 }
+
 
 function LessonRow({
     lesson, moduleId,
@@ -37,6 +58,7 @@ function LessonRow({
     onUpdate: (mid: string, lid: string, data: Partial<Lesson>) => void;
 }) {
     const fileRef = useRef<HTMLInputElement>(null);
+    const [showPreview, setShowPreview] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -67,23 +89,43 @@ function LessonRow({
                 />
                 {/* YouTube Link for Video */}
                 {lesson.type === 'video' && (
-                    <div className="flex-1 flex items-center gap-2">
-                        <FiVideo className="text-blue-400 shrink-0" />
-                        <input
-                            value={lesson.videoUrl || ''}
-                            onChange={e => onUpdate(moduleId, lesson.id, { videoUrl: e.target.value })}
-                            className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-1.5 text-[10px] font-bold text-white focus:outline-none focus:border-primary/50"
-                            placeholder="Enter YouTube URL..."
-                        />
-                        <div className="flex items-center gap-1 shrink-0">
-                            <FiClock className="text-gray-500 text-[10px]" />
+                    <div className="flex-[2] flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                            <FiVideo className="text-blue-400 shrink-0" />
                             <input
-                                value={lesson.duration || ''}
-                                onChange={e => onUpdate(moduleId, lesson.id, { duration: e.target.value })}
-                                className="w-14 bg-black/30 border border-white/10 rounded-lg p-1 text-white text-[10px] font-black text-center focus:outline-none focus:border-primary/50"
-                                placeholder="0:00"
+                                value={lesson.videoUrl || ''}
+                                onChange={e => onUpdate(moduleId, lesson.id, { videoUrl: e.target.value })}
+                                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-1.5 text-[10px] font-bold text-white focus:outline-none focus:border-primary/50"
+                                placeholder="Enter YouTube URL..."
                             />
+                            {lesson.videoUrl && (
+                                <button
+                                    onClick={() => setShowPreview(!showPreview)}
+                                    className={`px-2 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${showPreview ? 'bg-primary text-white' : 'bg-primary/10 text-primary border border-primary/20'}`}
+                                >
+                                    {showPreview ? 'Close Preview' : 'Preview'}
+                                </button>
+                            )}
+                            <div className="flex items-center gap-1 shrink-0">
+                                <FiClock className="text-gray-500 text-[10px]" />
+                                <input
+                                    value={lesson.duration || ''}
+                                    onChange={e => onUpdate(moduleId, lesson.id, { duration: e.target.value })}
+                                    className="w-14 bg-black/30 border border-white/10 rounded-lg p-1 text-white text-[10px] font-black text-center focus:outline-none focus:border-primary/50"
+                                    placeholder="0:00"
+                                />
+                            </div>
                         </div>
+                        {showPreview && lesson.videoUrl && (
+                            <div className="mt-2 aspect-video w-full max-w-md bg-black rounded-lg overflow-hidden border border-white/10">
+                                <iframe
+                                    className="w-full h-full"
+                                    src={`https://www.youtube.com/embed/${getYouTubeId(lesson.videoUrl)}?rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&controls=1`}
+                                    title="Video Preview"
+                                    allowFullScreen
+                                ></iframe>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -143,6 +185,7 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
         level: course?.level || 'Beginner',
         thumbnail: null as File | null,
         thumbnailPreview: course?.thumbnail || '',
+        imageUrl: course?.thumbnail || '',
     });
     const thumbRef = useRef<HTMLInputElement>(null);
 
@@ -168,6 +211,7 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                     level: data.level || 'Beginner',
                     thumbnail: null,
                     thumbnailPreview: data.thumbnail || '',
+                    imageUrl: data.thumbnail || '',
                 });
                 if (data.modules) {
                     setModules(data.modules.map((m: any) => ({
@@ -240,9 +284,16 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
     const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Note: In a real app, you'd upload this to a server/S3
+            // For now, we'll suggest using a link as requested by the user
             const url = URL.createObjectURL(file);
-            setCourseInfo(prev => ({ ...prev, thumbnail: file, thumbnailPreview: url }));
+            setCourseInfo(prev => ({ ...prev, thumbnail: file, thumbnailPreview: url, imageUrl: '' }));
         }
+    };
+
+    const handleImageUrlChange = (url: string) => {
+        const directLink = getDirectDriveLink(url);
+        setCourseInfo(prev => ({ ...prev, imageUrl: url, thumbnailPreview: directLink }));
     };
 
     const handleSave = async () => {
@@ -480,25 +531,42 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                         </div>
 
                         {/* Thumbnail */}
-                        <div>
-                            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Thumbnail Image</label>
-                            <input ref={thumbRef} type="file" accept="image/*" className="hidden" onChange={handleThumbnailChange} />
-                            {courseInfo.thumbnailPreview ? (
-                                <div className="relative rounded-xl overflow-hidden h-32 group cursor-pointer" onClick={() => thumbRef.current?.click()}>
-                                    <img src={courseInfo.thumbnailPreview} alt="thumbnail" className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <span className="text-white text-xs font-black uppercase tracking-widest flex items-center gap-2"><FiEdit2 /> Change</span>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Thumbnail URL (Google Drive / Direct Link)</label>
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <FiLink className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                        <input
+                                            value={courseInfo.imageUrl}
+                                            onChange={e => handleImageUrlChange(e.target.value)}
+                                            placeholder="Paste Drive link or Image URL..."
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl p-3 pl-10 text-white text-[10px] font-medium focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-600"
+                                        />
                                     </div>
                                 </div>
-                            ) : (
-                                <button
-                                    onClick={() => thumbRef.current?.click()}
-                                    className="w-full h-28 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer gap-2"
-                                >
-                                    <FiUpload className="text-2xl text-gray-600" />
-                                    <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Upload Image</span>
-                                </button>
-                            )}
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Or Upload File</label>
+                                <input ref={thumbRef} type="file" accept="image/*" className="hidden" onChange={handleThumbnailChange} />
+                                {courseInfo.thumbnailPreview ? (
+                                    <div className="relative rounded-xl overflow-hidden h-32 group cursor-pointer" onClick={() => thumbRef.current?.click()}>
+                                        <img src={courseInfo.thumbnailPreview} alt="thumbnail" className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span className="text-white text-xs font-black uppercase tracking-widest flex items-center gap-2"><FiEdit2 /> Change</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => thumbRef.current?.click()}
+                                        className="w-full h-28 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer gap-2"
+                                    >
+                                        <FiUpload className="text-2xl text-gray-600" />
+                                        <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Upload Image</span>
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
 
