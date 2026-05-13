@@ -72,7 +72,7 @@ const LatestVideos = () => {
                         </motion.p>
                     </div>
 
-                    <Link href="/tracks">
+                    <Link href="/courses">
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}

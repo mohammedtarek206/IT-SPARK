@@ -62,7 +62,6 @@ export async function POST(request: NextRequest) {
           status: user.status,
           phone: user.phone,
           targetGoal: user.targetGoal,
-          enrolledTracks: user.enrolledTracks || [],
           createdAt: user.createdAt
         }
       },

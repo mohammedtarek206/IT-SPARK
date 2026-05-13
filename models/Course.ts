@@ -4,7 +4,7 @@ export interface ICourse extends Document {
     title: string;
     description: string;
     thumbnail?: string;
-    track: mongoose.Types.ObjectId;
+    previewVideoUrl?: string;
     instructor: mongoose.Types.ObjectId;
     level: 'Beginner' | 'Intermediate' | 'Advanced';
     price: number;
@@ -20,7 +20,7 @@ const CourseSchema: Schema = new Schema(
         title: { type: String, required: true },
         description: { type: String, required: true },
         thumbnail: { type: String },
-        track: { type: Schema.Types.ObjectId, ref: 'Track', required: true },
+        previewVideoUrl: { type: String },
         instructor: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         level: {
             type: String,

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import Track from '@/models/Track';
 import Course from '@/models/Course';
 import { authenticateRequest } from '@/lib/auth';
 
@@ -12,9 +11,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { trackId, courseId } = await request.json();
-        if (!trackId && !courseId) {
-            return NextResponse.json({ error: 'Missing trackId or courseId' }, { status: 400 });
+        const { courseId } = await request.json();
+        if (!courseId) {
+            return NextResponse.json({ error: 'Missing courseId' }, { status: 400 });
         }
 
         await connectDB();
@@ -25,19 +24,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        let item: any = null;
-        if (trackId) {
-            item = await Track.findById(trackId);
-            // Check if already enrolled in this track
-            if (user.enrolledTracks?.includes(trackId)) {
-                return NextResponse.json({ message: 'Already enrolled in this track' }, { status: 200 });
-            }
-        } else if (courseId) {
-            item = await Course.findById(courseId);
-            // Check if already enrolled in this course
-            if (user.enrolledCourses?.includes(courseId)) {
-                return NextResponse.json({ message: 'Already enrolled in this course' }, { status: 200 });
-            }
+        const item = await Course.findById(courseId);
+        // Check if already enrolled in this course
+        if (user.enrolledCourses?.includes(courseId)) {
+            return NextResponse.json({ message: 'Already enrolled in this course' }, { status: 200 });
         }
 
         if (!item) {
@@ -49,14 +39,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'This item requires payment' }, { status: 400 });
         }
 
-        const update: any = {};
-        if (trackId) {
-            update.$addToSet = { enrolledTracks: trackId };
-        } else {
-            update.$addToSet = { enrolledCourses: courseId };
-        }
-
-        await User.findByIdAndUpdate(payload.userId, update);
+        await User.findByIdAndUpdate(payload.userId, {
+            $addToSet: { enrolledCourses: courseId }
+        });
 
         return NextResponse.json({ message: 'Enrolled successfully' }, { status: 200 });
     } catch (error: any) {

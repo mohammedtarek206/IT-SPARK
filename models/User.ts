@@ -9,11 +9,9 @@ export interface IUser extends Document {
   status: 'active' | 'pending' | 'banned';
   accessCode?: string; // For code-only login
   targetGoal?: 'job' | 'freelance' | 'skill';
-  interestedTrack?: string;
   points: number;
   level: number;
   badges: { badgeId: string; earnedAt: Date }[];
-  enrolledTracks: mongoose.Types.ObjectId[];
   enrolledCourses: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -40,7 +38,6 @@ const UserSchema: Schema = new Schema(
       type: String,
       enum: ['job', 'freelance', 'skill'],
     },
-    interestedTrack: { type: String },
     points: { type: Number, default: 0 },
     level: { type: Number, default: 1 },
     badges: [
@@ -49,7 +46,6 @@ const UserSchema: Schema = new Schema(
         earnedAt: { type: Date, default: Date.now },
       },
     ],
-    enrolledTracks: [{ type: Schema.Types.ObjectId, ref: 'Track' }],
     enrolledCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   },
   {

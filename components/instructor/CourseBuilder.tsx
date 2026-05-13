@@ -181,7 +181,7 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
     const [courseInfo, setCourseInfo] = useState({
         title: course?.title || '',
         description: course?.description || '',
-        track: typeof course?.track === 'object' ? course?.track?._id : (course?.track || ''),
+        previewVideoUrl: course?.previewVideoUrl || '',
         level: course?.level || 'Beginner',
         thumbnail: null as File | null,
         thumbnailPreview: course?.thumbnail || '',
@@ -207,7 +207,7 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                 setCourseInfo({
                     title: data.title,
                     description: data.description || '',
-                    track: data.track?._id || data.track,
+                    previewVideoUrl: data.previewVideoUrl || '',
                     level: data.level || 'Beginner',
                     thumbnail: null,
                     thumbnailPreview: data.thumbnail || '',
@@ -301,15 +301,15 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
             const method = course?._id ? 'PATCH' : 'POST';
             const url = course?._id ? `/api/instructor/courses/${course._id}` : '/api/instructor/courses';
 
-            if (!courseInfo.title || !courseInfo.track) {
-                alert('Please provide a title and select a track.');
+            if (!courseInfo.title) {
+                alert('Please provide a title.');
                 return;
             }
 
             const payload = {
                 title: courseInfo.title,
                 description: courseInfo.description,
-                track: courseInfo.track,
+                previewVideoUrl: courseInfo.previewVideoUrl,
                 level: courseInfo.level,
                 thumbnail: courseInfo.thumbnailPreview,
                 modules: modules.map(m => ({
@@ -502,20 +502,7 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Track</label>
-                                <select
-                                    value={courseInfo.track}
-                                    onChange={e => setCourseInfo(p => ({ ...p, track: e.target.value }))}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm font-medium focus:outline-none focus:border-primary/50 transition-colors"
-                                >
-                                    <option value="" className="bg-dark">Select track</option>
-                                    {availableTracks.map(t => (
-                                        <option key={t._id} value={t._id} className="bg-dark">{t.title}</option>
-                                    ))}
-                                </select>
-                            </div>
+                        <div className="grid grid-cols-1 gap-3">
                             <div>
                                 <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Level</label>
                                 <select
@@ -527,6 +514,20 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                                         <option key={l} value={l} className="bg-dark">{l}</option>
                                     ))}
                                 </select>
+                            </div>
+                        </div>
+
+                        {/* Preview Video */}
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Preview Video URL (Google Drive / YouTube)</label>
+                            <div className="relative">
+                                <FiVideo className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                <input
+                                    value={courseInfo.previewVideoUrl}
+                                    onChange={e => setCourseInfo(p => ({ ...p, previewVideoUrl: e.target.value }))}
+                                    placeholder="Paste Drive link or YouTube URL..."
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl p-3 pl-10 text-white text-[10px] font-medium focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-600"
+                                />
                             </div>
                         </div>
 

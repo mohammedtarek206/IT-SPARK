@@ -16,11 +16,11 @@ export default function PricingPage() {
             period: 'forever',
             description: 'Perfect for exploring the platform and starting your journey.',
             features: [
-                { name: 'Access to 3 beginner courses', included: true },
+                { name: 'Access to beginner courses', included: true },
                 { name: 'Basic community support', included: true },
                 { name: 'Course certificates', included: false },
                 { name: 'Project reviews', included: false },
-                { name: 'Live Q&A sessions', included: false },
+                { name: 'Career guidance', included: false },
             ],
             buttonText: 'Start for Free',
             popular: false,
@@ -32,31 +32,15 @@ export default function PricingPage() {
             period: 'per month',
             description: 'Unlock all courses and get certified as you learn.',
             features: [
-                { name: 'Access to all 50+ courses', included: true },
+                { name: 'Access to all premium courses', included: true },
                 { name: 'Priority community support', included: true },
                 { name: 'Verified course certificates', included: true },
                 { name: 'Project reviews (1/month)', included: true },
-                { name: 'Live Q&A sessions', included: false },
+                { name: 'Career guidance', included: true },
             ],
             buttonText: 'Get Pro',
             popular: true,
             color: 'from-primary to-accent'
-        },
-        {
-            name: 'Track Master',
-            price: '$199',
-            period: 'per track (one-time)',
-            description: 'The ultimate package to master a complete career track.',
-            features: [
-                { name: 'Lifetime access to one track', included: true },
-                { name: '1-on-1 mentorship', included: true },
-                { name: 'Verified track certificate', included: true },
-                { name: 'Unlimited project reviews', included: true },
-                { name: 'Weekly Live Q&A sessions', included: true },
-            ],
-            buttonText: 'Enroll in Track',
-            popular: false,
-            color: 'from-amber-500 to-orange-400'
         }
     ];
 

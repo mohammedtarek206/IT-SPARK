@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const {
       name, email, phone, password, role,
       bio, cvUrl, imageUrl, category,
-      targetGoal, interestedTrack
+      targetGoal
     } = body;
 
     if (!name || !email || !password || !role) {
@@ -43,8 +43,7 @@ export async function POST(request: NextRequest) {
       password: hashedPassword,
       role,
       status: role === 'instructor' ? 'pending' : 'active',
-      targetGoal,
-      interestedTrack
+      targetGoal
     });
 
     // Create Instructor Details if role is instructor

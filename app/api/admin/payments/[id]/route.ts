@@ -36,9 +36,7 @@ export async function PATCH(
 
         if (status === 'approved') {
             const update: any = {};
-            if (payment.track) {
-                update.$addToSet = { enrolledTracks: payment.track };
-            } else if (payment.course) {
+            if (payment.course) {
                 update.$addToSet = { enrolledCourses: payment.course };
             }
 
@@ -48,7 +46,7 @@ export async function PATCH(
                 await Notification.create({
                     recipient: payment.user,
                     title: 'Course Enrollment Approved',
-                    message: 'Your payment was successful and you have been enrolled in the requested course/track.',
+                    message: 'Your payment was successful and you have been enrolled in the requested course.',
                     type: 'success',
                     read: false
                 });

@@ -12,7 +12,6 @@ export default function PublicCoursesPage() {
     const router = useRouter();
     const [filter, setFilter] = useState('all');
     const [courses, setCourses] = useState<any[]>([]);
-    const [tracks, setTracks] = useState<any[]>([]);
     const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -26,12 +25,7 @@ export default function PublicCoursesPage() {
                     setCourses(coursesData);
                 }
 
-                // Fetch Tracks for categories
-                const tracksRes = await fetch('/api/tracks');
-                if (tracksRes.ok) {
-                    const tracksData = await tracksRes.json();
-                    setTracks(tracksData);
-                }
+                // Courses are fetched here
             } catch (err) {
                 console.error('Failed to fetch data:', err);
             } finally {
@@ -99,10 +93,7 @@ export default function PublicCoursesPage() {
 
     const filteredCourses = filter === 'all'
         ? courses
-        : courses.filter(c =>
-            c.track?._id === filter || 
-            c.track?.title?.toLowerCase().includes(filter.toLowerCase())
-        );
+        : courses.filter(c => c.level === filter);
 
     if (loading) {
         return (
@@ -129,21 +120,14 @@ export default function PublicCoursesPage() {
 
                 {/* Filter Bar */}
                 <div className="flex flex-wrap justify-center gap-2">
-                    <button
-                        onClick={() => setFilter('all')}
-                        className={`px-6 py-2 rounded-xl text-xs font-black uppercase transition-all ${filter === 'all' ? 'bg-primary text-white shadow-lg' : 'bg-surface text-foreground/40 hover:text-primary hover:bg-foreground/5'
-                            }`}
-                    >
-                        All Courses
-                    </button>
-                    {tracks.map(track => (
+                    {['all', 'Beginner', 'Intermediate', 'Advanced'].map(lvl => (
                         <button
-                            key={track._id}
-                            onClick={() => setFilter(track._id)}
-                            className={`px-6 py-2 rounded-xl text-xs font-black uppercase transition-all ${filter === track._id ? 'bg-primary text-white shadow-lg' : 'bg-surface text-foreground/40 hover:text-primary hover:bg-foreground/5'
+                            key={lvl}
+                            onClick={() => setFilter(lvl)}
+                            className={`px-6 py-2 rounded-xl text-xs font-black uppercase transition-all ${filter === lvl ? 'bg-primary text-white shadow-lg' : 'bg-surface text-foreground/40 hover:text-primary hover:bg-foreground/5'
                                 }`}
                         >
-                            {track.title}
+                            {lvl === 'all' ? 'All Courses' : lvl}
                         </button>
                     ))}
                 </div>
@@ -175,7 +159,7 @@ export default function PublicCoursesPage() {
                                 </div>
 
                                 <div className="p-6 flex-1 flex flex-col justify-between relative z-10 -mt-6">
-                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-surface px-3 py-1 rounded w-max border border-border mb-3">{course.track?.title || 'Professional'}</span>
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-surface px-3 py-1 rounded w-max border border-border mb-3">{course.level || 'Professional'}</span>
 
                                     <div>
                                         <h3 className="text-xl font-black text-foreground group-hover:text-primary transition-colors leading-tight mb-2">

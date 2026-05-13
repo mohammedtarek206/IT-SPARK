@@ -4,7 +4,6 @@ import Course from '@/models/Course';
 import Lesson from '@/models/Lesson';
 import Module from '@/models/Module';
 import User from '@/models/User';
-import Track from '@/models/Track';
 
 const sanitizeImageUrl = (url: any) => {
     if (!url || typeof url !== 'string') return null;
@@ -39,28 +38,8 @@ export async function GET() {
             }
         }));
 
-        // 2. Fetch latest videos from Tracks (Admin)
-        const tracks = await Track.find({ isActive: true })
-            .sort({ updatedAt: -1 })
-            .limit(4)
-            .lean();
-
         let allVideos: any[] = [];
         
-        // Add track lessons
-        tracks.forEach((track: any) => {
-            if (track.lessons && Array.isArray(track.lessons)) {
-                const trackImage = sanitizeImageUrl(track.imageUrl);
-                const lessonsWithMeta = track.lessons.map((lesson: any) => ({
-                    ...lesson,
-                    _id: track._id + '-' + lesson.title,
-                    trackTitle: track.title,
-                    trackImage: trackImage,
-                    createdAt: track.createdAt
-                }));
-                allVideos = [...allVideos, ...lessonsWithMeta];
-            }
-        });
 
         // Add course lessons
         const courseLessons = await Lesson.find({ type: 'video' })
@@ -85,8 +64,8 @@ export async function GET() {
                     videoUrl: lesson.contentUrl || '',
                     duration: lesson.duration || '0:00',
                     _id: lesson._id.toString(),
-                    trackTitle: lesson.module.course.title,
-                    trackImage: sanitizeImageUrl(lesson.module.course.thumbnail),
+                    courseTitle: lesson.module.course.title,
+                    courseImage: sanitizeImageUrl(lesson.module.course.thumbnail),
                     createdAt: lesson.createdAt
                 });
             }

@@ -10,7 +10,7 @@ import {
     FiMenu, FiX, FiFileText, FiGrid, FiAward,
     FiDollarSign, FiBarChart2, FiBell, FiSettings,
     FiShield, FiCreditCard, FiUserCheck, FiPackage,
-    FiChevronRight, FiImage, FiHeart
+    FiChevronRight, FiImage, FiHeart, FiBriefcase
 } from 'react-icons/fi';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -65,12 +65,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ]
         },
         {
-            label: 'Content',
+            label: 'Education',
             items: [
                 { title: 'Courses', icon: FiBook, href: '/admin/courses-control' },
-                { title: 'Tracks', icon: FiGrid, href: '/admin/tracks' },
                 { title: 'Exams', icon: FiFileText, href: '/admin/exams' },
                 { title: 'Results', icon: FiAward, href: '/admin/results' },
+            ]
+        },
+        {
+            label: 'Career',
+            items: [
+                { title: 'Manage Jobs', icon: FiBriefcase, href: '/admin/jobs' },
+                { title: 'Applications', icon: FiFileText, href: '/admin/jobs/applications' },
             ]
         },
         {

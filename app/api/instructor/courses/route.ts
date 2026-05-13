@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
 
         await connectDB();
         const courses = await Course.find({ instructor: user.userId })
-            .populate('track', 'title')
             .sort({ createdAt: -1 });
 
         return NextResponse.json(courses, { status: 200 });

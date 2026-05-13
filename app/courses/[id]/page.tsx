@@ -8,6 +8,25 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 
+// Helper to convert Drive links or YouTube links to embeddable URLs
+const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    if (url.includes('drive.google.com')) {
+        const idMatch = url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
+        if (idMatch && idMatch[1]) {
+            return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+        }
+    }
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        if (match && match[2].length === 11) {
+            return `https://www.youtube.com/embed/${match[2]}`;
+        }
+    }
+    return url;
+};
+
 export default function CourseDetailsPage() {
     const params = useParams();
     const router = useRouter();
@@ -24,6 +43,7 @@ export default function CourseDetailsPage() {
     const [visaData, setVisaData] = useState({ number: '', expiry: '', cvv: '' });
     const [uploading, setUploading] = useState(false);
     const [enrollmentStatus, setEnrollmentStatus] = useState<'none' | 'pending' | 'enrolled'>('none');
+    const [showVideo, setShowVideo] = useState(false);
 
     useEffect(() => {
         const fetchCourse = async () => {
@@ -196,13 +216,21 @@ export default function CourseDetailsPage() {
                         className="relative hidden lg:block"
                     >
                         <div className="glass rounded-[2rem] p-4 border border-border shadow-2xl relative z-10 w-full max-w-md mx-auto">
-                            <div className="aspect-video w-full relative rounded-xl overflow-hidden mb-6 group cursor-pointer">
+                            <div 
+                                className="aspect-video w-full relative rounded-xl overflow-hidden mb-6 group cursor-pointer"
+                                onClick={() => course.previewVideoUrl && setShowVideo(true)}
+                            >
                                 <img src={course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800'} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors group-hover:bg-black/30">
                                     <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 transform group-hover:scale-110 transition-transform">
                                         <FiPlayCircle className="text-4xl text-white" />
                                     </div>
                                 </div>
+                                {course.previewVideoUrl && (
+                                    <div className="absolute bottom-4 left-4 bg-primary text-white text-[8px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded">
+                                        Preview Available
+                                    </div>
+                                )}
                             </div>
 
                             <div className="px-4 pb-4">
@@ -448,6 +476,40 @@ export default function CourseDetailsPage() {
                             <div className="mt-8 text-center">
                                 <p className="text-xs text-foreground/20">Secure payments powered by IT-SPARK</p>
                             </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Video Preview Modal */}
+            <AnimatePresence>
+                {showVideo && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowVideo(false)}
+                            className="absolute inset-0 bg-black/95 backdrop-blur-xl"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="relative w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10"
+                        >
+                            <button
+                                onClick={() => setShowVideo(false)}
+                                className="absolute top-6 right-6 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-primary transition-all"
+                            >
+                                <FiX size={24} />
+                            </button>
+                            <iframe
+                                src={getEmbedUrl(course.previewVideoUrl)}
+                                className="w-full h-full"
+                                allow="autoplay; fullscreen"
+                                allowFullScreen
+                            />
                         </motion.div>
                     </div>
                 )}

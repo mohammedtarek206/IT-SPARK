@@ -29,7 +29,6 @@ export default function MyCoursesPage() {
                             instructor: 'Instructor', // Can be populated if needed
                             progress: c.progress?.progressPercentage || 0,
                             thumbnail: c.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800',
-                            track: c.track?.title || 'Professional',
                             status: c.progress?.progressPercentage === 100 ? 'completed' : (c.progress?.progressPercentage > 0 ? 'in-progress' : 'not-started'),
                             lastAccessed: c.progress?.lastAccessed ? new Date(c.progress.lastAccessed).toLocaleDateString() : 'Never'
                         })));
@@ -131,9 +130,7 @@ export default function MyCoursesPage() {
                                     img.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800';
                                 }}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
-                                <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-black/50 px-3 py-1.5 rounded-lg backdrop-blur-md border border-white/10">{course.track}</span>
-                            </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
 
                             {course.progress < 100 && (
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">

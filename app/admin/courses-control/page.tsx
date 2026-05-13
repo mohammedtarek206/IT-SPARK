@@ -10,7 +10,6 @@ interface Course {
     title: string;
     description: string;
     instructor: any;
-    track: any;
     price: number;
     isFree: boolean;
     isActive: boolean;
@@ -27,7 +26,6 @@ function EditModal({
     onClose
 }: {
     course: Partial<Course>;
-    tracks: any[];
     instructors: any[];
     onSave: (c: any) => Promise<void>;
     onClose: () => void;
@@ -36,7 +34,6 @@ function EditModal({
         title: course.title || '',
         description: course.description || '',
         instructor: (course && course.instructor && typeof course.instructor === 'object') ? course.instructor._id : (course ? course.instructor : '') || '',
-        track: (course && course.track && typeof course.track === 'object') ? course.track._id : (course ? course.track : '') || '',
         price: course?.price || 0,
         isFree: course?.isFree || false,
         isActive: course?.isActive || false,
@@ -106,20 +103,6 @@ function EditModal({
                                 ))}
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-2">Track</label>
-                            <select
-                                required
-                                value={form.track}
-                                onChange={e => setForm(f => ({ ...f, track: e.target.value }))}
-                                className="w-full bg-surface border border-border rounded-xl p-3 text-foreground text-sm font-medium focus:outline-none focus:border-primary/50 transition-colors"
-                            >
-                                <option value="" disabled className="bg-background text-foreground/40">Select Track</option>
-                                {tracks.map(t => (
-                                    <option key={t._id} value={t._id} className="bg-background">{t.title}</option>
-                                ))}
-                            </select>
-                        </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -176,7 +159,6 @@ function EditModal({
 
 export default function CoursesControlPage() {
     const [courses, setCourses] = useState<Course[]>([]);
-    const [tracks, setTracks] = useState<any[]>([]);
     const [instructors, setInstructors] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -189,14 +171,12 @@ export default function CoursesControlPage() {
     const fetchInitialData = async () => {
         setLoading(true);
         try {
-            const [coursesRes, tracksRes, instructorsRes] = await Promise.all([
+            const [coursesRes, instructorsRes] = await Promise.all([
                 fetch('/api/admin/courses', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }),
-                fetch('/api/tracks'),
                 fetch('/api/admin/instructors', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
             ]);
 
             if (coursesRes.ok) setCourses(await coursesRes.json());
-            if (tracksRes.ok) setTracks(await tracksRes.json());
             if (instructorsRes.ok) setInstructors(await instructorsRes.json());
         } catch (err) {
             console.error('Failed to fetch data:', err);
@@ -274,7 +254,6 @@ export default function CoursesControlPage() {
                 {editingCourse && (
                     <EditModal
                         course={editingCourse}
-                        tracks={tracks}
                         instructors={instructors}
                         onSave={handleSaveCourse}
                         onClose={() => setEditingCourse(null)}
@@ -320,7 +299,6 @@ export default function CoursesControlPage() {
                                 <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${course.isActive ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20'}`}>
                                     {course?.isActive ? 'Active' : 'Draft/Paused'}
                                 </span>
-                                <span className="text-[10px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">{(course?.track && typeof course.track === 'object') ? course.track.title : 'No Track'}</span>
                             </div>
                             <h3 className="text-white font-black text-base truncate">{course?.title || 'Untitled Course'}</h3>
                             <p className="text-gray-500 text-xs font-bold mt-0.5">By {(course?.instructor && typeof course.instructor === 'object') ? course.instructor.name : 'Unknown'}</p>

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import Track from '@/models/Track';
+import Course from '@/models/Course';
 import Payment from '@/models/Payment';
+import JobApplication from '@/models/JobApplication';
 import { authenticateRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -15,10 +16,10 @@ export async function GET(request: NextRequest) {
         await connectDB();
 
         // Basic Counts
-        const [studentCount, instructorCount, trackCount] = await Promise.all([
+        const [studentCount, instructorCount, courseCount] = await Promise.all([
             User.countDocuments({ role: 'student' }),
             User.countDocuments({ role: 'instructor' }),
-            Track.countDocuments({})
+            Course.countDocuments({})
         ]);
 
         // Revenue Calculation
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
         const activeSubscribers = await User.countDocuments({
             role: 'student',
             status: 'active',
-            enrolledTracks: { $not: { $size: 0 } }
+            enrolledCourses: { $not: { $size: 0 } }
         });
 
         // Monthly Trends (Last 12 months)
@@ -83,11 +84,17 @@ export async function GET(request: NextRequest) {
             .limit(2)
             .populate('user', 'name');
 
+        const recentApplications = await JobApplication.find()
+            .sort({ appliedAt: -1 })
+            .limit(5)
+            .populate('job', 'title')
+            .populate('user', 'name email');
+
         return NextResponse.json({
             stats: {
                 students: studentCount,
                 instructors: instructorCount,
-                courses: trackCount,
+                courses: courseCount,
                 revenue: totalRevenue,
                 monthRevenue,
                 activeSubscriptions: activeSubscribers
@@ -114,7 +121,8 @@ export async function GET(request: NextRequest) {
                 item: 'Platform Access',
                 time: p.createdAt,
                 status: 'success'
-            }))].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5)
+            }))].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5),
+            recentApplications: recentApplications
         }, { status: 200 });
 
     } catch (error: any) {

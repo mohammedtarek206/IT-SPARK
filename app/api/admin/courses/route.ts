@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
         await connectDB();
         const courses = await Course.find({})
             .populate('instructor', 'name email')
-            .populate('track', 'title')
             .sort({ createdAt: -1 });
 
         return NextResponse.json(courses, { status: 200 });
@@ -37,7 +36,7 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         // Basic validation
-        if (!data.title || !data.instructor || !data.track) {
+        if (!data.title || !data.instructor) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 

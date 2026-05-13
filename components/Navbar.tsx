@@ -12,7 +12,7 @@ import {
   FiMenu, FiX, FiSun, FiMoon, FiUser, FiLogOut,
   FiSearch, FiBell, FiChevronDown, FiBook, FiAward,
   FiLayout, FiPieChart, FiDollarSign, FiPlusCircle,
-  FiHome, FiMail, FiInfo, FiTag
+  FiHome, FiMail, FiInfo, FiTag, FiBriefcase
 } from 'react-icons/fi';
 
 export default function Navbar() {
@@ -102,16 +102,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: t('home'), icon: FiHome },
-    {
-      label: t('tracks'),
-      dropdown: tracks.length > 0 ? tracks : [
-        { href: '/tracks/web', label: t('track_web') },
-        { href: '/tracks/mobile', label: t('track_mobile') },
-        { href: '/tracks/cyber', label: t('track_cyber') },
-        { href: '/tracks/ai', label: t('track_ai') },
-        { href: '/tracks/soft-skills', label: t('track_freelancing') },
-      ]
-    },
+    { href: '/jobs', label: t('jobs') || (lang === 'ar' ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
     { href: '/courses', label: t('courses'), icon: FiBook },
     { href: '/pricing', label: t('pricing'), icon: FiTag },
     {

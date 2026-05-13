@@ -15,8 +15,8 @@ interface VideoCardProps {
         videoUrl?: string;
         duration?: string;
         createdAt: string;
-        trackTitle?: string;
-        trackImage?: string;
+        courseTitle?: string;
+        courseImage?: string;
     };
 }
 
@@ -47,11 +47,11 @@ const VideoCard: React.FC<VideoCardProps> = ({ video }) => {
             {/* Video Thumbnail with Play Button */}
             <div className="relative aspect-video w-full overflow-hidden bg-slate-200 dark:bg-slate-800">
                 <Image
-                    src={getDriveDirectLink(video.trackImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop')}
+                    src={getDriveDirectLink(video.courseImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop')}
                     alt={video.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    unoptimized={video.trackImage?.includes('drive.google.com') || !video.trackImage}
+                    unoptimized={video.courseImage?.includes('drive.google.com') || !video.courseImage}
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
                     <div className="bg-primary text-white p-4 rounded-full shadow-lg transform group-hover:scale-110 transition-transform">
@@ -67,12 +67,12 @@ const VideoCard: React.FC<VideoCardProps> = ({ video }) => {
                     </div>
                 )}
 
-                {/* Track Name Badge */}
-                {video.trackTitle && (
+                {/* Course Name Badge */}
+                {video.courseTitle && (
                     <div className="absolute top-3 left-3 max-w-[150px]">
                         <div className="bg-primary/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1.5 truncate">
                             <FaTv size={10} />
-                            {video.trackTitle}
+                            {video.courseTitle}
                         </div>
                     </div>
                 )}

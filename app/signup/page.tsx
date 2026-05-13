@@ -25,7 +25,6 @@ export default function SignUpPage() {
         cvUrl: '',
         imageUrl: '',
         targetGoal: 'job',
-        interestedTrack: '',
         acceptTerms: false
     });
     const [error, setError] = useState('');

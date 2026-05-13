@@ -3,7 +3,6 @@ import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import Progress from '@/models/Progress';
 import Course from '@/models/Course';
-import Track from '@/models/Track';
 import { authenticateRequest } from '@/lib/auth';
 
 // GET: Return user's enrolled courses, tracks and progress per course
@@ -16,11 +15,7 @@ export async function GET(request: NextRequest) {
 
         await connectDB();
         const user = await User.findById(payload.userId)
-            .populate({
-                path: 'enrolledCourses',
-                populate: { path: 'track', select: 'title' }
-            })
-            .populate('enrolledTracks');
+            .populate('enrolledCourses');
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
@@ -45,17 +40,10 @@ export async function GET(request: NextRequest) {
             title: c.title,
             description: c.description,
             thumbnail: c.thumbnail,
-            track: c.track?.title || 'Professional',
             progress: progressMap[c._id.toString()] || null,
         }));
 
-        const tracks = (user.enrolledTracks as any[])?.map((t) => ({
-            _id: t._id,
-            title: t.title,
-            description: t.description,
-        }));
-
-        return NextResponse.json({ courses, tracks }, { status: 200 });
+        return NextResponse.json({ courses }, { status: 200 });
     } catch (error: any) {
         console.error('Progress GET error:', error);
         return NextResponse.json({ error: 'Failed to fetch progress' }, { status: 500 });

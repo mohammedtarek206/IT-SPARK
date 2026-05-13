@@ -3,7 +3,6 @@ import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import Module from '@/models/Module';
 import Lesson from '@/models/Lesson';
-import Track from '@/models/Track';
 import Progress from '@/models/Progress';
 import Exam from '@/models/Exam';
 import { authenticateRequest } from '@/lib/auth';
@@ -21,7 +20,7 @@ export async function GET(
         await connectDB();
         const courseId = params.id;
 
-        const course = await Course.findById(courseId).populate('track');
+        const course = await Course.findById(courseId);
         if (!course) {
             return NextResponse.json({ error: 'Course not found' }, { status: 404 });
         }
@@ -32,12 +31,7 @@ export async function GET(
 
         // Fetch modules and exams for this course
         const modules = await Module.find({ course: courseId }).sort({ order: 1 });
-        const exams = await Exam.find({
-            $or: [
-                { courseId },
-                { trackId: course.track?._id || course.track }
-            ]
-        }).select('_id title description duration passScore');
+        const exams = await Exam.find({ courseId }).select('_id title description duration passScore');
 
         const modulesWithLessons = await Promise.all(
             modules.map(async (mod: any) => {
@@ -75,33 +69,15 @@ export async function GET(
             });
         }
 
-        return NextResponse.json({ title: course.title, modules: modulesWithLessons }, { status: 200 });
-
-        // 2. If no modules, fallback to track lessons if available
-        if (course.track && course.track.lessons && course.track.lessons.length > 0) {
-            const trackModules = [
-                {
-                    id: 'm1',
-                    title: 'Course Content',
-                    lessons: course.track.lessons.map((l: any, idx: number) => ({
-                        id: `l${idx}`,
-                        title: l.title,
-                        type: 'video', // Tracks currently have videoUrl
-                        duration: l.duration || '0:00',
-                        contentUrl: l.videoUrl,
-                        description: l.description,
-                        completed: completedLessonIds.includes(`l${idx}`)
-                    }))
-                }
-            ];
-            return NextResponse.json({ title: course.title, modules: trackModules }, { status: 200 });
+        // 3. Last fallback: empty content
+        if (modulesWithLessons.length === 0) {
+            return NextResponse.json({
+                title: course.title,
+                modules: [{ id: 'm0', title: 'Getting Started', lessons: [] }]
+            }, { status: 200 });
         }
 
-        // 3. Last fallback: empty content
-        return NextResponse.json({
-            title: course.title,
-            modules: [{ id: 'm0', title: 'Getting Started', lessons: [] }]
-        }, { status: 200 });
+        return NextResponse.json({ title: course.title, modules: modulesWithLessons }, { status: 200 });
 
     } catch (error: any) {
         console.error('Course Content API error:', error);

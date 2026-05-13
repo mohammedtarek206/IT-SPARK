@@ -15,7 +15,6 @@ export default function PaymentPage() {
 
     const plans = [
         { id: 'pro', name: 'Pro Student', price: 29, period: '/month' },
-        { id: 'master', name: 'Track Master', price: 199, period: '/track (one-time)' }
     ];
 
     const handlePayment = (e: React.FormEvent) => {

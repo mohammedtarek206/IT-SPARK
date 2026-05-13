@@ -91,9 +91,8 @@ export default function StudentPurchasesPage() {
                 <div className="space-y-4">
                     {payments.map((payment, i) => {
                         const status = getStatusConfig(payment.status);
-                        const isCourse = !!payment.course;
-                        const itemTitle = isCourse ? payment.course?.title : payment.track?.title;
-                        const itemIcon = isCourse ? <FiPlayCircle /> : <FiPackage />;
+                        const itemTitle = payment.course?.title;
+                        const itemIcon = <FiPlayCircle />;
 
                         return (
                             <motion.div
@@ -110,7 +109,7 @@ export default function StudentPurchasesPage() {
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
                                             <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40 bg-foreground/5 px-2 py-0.5 rounded">
-                                                {isCourse ? (lang === 'ar' ? 'كورس' : 'Course') : (lang === 'ar' ? 'تراك' : 'Track')}
+                                                {lang === 'ar' ? 'كورس' : 'Course'}
                                             </span>
                                             <span className="text-xs font-bold text-foreground/40">
                                                 {new Date(payment.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}

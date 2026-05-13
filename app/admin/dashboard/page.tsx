@@ -7,7 +7,7 @@ import {
     FiUsers, FiBook, FiDollarSign, FiTrendingUp,
     FiUserCheck, FiCreditCard, FiBarChart2, FiAward,
     FiActivity, FiArrowUpRight, FiArrowDownRight,
-    FiArrowRight, FiStar, FiCheckCircle, FiClock
+    FiArrowRight, FiStar, FiCheckCircle, FiClock, FiBriefcase, FiPhone, FiCreditCard as FiId
 } from 'react-icons/fi';
 
 const StatCard = ({ title, value, icon: Icon, color, bg, change, delay = 0 }: any) => (
@@ -42,6 +42,7 @@ export default function AdminDashboard() {
     const [charts, setCharts] = useState<any>(null);
     const [topStudents, setTopStudents] = useState<any[]>([]);
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
+    const [recentApplications, setRecentApplications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -58,6 +59,7 @@ export default function AdminDashboard() {
                     setCharts(data.charts);
                     setTopStudents(data.topStudents);
                     setRecentActivity(data.recentActivity);
+                    setRecentApplications(data.recentApplications || []);
                 }
             } catch (err) {
                 console.error('Failed to fetch stats:', err);
@@ -75,6 +77,7 @@ export default function AdminDashboard() {
         { label: 'Manage Students', href: '/admin/students', icon: FiUsers, color: 'text-green-400 border-green-400/20 bg-green-400/5 hover:bg-green-400/10' },
         { label: 'View Payments', href: '/admin/payments', icon: FiCreditCard, color: 'text-yellow-400 border-yellow-400/20 bg-yellow-400/5 hover:bg-yellow-400/10' },
         { label: 'Exam Results', href: '/admin/results', icon: FiAward, color: 'text-orange-400 border-orange-400/20 bg-orange-400/5 hover:bg-orange-400/10' },
+        { label: 'Job Apps', href: '/admin/jobs/applications', icon: FiBriefcase, color: 'text-rose-400 border-rose-400/20 bg-rose-400/5 hover:bg-rose-400/10' },
         { label: 'Analytics', href: '/admin/analytics', icon: FiBarChart2, color: 'text-purple-400 border-purple-400/20 bg-purple-400/5 hover:bg-purple-400/10' },
     ];
 
@@ -157,7 +160,7 @@ export default function AdminDashboard() {
                     className="glass rounded-3xl border border-border overflow-hidden bg-surface shadow-sm"
                 >
                     <div className="p-6 border-b border-border flex items-center justify-between bg-foreground/[0.02]">
-                        <h3 className="text-lg font-black text-foreground uppercase tracking-tighter">Top Tracks</h3>
+                        <h3 className="text-lg font-black text-foreground uppercase tracking-tighter">Top Courses</h3>
                         <Link href="/admin/courses-control" className="text-[10px] font-black text-primary hover:text-primary/80 uppercase tracking-widest transition-colors flex items-center gap-1 group">
                             Full Control <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
                         </Link>
@@ -177,6 +180,67 @@ export default function AdminDashboard() {
                                 <span className="text-md font-black text-primary bg-primary/10 px-3 py-1.5 rounded-2xl border border-primary/20 whitespace-nowrap">{student.points} PTS</span>
                             </div>
                         ))}
+                    </div>
+                </motion.div>
+
+                {/* Latest Job Applications */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="glass rounded-3xl border border-border overflow-hidden bg-surface shadow-sm lg:col-span-2"
+                >
+                    <div className="p-6 border-b border-border flex items-center justify-between bg-foreground/[0.02]">
+                        <h3 className="text-lg font-black text-foreground uppercase tracking-tighter">Latest Job Applications</h3>
+                        <Link href="/admin/jobs/applications" className="text-[10px] font-black text-primary hover:text-primary/80 uppercase tracking-widest transition-colors flex items-center gap-1 group">
+                            View All <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
+                    <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+                        <div className="divide-y divide-border">
+                            {recentApplications.slice(0, 3).map((app, i) => (
+                                <div key={i} className="flex items-center gap-4 p-5 hover:bg-foreground/[0.02] transition-colors">
+                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black shrink-0">
+                                        {app.fullName?.charAt(0)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm text-foreground font-black uppercase tracking-tighter truncate">{app.fullName}</p>
+                                        <p className="text-[10px] text-primary font-black uppercase tracking-widest truncate">{app.job?.title}</p>
+                                        <div className="flex items-center gap-3 mt-2">
+                                            <span className="text-[9px] font-black text-gray-500 flex items-center gap-1">
+                                                <FiPhone className="text-[8px]" /> {app.phone}
+                                            </span>
+                                            <span className="text-[9px] font-black text-gray-500 flex items-center gap-1">
+                                                <FiId className="text-[8px]" /> {app.nationalId}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <span className="text-[8px] font-black text-green-500 bg-green-500/10 px-2 py-1 rounded border border-green-500/20 uppercase tracking-widest">
+                                            New
+                                        </span>
+                                        <p className="text-[8px] text-foreground/30 font-black mt-2 uppercase">
+                                            {new Date(app.appliedAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                            {recentApplications.length === 0 && (
+                                <div className="p-10 text-center text-gray-500 font-bold uppercase tracking-widest text-[10px]">
+                                    No new applications
+                                </div>
+                            )}
+                        </div>
+                        <div className="hidden md:block p-8 bg-foreground/[0.01] flex flex-col items-center justify-center text-center">
+                            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 border border-primary/20">
+                                <FiBriefcase className="text-2xl" />
+                            </div>
+                            <h4 className="text-sm font-black text-foreground uppercase mb-1">Talent Pipeline</h4>
+                            <p className="text-[10px] text-foreground/40 font-bold max-w-[200px] mb-6">Review your candidates and grow your partner network.</p>
+                            <Link href="/admin/jobs/applications" className="px-6 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
+                                Review Queue
+                            </Link>
+                        </div>
                     </div>
                 </motion.div>
             </div>
