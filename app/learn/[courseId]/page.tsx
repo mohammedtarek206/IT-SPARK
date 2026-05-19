@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fi';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { getDriveEmbedLink } from '@/lib/media';
 
 export default function LearnCoursePage() {
     const { t, lang } = useLanguage();
@@ -139,6 +140,16 @@ export default function LearnCoursePage() {
                                         ></iframe>
                                         {/* Subtle overlay to prevent clicking top title/logo if possible, but keeping controls */}
                                         <div className="absolute top-0 left-0 right-0 h-12 z-20 pointer-events-none" />
+                                    </>
+                                ) : currentLessonData?.contentUrl && currentLessonData.contentUrl.includes('drive.google.com') ? (
+                                    <>
+                                        <iframe
+                                            className="w-full h-full relative z-10"
+                                            src={getDriveEmbedLink(currentLessonData.contentUrl)}
+                                            title={currentLessonData.title}
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
                                     </>
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-white/5">

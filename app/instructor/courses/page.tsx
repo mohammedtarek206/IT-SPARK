@@ -9,6 +9,8 @@ import {
     FiX, FiUsers, FiStar, FiClock
 } from 'react-icons/fi';
 import CourseBuilder from '@/components/instructor/CourseBuilder';
+import { getDriveDirectLink } from '@/lib/media';
+import CourseCardMedia from '@/components/CourseCardMedia';
 
 interface Course {
     id: number;
@@ -55,6 +57,12 @@ const initialCourses: Course[] = [
 
 // Course Preview Modal
 function CoursePreviewModal({ course, onClose }: { course: Course; onClose: () => void }) {
+    const isCourseActive = (course as any).isActive !== undefined ? (course as any).isActive : (course.status === 'active');
+    const courseLevel = (course as any).level || course.track || 'Professional';
+    const numStudents = (course as any).studentsEnrolled?.length || course.students || 0;
+    const numModules = Array.isArray(course.modules) ? course.modules.length : (course.modules || 0);
+    const numLessons = Array.isArray(course.modules) ? course.modules.reduce((a: number, m: any) => a + (m.lessons?.length || 0), 0) : (course.lessons || 0);
+
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <motion.div
@@ -63,22 +71,27 @@ function CoursePreviewModal({ course, onClose }: { course: Course; onClose: () =
                 exit={{ opacity: 0, y: 20 }}
                 className="glass rounded-[3rem] border border-border w-full max-w-2xl shadow-2xl overflow-hidden bg-surface"
             >
-                {/* Thumbnail */}
+                {/* Thumbnail / Video Stream */}
                 <div className="relative h-64 overflow-hidden">
-                    <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+                    <CourseCardMedia 
+                        thumbnail={course.thumbnail} 
+                        videoUrl={(course as any).previewVideoUrl}
+                        title={course.title}
+                        className="w-full h-full"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 p-3 bg-background/50 backdrop-blur-md hover:bg-background rounded-2xl text-foreground transition-all border border-border shadow-lg"
+                        className="absolute top-6 right-6 p-3 bg-background/50 backdrop-blur-md hover:bg-background rounded-2xl text-foreground transition-all border border-border shadow-lg z-20"
                     >
                         <FiX className="text-xl" />
                     </button>
-                    <div className="absolute bottom-6 left-8 right-8">
+                    <div className="absolute bottom-6 left-8 right-8 z-20">
                         <div className="flex items-center gap-3 mb-3">
-                            <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full border ${course.status === 'active' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'}`}>
-                                {course.status}
+                            <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full border ${isCourseActive ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'}`}>
+                                {isCourseActive ? 'active' : 'pending'}
                             </span>
-                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] bg-primary/10 px-3 py-1 rounded-full border border-primary/20">{course.track}</span>
+                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] bg-primary/10 px-3 py-1 rounded-full border border-primary/20">{courseLevel}</span>
                         </div>
                         <h2 className="text-2xl font-black text-foreground leading-tight tracking-tighter uppercase">{course.title}</h2>
                     </div>
@@ -88,17 +101,17 @@ function CoursePreviewModal({ course, onClose }: { course: Course; onClose: () =
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-4 px-8 py-6 border-b border-border bg-foreground/[0.02]">
                     <div className="flex flex-col items-center gap-1">
                         <FiUsers className="text-primary text-xl" />
-                        <span className="text-lg font-black text-foreground">{course.students}</span>
+                        <span className="text-lg font-black text-foreground">{numStudents}</span>
                         <span className="text-[8px] font-black uppercase text-foreground/30 tracking-widest">Students</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                         <FiLayers className="text-primary text-xl" />
-                        <span className="text-lg font-black text-foreground">{course.modules}</span>
+                        <span className="text-lg font-black text-foreground">{numModules}</span>
                         <span className="text-[8px] font-black uppercase text-foreground/30 tracking-widest">Modules</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                         <FiVideo className="text-primary text-xl" />
-                        <span className="text-lg font-black text-foreground">{course.lessons}</span>
+                        <span className="text-lg font-black text-foreground">{numLessons}</span>
                         <span className="text-[8px] font-black uppercase text-foreground/30 tracking-widest">Lessons</span>
                     </div>
                     {course.rating && (
@@ -240,8 +253,13 @@ export default function ManageCourses() {
                                 className="glass rounded-[2.5rem] border border-white/5 overflow-hidden group hover:border-primary/30 transition-all flex flex-col sm:flex-row"
                             >
                                 <div className="w-full sm:w-44 h-44 sm:h-full relative overflow-hidden shrink-0">
-                                    <img src={course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=250&fit=crop'} alt={course.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                    <div className="absolute top-3 left-3">
+                                    <CourseCardMedia 
+                                        thumbnail={course.thumbnail} 
+                                        videoUrl={course.previewVideoUrl}
+                                        title={course.title} 
+                                        className="w-full h-full"
+                                    />
+                                    <div className="absolute top-3 left-3 z-10">
                                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${course.isActive ? 'bg-green-500 text-white' : 'bg-yellow-500 text-dark'}`}>
                                             {course.isActive ? 'active' : 'pending/draft'}
                                         </span>

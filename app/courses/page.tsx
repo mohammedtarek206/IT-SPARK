@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { FiMonitor, FiSmartphone, FiShield, FiCpu, FiBriefcase, FiCheck, FiArrowRight, FiBook, FiClock } from 'react-icons/fi';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getDriveDirectLink } from '@/lib/media';
+import CourseCardMedia from '@/components/CourseCardMedia';
 
 export default function PublicCoursesPage() {
     const { t } = useLanguage();
@@ -142,20 +144,16 @@ export default function PublicCoursesPage() {
                                 transition={{ delay: i * 0.1 }}
                                 className="glass rounded-[2rem] border border-white/5 overflow-hidden group hover:border-primary/30 hover:shadow-[0_0_30px_rgba(var(--primary),0.15)] transition-all flex flex-col relative h-full cursor-pointer"
                             >
-                                <div className="w-full h-48 relative overflow-hidden shrink-0">
-                                    <img
-                                        src={course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800'}
-                                        alt={course.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                        onError={(e) => {
-                                            const img = e.target as HTMLImageElement;
-                                            img.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800';
-                                        }}
+                                <div className="w-full overflow-hidden shrink-0 relative">
+                                    <CourseCardMedia 
+                                        thumbnail={course.thumbnail} 
+                                        videoUrl={course.previewVideoUrl}
+                                        title={course.title} 
                                     />
-                                    <div className="absolute top-4 right-4 bg-primary/20 backdrop-blur-md rounded-xl px-3 py-1.5 border border-primary/20">
+                                    <div className="absolute top-4 right-4 bg-primary/20 backdrop-blur-md rounded-xl px-3 py-1.5 border border-primary/20 z-10">
                                         <span className="text-xs font-black text-primary">{course.isFree ? 'Free' : `${course.price} EGP`}</span>
                                     </div>
-                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent" />
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
                                 </div>
 
                                 <div className="p-6 flex-1 flex flex-col justify-between relative z-10 -mt-6">

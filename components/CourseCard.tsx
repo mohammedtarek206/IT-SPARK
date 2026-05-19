@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { FaUser, FaLayerGroup, FaMoneyBillWave, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { useLanguage } from '@/lib/LanguageContext';
 import { getDriveDirectLink } from '@/lib/media';
+import CourseCardMedia from './CourseCardMedia';
 
 interface CourseCardProps {
     course: {
@@ -14,6 +15,7 @@ interface CourseCardProps {
         title: string;
         description: string;
         thumbnail?: string;
+        previewVideoUrl?: string;
         instructor: {
             name: string;
             image?: string;
@@ -37,22 +39,15 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
             className="group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-100 dark:border-slate-800 flex flex-col h-full"
         >
             {/* Thumbnail */}
-            <div className="relative h-48 w-full overflow-hidden">
-                <Image
-                    src={getDriveDirectLink(course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop')}
-                    alt={course.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    unoptimized={course.thumbnail?.includes('drive.google.com') || !course.thumbnail}
+            <div className="relative w-full overflow-hidden shrink-0">
+                <CourseCardMedia 
+                    thumbnail={course.thumbnail} 
+                    videoUrl={course.previewVideoUrl}
+                    title={course.title} 
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                    <div className="bg-primary hover:bg-primary-dark text-white p-4 rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-100">
-                        {isRtl ? <FaArrowLeft size={20} /> : <FaArrowRight size={20} />}
-                    </div>
-                </div>
-
+                
                 {/* Level Badge */}
-                <div className="absolute top-3 right-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-xs font-bold px-3 py-1.5 rounded-full text-primary shadow-sm border border-primary/20">
+                <div className="absolute top-3 right-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-xs font-bold px-3 py-1.5 rounded-full text-primary shadow-sm border border-primary/20 z-10">
                     {course.level}
                 </div>
             </div>

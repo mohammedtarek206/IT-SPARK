@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import mongoose from 'mongoose';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }

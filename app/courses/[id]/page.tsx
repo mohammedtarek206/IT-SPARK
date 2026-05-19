@@ -8,14 +8,13 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 
+import { getDriveDirectLink, getDriveEmbedLink } from '@/lib/media';
+
 // Helper to convert Drive links or YouTube links to embeddable URLs
 const getEmbedUrl = (url: string) => {
     if (!url) return '';
     if (url.includes('drive.google.com')) {
-        const idMatch = url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-        if (idMatch && idMatch[1]) {
-            return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
-        }
+        return getDriveEmbedLink(url);
     }
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -220,7 +219,7 @@ export default function CourseDetailsPage() {
                                 className="aspect-video w-full relative rounded-xl overflow-hidden mb-6 group cursor-pointer"
                                 onClick={() => course.previewVideoUrl && setShowVideo(true)}
                             >
-                                <img src={course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800'} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <img src={getDriveDirectLink(course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800')} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors group-hover:bg-black/30">
                                     <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 transform group-hover:scale-110 transition-transform">
                                         <FiPlayCircle className="text-4xl text-white" />

@@ -10,7 +10,8 @@ import { useAuth } from '@/lib/AuthContext';
 import Link from 'next/link';
 
 export default function JobsPage() {
-    const { t, isRtl } = useLanguage();
+    const { t, lang } = useLanguage();
+    const isRtl = lang === 'ar';
     const { user, token } = useAuth();
     const [jobs, setJobs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);

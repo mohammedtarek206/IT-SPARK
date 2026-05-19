@@ -20,7 +20,6 @@ interface Course {
 
 function EditModal({
     course,
-    tracks,
     instructors,
     onSave,
     onClose

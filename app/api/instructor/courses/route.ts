@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import Module from '@/models/Module';
+
+export const dynamic = 'force-dynamic';
 import Lesson from '@/models/Lesson';
 import { authenticateRequest } from '@/lib/auth';
 

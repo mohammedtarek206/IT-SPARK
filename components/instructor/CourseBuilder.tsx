@@ -9,17 +9,8 @@ import {
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Helper to convert Google Drive share link to direct image link
-const getDirectDriveLink = (url: string) => {
-    if (!url) return '';
-    if (url.includes('drive.google.com')) {
-        const idMatch = url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-        if (idMatch && idMatch[1]) {
-            return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
-        }
-    }
-    return url;
-};
+import { getDriveDirectLink, getDriveEmbedLink } from '@/lib/media';
+import CourseCardMedia from '@/components/CourseCardMedia';
 
 interface Lesson {
     id: string;
@@ -186,6 +177,8 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
         thumbnail: null as File | null,
         thumbnailPreview: course?.thumbnail || '',
         imageUrl: course?.thumbnail || '',
+        price: course?.price || 0,
+        isFree: course?.isFree || false,
     });
     const thumbRef = useRef<HTMLInputElement>(null);
 
@@ -212,6 +205,8 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                     thumbnail: null,
                     thumbnailPreview: data.thumbnail || '',
                     imageUrl: data.thumbnail || '',
+                    price: data.price || 0,
+                    isFree: data.isFree || false,
                 });
                 if (data.modules) {
                     setModules(data.modules.map((m: any) => ({
@@ -292,7 +287,7 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
     };
 
     const handleImageUrlChange = (url: string) => {
-        const directLink = getDirectDriveLink(url);
+        const directLink = getDriveDirectLink(url);
         setCourseInfo(prev => ({ ...prev, imageUrl: url, thumbnailPreview: directLink }));
     };
 
@@ -312,6 +307,8 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                 previewVideoUrl: courseInfo.previewVideoUrl,
                 level: courseInfo.level,
                 thumbnail: courseInfo.thumbnailPreview,
+                price: courseInfo.isFree ? 0 : courseInfo.price,
+                isFree: courseInfo.isFree,
                 modules: modules.map(m => ({
                     title: m.title,
                     lessons: m.lessons.map(l => ({
@@ -515,20 +512,83 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                                     ))}
                                 </select>
                             </div>
+
+                            {/* Price & Free Course Options */}
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Price (EGP)</label>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        disabled={courseInfo.isFree}
+                                        value={courseInfo.isFree ? 0 : courseInfo.price}
+                                        onChange={e => setCourseInfo(p => ({ ...p, price: Number(e.target.value) }))}
+                                        className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm font-medium focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2 pt-6 pl-2">
+                                    <input
+                                        type="checkbox"
+                                        id="isFree"
+                                        checked={courseInfo.isFree}
+                                        onChange={e => setCourseInfo(p => ({ ...p, isFree: e.target.checked, price: e.target.checked ? 0 : p.price }))}
+                                        className="w-5 h-5 rounded border-white/10 bg-black/20 text-primary focus:ring-primary focus:ring-offset-black"
+                                    />
+                                    <label htmlFor="isFree" className="text-xs font-bold text-white cursor-pointer uppercase tracking-widest select-none">Free Course</label>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Preview Video */}
-                        <div>
-                            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Preview Video URL (Google Drive / YouTube)</label>
-                            <div className="relative">
-                                <FiVideo className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                                <input
-                                    value={courseInfo.previewVideoUrl}
-                                    onChange={e => setCourseInfo(p => ({ ...p, previewVideoUrl: e.target.value }))}
-                                    placeholder="Paste Drive link or YouTube URL..."
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl p-3 pl-10 text-white text-[10px] font-medium focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-600"
-                                />
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Preview Video URL (Google Drive / YouTube)</label>
+                                <div className="relative">
+                                    <FiVideo className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                    <input
+                                        value={courseInfo.previewVideoUrl}
+                                        onChange={e => setCourseInfo(p => ({ ...p, previewVideoUrl: e.target.value }))}
+                                        placeholder="Paste Drive link or YouTube URL..."
+                                        className="w-full bg-black/20 border border-white/10 rounded-xl p-3 pl-10 text-white text-[10px] font-medium focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-600"
+                                    />
+                                </div>
                             </div>
+
+                            {/* Live Video Preview Inside the Builder */}
+                            {courseInfo.previewVideoUrl && (
+                                <div className="relative rounded-2xl overflow-hidden aspect-video bg-black/50 border border-white/10 shadow-lg">
+                                    {courseInfo.previewVideoUrl.includes('drive.google.com') ? (
+                                        <iframe
+                                            src={getDriveEmbedLink(courseInfo.previewVideoUrl)}
+                                            className="w-full h-full border-none"
+                                            allow="autoplay; fullscreen"
+                                            allowFullScreen
+                                        />
+                                    ) : (courseInfo.previewVideoUrl.includes('youtube.com') || courseInfo.previewVideoUrl.includes('youtu.be')) ? (
+                                        (() => {
+                                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                                            const match = courseInfo.previewVideoUrl.match(regExp);
+                                            const embedId = (match && match[2].length === 11) ? match[2] : '';
+                                            return embedId ? (
+                                                <iframe
+                                                    src={`https://www.youtube.com/embed/${embedId}`}
+                                                    className="w-full h-full border-none"
+                                                    allow="autoplay; fullscreen"
+                                                    allowFullScreen
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">Invalid YouTube URL</div>
+                                            );
+                                        })()
+                                    ) : (
+                                        <video
+                                            src={courseInfo.previewVideoUrl}
+                                            controls
+                                            className="w-full h-full object-cover"
+                                        />
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Thumbnail */}
@@ -553,8 +613,13 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                                 <input ref={thumbRef} type="file" accept="image/*" className="hidden" onChange={handleThumbnailChange} />
                                 {courseInfo.thumbnailPreview ? (
                                     <div className="relative rounded-xl overflow-hidden h-32 group cursor-pointer" onClick={() => thumbRef.current?.click()}>
-                                        <img src={courseInfo.thumbnailPreview} alt="thumbnail" className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <CourseCardMedia 
+                                            thumbnail={courseInfo.thumbnailPreview} 
+                                            videoUrl={courseInfo.previewVideoUrl}
+                                            title={courseInfo.title || 'thumbnail'} 
+                                            className="h-full"
+                                        />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
                                             <span className="text-white text-xs font-black uppercase tracking-widest flex items-center gap-2"><FiEdit2 /> Change</span>
                                         </div>
                                     </div>

@@ -5,6 +5,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { motion } from 'framer-motion';
 import { FiPlayCircle, FiMoreVertical, FiCheckCircle, FiClock, FiStar, FiSearch, FiMonitor } from 'react-icons/fi';
 import Link from 'next/link';
+import { getDriveDirectLink } from '@/lib/media';
 
 export default function MyCoursesPage() {
     const { t } = useLanguage();
@@ -122,7 +123,7 @@ export default function MyCoursesPage() {
 
                         <div className="w-full h-48 relative overflow-hidden shrink-0">
                             <img
-                                src={course.thumbnail}
+                                src={getDriveDirectLink(course.thumbnail)}
                                 alt={course.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                 onError={(e) => {

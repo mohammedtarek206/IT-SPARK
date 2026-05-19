@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { FiPlayCircle, FiAward, FiClock, FiActivity, FiArrowRight, FiLoader } from 'react-icons/fi';
 import Link from 'next/link';
 import { useAuth } from '@/lib/AuthContext';
+import { getDriveDirectLink } from '@/lib/media';
 
 export default function StudentDashboardOverview() {
     const { t, lang } = useLanguage();
@@ -113,7 +114,7 @@ export default function StudentDashboardOverview() {
 
                                 <div className="w-full sm:w-48 h-48 sm:h-full relative overflow-hidden shrink-0">
                                     <img
-                                        src={course.thumbnail || 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=400&h=250&fit=crop'}
+                                        src={getDriveDirectLink(course.thumbnail || 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=400&h=250&fit=crop')}
                                         alt={course.title}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         onError={(e) => {

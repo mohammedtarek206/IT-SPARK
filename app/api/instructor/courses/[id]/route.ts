@@ -6,6 +6,8 @@ import Module from '@/models/Module';
 import Lesson from '@/models/Lesson';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const user = await authenticateRequest(request);

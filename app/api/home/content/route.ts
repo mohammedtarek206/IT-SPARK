@@ -5,6 +5,8 @@ import Lesson from '@/models/Lesson';
 import Module from '@/models/Module';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
+
 const sanitizeImageUrl = (url: any) => {
     if (!url || typeof url !== 'string') return null;
     // Ensure it's a valid relative path, absolute URL, or data URI
