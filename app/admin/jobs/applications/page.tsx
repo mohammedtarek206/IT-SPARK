@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FiUser, FiBriefcase, FiMail, FiDownload, FiClock, FiSearch, FiChevronRight, FiExternalLink } from 'react-icons/fi';
+import { FiUser, FiBriefcase, FiMail, FiDownload, FiClock, FiSearch, FiChevronRight, FiExternalLink, FiTrash2 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
 export default function AdminJobApplicationsPage() {
