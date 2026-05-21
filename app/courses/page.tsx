@@ -163,7 +163,7 @@ export default function PublicCoursesPage() {
                                         <h3 className="text-xl font-black text-foreground group-hover:text-primary transition-colors leading-tight mb-2">
                                             {course.title}
                                         </h3>
-                                        <p className="text-xs font-bold text-foreground/40">By {course.instructor?.name || 'Instructor'}</p>
+
                                     </div>
 
                                     <div className="flex justify-between items-center text-[10px] font-bold text-foreground/40 uppercase mt-6 pt-4 border-t border-border">

@@ -54,20 +54,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
 
             {/* Content */}
             <div className="p-5 flex flex-col flex-grow">
-                <div className="flex items-center gap-2 mb-3">
-                    <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-primary/20">
-                        <Image
-                            src={getDriveDirectLink((course.instructor as any).image || 'https://ui-avatars.com/api/?name=' + (course.instructor as any).name)}
-                            alt={(course.instructor as any).name}
-                            fill
-                            className="object-cover"
-                            unoptimized={(course.instructor as any).image?.includes('drive.google.com')}
-                        />
-                    </div>
-                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                        {(course.instructor as any).name}
-                    </span>
-                </div>
+
 
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 min-h-[3.5rem] group-hover:text-primary transition-colors">
                     {course.title}

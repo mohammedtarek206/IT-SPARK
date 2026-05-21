@@ -8,28 +8,30 @@ export async function POST(
     { params }: { params: { id: string } }
 ) {
     try {
-        const user = await authenticateRequest(request);
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
         const data = await request.json();
         await connectDB();
 
-        // Check if already applied
-        const existing = await JobApplication.findOne({ job: params.id, user: user.userId });
+        // Check if already applied using phone or email
+        const existing = await JobApplication.findOne({ 
+            job: params.id, 
+            $or: [{ phone: data.phone }, { email: data.email }]
+        });
+        
         if (existing) {
-            return NextResponse.json({ error: 'You have already applied for this job' }, { status: 400 });
+            return NextResponse.json({ error: 'You have already applied for this job with this phone or email' }, { status: 400 });
         }
         
         const application = new JobApplication({
             job: params.id,
-            user: user.userId,
             fullName: data.fullName,
             phone: data.phone,
-            nationalId: data.nationalId,
+            email: data.email,
+            university: data.university,
+            academicYear: data.academicYear,
+            major: data.major,
+            governorate: data.governorate,
             resumeUrl: data.resumeUrl,
-            coverLetter: data.coverLetter,
+            notes: data.notes,
         });
         await application.save();
 

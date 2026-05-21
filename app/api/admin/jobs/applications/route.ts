@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
         await connectDB();
         const applications = await JobApplication.find()
             .populate('job', 'title company')
-            .populate('user', 'name email')
             .sort({ appliedAt: -1 });
 
         return NextResponse.json(applications, { status: 200 });

@@ -21,9 +21,13 @@ export default function JobsPage() {
     const [formData, setFormData] = useState({
         fullName: '',
         phone: '',
-        nationalId: '',
+        email: '',
+        university: '',
+        academicYear: '',
+        major: '',
+        governorate: '',
         resumeUrl: '',
-        coverLetter: ''
+        notes: ''
     });
 
     useEffect(() => {
@@ -31,7 +35,8 @@ export default function JobsPage() {
             setFormData(prev => ({
                 ...prev,
                 fullName: user.name || '',
-                phone: user.phone || ''
+                phone: user.phone || '',
+                email: user.email || ''
             }));
         }
     }, [user]);
@@ -56,17 +61,13 @@ export default function JobsPage() {
 
     const handleApply = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) {
-            alert(isRtl ? 'يرجى تسجيل الدخول للتقديم' : 'Please login to apply');
-            return;
-        }
+
         setApplying(true);
         try {
             const res = await fetch(`/api/jobs/${selectedJob._id}/apply`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             });
@@ -79,9 +80,13 @@ export default function JobsPage() {
                     setFormData({
                         fullName: user?.name || '',
                         phone: user?.phone || '',
-                        nationalId: '',
+                        email: user?.email || '',
+                        university: '',
+                        academicYear: '',
+                        major: '',
+                        governorate: '',
                         resumeUrl: '',
-                        coverLetter: ''
+                        notes: ''
                     });
                 }, 3000);
             } else {
@@ -256,7 +261,7 @@ export default function JobsPage() {
                                                 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'الاسم الكامل' : 'Full Name'}</label>
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'الاسم الكامل' : 'Full Name'} *</label>
                                                         <input
                                                             required
                                                             value={formData.fullName}
@@ -267,7 +272,7 @@ export default function JobsPage() {
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'رقم الهاتف' : 'Phone Number'}</label>
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'رقم الهاتف' : 'Phone Number'} *</label>
                                                         <input
                                                             required
                                                             value={formData.phone}
@@ -278,20 +283,67 @@ export default function JobsPage() {
                                                     </div>
                                                 </div>
 
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'البريد الإلكتروني' : 'Email'}</label>
+                                                        <input
+                                                            type="email"
+                                                            value={formData.email}
+                                                            onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
+                                                            placeholder="example@mail.com"
+                                                        />
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'الكلية / المعهد' : 'University / Institute'} *</label>
+                                                        <input
+                                                            required
+                                                            value={formData.university}
+                                                            onChange={e => setFormData({ ...formData, university: e.target.value })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
+                                                            placeholder={isRtl ? 'اسم الكلية' : 'University name'}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'السنة الدراسية' : 'Academic Year'} *</label>
+                                                        <input
+                                                            required
+                                                            value={formData.academicYear}
+                                                            onChange={e => setFormData({ ...formData, academicYear: e.target.value })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
+                                                            placeholder={isRtl ? 'الفرقة...' : 'e.g. 3rd year'}
+                                                        />
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'التخصص' : 'Major'} *</label>
+                                                        <input
+                                                            required
+                                                            value={formData.major}
+                                                            onChange={e => setFormData({ ...formData, major: e.target.value })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
+                                                            placeholder={isRtl ? 'تخصصك' : 'Your major'}
+                                                        />
+                                                    </div>
+                                                </div>
+
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'الرقم القومي' : 'National ID'}</label>
+                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'المحافظة' : 'Governorate'} *</label>
                                                     <input
                                                         required
-                                                        maxLength={14}
-                                                        value={formData.nationalId}
-                                                        onChange={e => setFormData({ ...formData, nationalId: e.target.value })}
+                                                        value={formData.governorate}
+                                                        onChange={e => setFormData({ ...formData, governorate: e.target.value })}
                                                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
-                                                        placeholder="2900..."
+                                                        placeholder={isRtl ? 'القاهرة' : 'Cairo'}
                                                     />
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'رابط السيرة الذاتية (Google Drive / PDF)' : 'Resume Link (Google Drive / PDF)'}</label>
+                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'رابط السيرة الذاتية (Google Drive / PDF)' : 'Resume Link (Google Drive / PDF)'} *</label>
                                                     <input
                                                         required
                                                         value={formData.resumeUrl}
@@ -302,13 +354,13 @@ export default function JobsPage() {
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'رسالة تعريفية (اختياري)' : 'Cover Letter (Optional)'}</label>
+                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'ملاحظات (اختياري)' : 'Notes (Optional)'}</label>
                                                     <textarea
                                                         rows={3}
-                                                        value={formData.coverLetter}
-                                                        onChange={e => setFormData({ ...formData, coverLetter: e.target.value })}
+                                                        value={formData.notes}
+                                                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all resize-none"
-                                                        placeholder={isRtl ? 'لماذا أنت مناسب لهذه الوظيفة؟' : 'Why are you a good fit for this role?'}
+                                                        placeholder={isRtl ? 'أي معلومات إضافية؟' : 'Any additional info?'}
                                                     />
                                                 </div>
 

@@ -184,17 +184,7 @@ export default function CourseDetailsPage() {
                         </p>
 
                         <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-border">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center border border-border">
-                                    <span className="text-foreground font-black text-xs uppercase tracking-widest">
-                                        {course.instructor?.name?.charAt(0) || 'A'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest leading-none mb-1">Created By</p>
-                                    <p className="text-sm font-bold text-foreground">{course.instructor?.name || 'Instructor'}</p>
-                                </div>
-                            </div>
+
                             <div className="flex items-center gap-2 text-foreground/40 text-sm font-bold">
                                 <FiClock /> {course.hours || 0} Hours
                             </div>

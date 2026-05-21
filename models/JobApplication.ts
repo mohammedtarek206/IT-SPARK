@@ -2,29 +2,35 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IJobApplication extends Document {
     job: mongoose.Types.ObjectId;
-    user: mongoose.Types.ObjectId;
     fullName: string;
     phone: string;
-    nationalId: string;
+    email?: string;
+    university: string;
+    academicYear: string;
+    major: string;
+    governorate: string;
     resumeUrl: string;
-    coverLetter?: string;
-    status: 'Pending' | 'Reviewed' | 'Shortlisted' | 'Rejected' | 'Accepted';
+    notes?: string;
+    status: 'New' | 'Reviewed' | 'Interview' | 'Accepted' | 'Rejected';
     appliedAt: Date;
 }
 
 const JobApplicationSchema: Schema = new Schema(
     {
         job: { type: Schema.Types.ObjectId, ref: 'Job', required: true },
-        user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         fullName: { type: String, required: true },
         phone: { type: String, required: true },
-        nationalId: { type: String, required: true },
+        email: { type: String },
+        university: { type: String, required: true },
+        academicYear: { type: String, required: true },
+        major: { type: String, required: true },
+        governorate: { type: String, required: true },
         resumeUrl: { type: String, required: true },
-        coverLetter: { type: String },
+        notes: { type: String },
         status: {
             type: String,
-            enum: ['Pending', 'Reviewed', 'Shortlisted', 'Rejected', 'Accepted'],
-            default: 'Pending',
+            enum: ['New', 'Reviewed', 'Interview', 'Accepted', 'Rejected'],
+            default: 'New',
         },
     },
     {
