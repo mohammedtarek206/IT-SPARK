@@ -103,6 +103,7 @@ export default function Navbar() {
   const navLinks = [
     { href: '/', label: t('home'), icon: FiHome },
     { href: '/jobs', label: t('jobs') || (lang === 'ar' ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
+    { href: '/training-courses', label: lang === 'ar' ? 'التدريبات' : 'Training', icon: FiAward },
     { href: '/courses', label: t('courses'), icon: FiBook },
     { href: '/pricing', label: t('pricing'), icon: FiTag },
     {

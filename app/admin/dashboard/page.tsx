@@ -43,6 +43,7 @@ export default function AdminDashboard() {
     const [topStudents, setTopStudents] = useState<any[]>([]);
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
     const [recentApplications, setRecentApplications] = useState<any[]>([]);
+    const [recentCourseRegistrations, setRecentCourseRegistrations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -60,6 +61,7 @@ export default function AdminDashboard() {
                     setTopStudents(data.topStudents);
                     setRecentActivity(data.recentActivity);
                     setRecentApplications(data.recentApplications || []);
+                    setRecentCourseRegistrations(data.recentCourseRegistrations || []);
                 }
             } catch (err) {
                 console.error('Failed to fetch stats:', err);
@@ -239,6 +241,64 @@ export default function AdminDashboard() {
                             <p className="text-[10px] text-foreground/40 font-bold max-w-[200px] mb-6">Review your candidates and grow your partner network.</p>
                             <Link href="/admin/jobs/applications" className="px-6 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
                                 Review Queue
+                            </Link>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Latest Course Requests */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    className="glass rounded-3xl border border-border overflow-hidden bg-surface shadow-sm lg:col-span-2"
+                >
+                    <div className="p-6 border-b border-border flex items-center justify-between bg-foreground/[0.02]">
+                        <h3 className="text-lg font-black text-foreground uppercase tracking-tighter">Latest Course Requests</h3>
+                        <Link href="/admin/training-registrations" className="text-[10px] font-black text-primary hover:text-primary/80 uppercase tracking-widest transition-colors flex items-center gap-1 group">
+                            View All <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
+                    <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+                        <div className="divide-y divide-border">
+                            {recentCourseRegistrations.slice(0, 3).map((reg, i) => (
+                                <div key={i} className="flex items-center gap-4 p-5 hover:bg-foreground/[0.02] transition-colors">
+                                    <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 font-black shrink-0">
+                                        <FiBook className="text-xl" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm text-foreground font-black uppercase tracking-tighter truncate">{reg.full_name}</p>
+                                        <p className="text-[10px] text-blue-500 font-black uppercase tracking-widest truncate">{reg.course_name}</p>
+                                        <div className="flex items-center gap-3 mt-2">
+                                            <span className="text-[9px] font-black text-gray-500 flex items-center gap-1">
+                                                <FiPhone className="text-[8px]" /> {reg.phone}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <span className={`text-[8px] font-black px-2 py-1 rounded border uppercase tracking-widest ${reg.status === 'new' ? 'text-blue-500 bg-blue-500/10 border-blue-500/20' : 'text-green-500 bg-green-500/10 border-green-500/20'}`}>
+                                            {reg.status}
+                                        </span>
+                                        <p className="text-[8px] text-foreground/30 font-black mt-2 uppercase">
+                                            {new Date(reg.createdAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                            {recentCourseRegistrations.length === 0 && (
+                                <div className="p-10 text-center text-gray-500 font-bold uppercase tracking-widest text-[10px]">
+                                    No new course requests
+                                </div>
+                            )}
+                        </div>
+                        <div className="hidden md:block p-8 bg-foreground/[0.01] flex flex-col items-center justify-center text-center">
+                            <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4 border border-blue-500/20">
+                                <FiBook className="text-2xl" />
+                            </div>
+                            <h4 className="text-sm font-black text-foreground uppercase mb-1">Public Course Registrations</h4>
+                            <p className="text-[10px] text-foreground/40 font-bold max-w-[200px] mb-6">Manage external course enrollments and follow up with students.</p>
+                            <Link href="/admin/training-registrations" className="px-6 py-2.5 bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-blue-500/20 hover:opacity-90 transition-all">
+                                Manage Requests
                             </Link>
                         </div>
                     </div>

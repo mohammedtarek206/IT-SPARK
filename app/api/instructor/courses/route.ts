@@ -1,91 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
-import Module from '@/models/Module';
-
-export const dynamic = 'force-dynamic';
-import Lesson from '@/models/Lesson';
 import { authenticateRequest } from '@/lib/auth';
-
-export async function GET(request: NextRequest) {
-    try {
-        const user = await authenticateRequest(request);
-        if (!user || (user.role !== 'instructor' && user.role !== 'admin')) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        await connectDB();
-        const courses = await Course.find({ instructor: user.userId })
-            .sort({ createdAt: -1 });
-
-        return NextResponse.json(courses, { status: 200 });
-    } catch (error: any) {
-        console.error('Instructor Courses API GET error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch courses' },
-            { status: 500 }
-        );
-    }
-}
 
 export async function POST(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);
-        if (!user || (user.role !== 'instructor' && user.role !== 'admin')) {
+        if (!user || user.role !== 'instructor') {
+            return NextResponse.json({ error: 'Unauthorized. Only instructors can add courses.' }, { status: 401 });
+        }
+
+        await connectDB();
+        const data = await request.json();
+
+        // Validate required fields
+        if (!data.title || !data.shortDescription || !data.description || !data.category) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        const newCourse = await Course.create({
+            title: data.title,
+            shortDescription: data.shortDescription,
+            description: data.description,
+            whatYouWillLearn: data.whatYouWillLearn || [],
+            requirements: data.requirements || [],
+            targetAudience: data.targetAudience || [],
+            thumbnail: data.thumbnail,
+            previewVideoUrl: data.previewVideoUrl,
+            instructor: user.userId,
+            level: data.level || 'Beginner',
+            language: data.language || 'Arabic',
+            category: data.category,
+            hours: data.hours || 0,
+            lecturesCount: data.lecturesCount || 0,
+            durationText: data.durationText || '',
+            type: data.type || 'Online',
+            price: data.price || 0,
+            isFree: data.isFree || false,
+            discountPrice: data.discountPrice,
+            isActive: true, // Visible automatically as requested
+            status: 'published'
+        });
+
+        return NextResponse.json({ message: 'Course created successfully', course: newCourse }, { status: 201 });
+
+    } catch (error: any) {
+        console.error('Add course error:', error);
+        return NextResponse.json({ error: error.message || 'Failed to create course' }, { status: 500 });
+    }
+}
+
+export async function GET(request: NextRequest) {
+    try {
+        const user = await authenticateRequest(request);
+        if (!user || user.role !== 'instructor') {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const data = await request.json();
-        const { modules, ...courseData } = data;
-
         await connectDB();
+        const courses = await Course.find({ instructor: user.userId }).sort({ createdAt: -1 });
 
-        // Create Course
-        const course = new Course({
-            ...courseData,
-            instructor: user.userId,
-            isActive: true // Auto-activate for now to show to students
-        });
-        await course.save();
+        return NextResponse.json({ courses }, { status: 200 });
 
-        // Handle modules and lessons if provided
-        if (modules && Array.isArray(modules)) {
-            for (let i = 0; i < modules.length; i++) {
-                const modData = modules[i];
-                const module = new Module({
-                    title: modData.title,
-                    course: course._id,
-                    order: i
-                });
-                await module.save();
-
-                if (modData.lessons && Array.isArray(modData.lessons)) {
-                    for (let j = 0; j < modData.lessons.length; j++) {
-                        const lessonData = modData.lessons[j];
-                        const lesson = new Lesson({
-                            title: lessonData.title,
-                            module: module._id,
-                            type: lessonData.type,
-                            contentUrl: lessonData.contentUrl,
-                            examQuestions: lessonData.examQuestions,
-                            duration: lessonData.duration, // Add duration
-                            order: j
-                        });
-                        await lesson.save();
-                    }
-                }
-            }
-        }
-
-        return NextResponse.json(
-            { message: 'Course created successfully', course },
-            { status: 201 }
-        );
     } catch (error: any) {
-        console.error('Instructor Courses API POST error:', error);
-        return NextResponse.json(
-            { error: error.message || 'Failed to create course' },
-            { status: 500 }
-        );
+        console.error('Fetch instructor courses error:', error);
+        return NextResponse.json({ error: 'Failed to fetch courses' }, { status: 500 });
     }
 }

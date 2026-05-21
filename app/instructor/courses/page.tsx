@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/lib/LanguageContext';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FiPlus, FiBook, FiMoreVertical, FiEdit2,
     FiTrash2, FiEye, FiLayers, FiVideo, FiFileText,
-    FiX, FiUsers, FiStar, FiClock
+    FiX, FiUsers, FiStar, FiClock, FiList
 } from 'react-icons/fi';
-import CourseBuilder from '@/components/instructor/CourseBuilder';
+import Link from 'next/link';
 import { getDriveDirectLink } from '@/lib/media';
 import CourseCardMedia from '@/components/CourseCardMedia';
 
@@ -59,9 +60,9 @@ const initialCourses: Course[] = [
 function CoursePreviewModal({ course, onClose }: { course: Course; onClose: () => void }) {
     const isCourseActive = (course as any).isActive !== undefined ? (course as any).isActive : (course.status === 'active');
     const courseLevel = (course as any).level || course.track || 'Professional';
-    const numStudents = (course as any).studentsEnrolled?.length || course.students || 0;
-    const numModules = Array.isArray(course.modules) ? course.modules.length : (course.modules || 0);
-    const numLessons = Array.isArray(course.modules) ? course.modules.reduce((a: number, m: any) => a + (m.lessons?.length || 0), 0) : (course.lessons || 0);
+    const numStudents = course.studentsCount || 0;
+    const numModules = course.hours || 0;
+    const numLessons = course.lecturesCount || 0;
 
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -150,15 +151,13 @@ export default function ManageCourses() {
     const { t } = useLanguage();
     const [courses, setCourses] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [showBuilder, setShowBuilder] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
     const [previewCourse, setPreviewCourse] = useState<any | null>(null);
+    const router = useRouter(); // Wait, need to import useRouter
 
     React.useEffect(() => {
-        if (!showBuilder) {
-            fetchCourses();
-        }
-    }, [showBuilder]);
+        fetchCourses();
+    }, []);
 
     const fetchCourses = async () => {
         setLoading(true);
@@ -168,7 +167,7 @@ export default function ManageCourses() {
             });
             if (res.ok) {
                 const data = await res.json();
-                setCourses(data);
+                setCourses(data.courses || []);
             }
         } catch (err) {
             console.error('Fetch error:', err);
@@ -178,13 +177,12 @@ export default function ManageCourses() {
     };
 
     const handleCreateNew = () => {
-        setSelectedCourse(null);
-        setShowBuilder(true);
+        router.push('/instructor/courses/new');
     };
 
     const handleEdit = (course: any) => {
-        setSelectedCourse(course);
-        setShowBuilder(true);
+        // Redirect to edit page
+        router.push(`/instructor/courses/${course._id}/edit`);
     };
 
     const handleView = (course: any) => {
@@ -204,7 +202,7 @@ export default function ManageCourses() {
         }
     };
 
-    if (loading && !showBuilder) {
+    if (loading) {
         return (
             <div className="h-[60vh] flex items-center justify-center">
                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -225,20 +223,15 @@ export default function ManageCourses() {
                     <h1 className="text-4xl md:text-5xl font-black text-foreground uppercase tracking-tighter leading-none">{t('manage_courses')}</h1>
                     <p className="text-foreground/40 font-black text-[11px] uppercase tracking-[0.3em] mt-3">Manage and update your educational content.</p>
                 </div>
-                {!showBuilder && (
-                    <button
-                        onClick={handleCreateNew}
-                        className="px-8 py-4 bg-primary text-white font-black rounded-2xl hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center gap-3 uppercase text-xs tracking-[0.15em]"
-                    >
-                        <FiPlus className="w-5 h-5" /> {t('create_course')}
-                    </button>
-                )}
+                <button
+                    onClick={handleCreateNew}
+                    className="px-8 py-4 bg-primary text-white font-black rounded-2xl hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center gap-3 uppercase text-xs tracking-[0.15em]"
+                >
+                    <FiPlus className="w-5 h-5" /> {t('create_course')}
+                </button>
             </header>
 
-            <AnimatePresence mode="wait">
-                {!showBuilder ? (
                     <motion.div
-                        key="list"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -270,23 +263,31 @@ export default function ManageCourses() {
                                     <div>
                                         <div className="flex justify-between items-start mb-2">
                                             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
-                                                {course.track?.title || 'Professional'}
+                                                {course.category || 'Professional'}
                                             </span>
                                             <div className="flex items-center gap-1.5 text-[10px] font-black text-foreground/30 uppercase tracking-widest">
-                                                <FiUsers className="text-primary" /> {course.students || 0} enrolled
+                                                <FiUsers className="text-primary" /> {course.studentsCount || 0} enrolled
                                             </div>
                                         </div>
                                         <h3 className="text-lg font-black text-foreground group-hover:text-primary transition-colors leading-tight mb-4 uppercase tracking-tight">
                                             {course.title}
                                         </h3>
                                         <div className="flex items-center gap-4 text-[10px] font-black text-foreground/40 uppercase tracking-widest">
-                                            <span className="flex items-center gap-1.5 px-2 py-1 bg-foreground/5 rounded-lg border border-border"><FiLayers className="text-primary" /> {course.modules?.length || 0} Units</span>
-                                            <span className="flex items-center gap-1.5 px-2 py-1 bg-foreground/5 rounded-lg border border-border"><FiVideo className="text-primary" /> {course.modules?.reduce((a: any, m: any) => a + (m.lessons?.length || 0), 0) || 0} Lessons</span>
+                                            <span className="flex items-center gap-1.5 px-2 py-1 bg-foreground/5 rounded-lg border border-border"><FiLayers className="text-primary" /> {course.durationText || 'N/A'}</span>
+                                            <span className="flex items-center gap-1.5 px-2 py-1 bg-foreground/5 rounded-lg border border-border"><FiVideo className="text-primary" /> {course.lecturesCount || 0} Lessons</span>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center justify-end mt-6 pt-4 border-t border-border">
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 flex-wrap">
+                                            {/* Manage Lectures button */}
+                                            <button
+                                                onClick={() => router.push(`/instructor/courses/${course._id}/modules`)}
+                                                title="Manage Lectures"
+                                                className="p-2.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-xl transition-all"
+                                            >
+                                                <FiList />
+                                            </button>
                                             {/* View button */}
                                             <button
                                                 onClick={() => handleView(course)}
@@ -298,7 +299,7 @@ export default function ManageCourses() {
                                             {/* Edit button */}
                                             <button
                                                 onClick={() => handleEdit(course)}
-                                                title="Edit Course"
+                                                title="Edit Info"
                                                 className="p-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl transition-all"
                                             >
                                                 <FiEdit2 />
@@ -327,15 +328,6 @@ export default function ManageCourses() {
                             </div>
                         )}
                     </motion.div>
-                ) : (
-                    <motion.div key="builder" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <CourseBuilder
-                            course={selectedCourse}
-                            onCancel={() => { setShowBuilder(false); setSelectedCourse(null); }}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
     );
 }

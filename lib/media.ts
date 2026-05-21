@@ -22,8 +22,8 @@ export const getDriveDirectLink = (url: string) => {
         }
 
         if (fileId) {
-            // Using lh3 format as it's often more reliable for plain <img> tags in production
-            return `https://lh3.googleusercontent.com/d/${fileId}=s0`;
+            // Using the Google Drive thumbnail endpoint which works perfectly for standard image URLs in Next.js
+            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1536-h1024`;
         }
     }
 

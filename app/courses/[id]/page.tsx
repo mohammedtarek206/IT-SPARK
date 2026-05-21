@@ -180,7 +180,7 @@ export default function CourseDetailsPage() {
                         </h1>
 
                         <p className="text-foreground/60 font-medium text-lg max-w-xl leading-relaxed">
-                            {course.description}
+                            {course.shortDescription || course.description}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-border">
@@ -195,15 +195,14 @@ export default function CourseDetailsPage() {
                                     <p className="text-sm font-bold text-foreground">{course.instructor?.name || 'Instructor'}</p>
                                 </div>
                             </div>
-                            <div className="h-8 w-px bg-border" />
                             <div className="flex items-center gap-2 text-foreground/40 text-sm font-bold">
-                                <FiClock /> 40 Hours
+                                <FiClock /> {course.hours || 0} Hours
                             </div>
                             <div className="flex items-center gap-2 text-foreground/40 text-sm font-bold">
-                                <FiBook /> {course.level}
+                                <FiBook /> {course.level || 'All Levels'}
                             </div>
                             <div className="flex items-center gap-2 text-foreground/40 text-sm font-bold">
-                                <FiAward /> Certificate Included
+                                <FiAward /> {course.type || 'Online'}
                             </div>
                         </div>
                     </div>
@@ -239,7 +238,7 @@ export default function CourseDetailsPage() {
 
                                 {enrollmentStatus === 'enrolled' ? (
                                     <button
-                                        onClick={() => router.push(`/dashboard/courses/${courseId}`)}
+                                        onClick={() => router.push(`/learn/${courseId}`)}
                                         className="w-full py-4 bg-green-500 text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all shadow-xl flex items-center justify-center gap-2"
                                     >
                                         <FiCheckCircle /> Start Learning
@@ -277,7 +276,7 @@ export default function CourseDetailsPage() {
                 </div>
                 {enrollmentStatus === 'enrolled' ? (
                     <button
-                        onClick={() => router.push(`/dashboard/courses/${courseId}`)}
+                        onClick={() => router.push(`/learn/${courseId}`)}
                         className="py-3 px-8 bg-green-500 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-xl shadow-green-500/20"
                     >
                         Start
@@ -307,12 +306,11 @@ export default function CourseDetailsPage() {
                             What you'll learn
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {[
+                            {(course.whatYouWillLearn?.length > 0 ? course.whatYouWillLearn : [
                                 'Hands-on practical experience.',
                                 'Mastering industry-standard tools.',
-                                'Building real-world graduation projects.',
-                                'Direct support from expert mentors.'
-                            ].map((item, idx) => (
+                                'Building real-world graduation projects.'
+                            ]).map((item: string, idx: number) => (
                                 <div key={idx} className="flex items-start gap-4">
                                     <div className="mt-1 shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                                         <FiCheck className="text-primary text-sm" />
@@ -322,6 +320,41 @@ export default function CourseDetailsPage() {
                             ))}
                         </div>
                     </div>
+
+                    <div className="bg-surface border border-border rounded-[2rem] p-8 md:p-12">
+                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
+                            Description
+                        </h2>
+                        <p className="text-foreground/60 font-medium text-sm leading-relaxed whitespace-pre-wrap">
+                            {course.description}
+                        </p>
+                    </div>
+
+                    {course.requirements?.length > 0 && (
+                        <div className="bg-surface border border-border rounded-[2rem] p-8 md:p-12">
+                            <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
+                                Requirements
+                            </h2>
+                            <ul className="list-disc pl-5 space-y-2 text-foreground/60 font-medium text-sm">
+                                {course.requirements.map((req: string, idx: number) => (
+                                    <li key={idx}>{req}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                    
+                    {course.targetAudience?.length > 0 && (
+                        <div className="bg-surface border border-border rounded-[2rem] p-8 md:p-12">
+                            <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
+                                Who this course is for
+                            </h2>
+                            <ul className="list-disc pl-5 space-y-2 text-foreground/60 font-medium text-sm">
+                                {course.targetAudience.map((aud: string, idx: number) => (
+                                    <li key={idx}>{aud}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
                 <div className="hidden lg:block space-y-8">
@@ -329,13 +362,16 @@ export default function CourseDetailsPage() {
                         <h3 className="text-xl font-black text-foreground uppercase tracking-tighter mb-6">Course Includes</h3>
                         <ul className="space-y-4">
                             <li className="flex items-center gap-3 text-foreground/40 font-medium text-sm">
-                                <FiPlayCircle className="text-lg text-primary" /> 40 hours video
+                                <FiPlayCircle className="text-lg text-primary" /> {course.lecturesCount || 0} Lectures
                             </li>
                             <li className="flex items-center gap-3 text-foreground/40 font-medium text-sm">
-                                <FiArrowRight className="text-lg text-primary" /> Lifetime access
+                                <FiClock className="text-lg text-primary" /> {course.hours || 0} Total Hours
                             </li>
                             <li className="flex items-center gap-3 text-foreground/40 font-medium text-sm">
-                                <FiAward className="text-lg text-primary" /> Certification
+                                <FiAward className="text-lg text-primary" /> Certificate of completion
+                            </li>
+                            <li className="flex items-center gap-3 text-foreground/40 font-medium text-sm">
+                                <FiArrowRight className="text-lg text-primary" /> Full lifetime access
                             </li>
                         </ul>
                     </div>

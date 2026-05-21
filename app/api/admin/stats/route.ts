@@ -4,6 +4,7 @@ import User from '@/models/User';
 import Course from '@/models/Course';
 import Payment from '@/models/Payment';
 import JobApplication from '@/models/JobApplication';
+import CourseRegistration from '@/models/CourseRegistration';
 import { authenticateRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -90,6 +91,10 @@ export async function GET(request: NextRequest) {
             .populate('job', 'title')
             .populate('user', 'name email');
 
+        const recentCourseRegistrations = await CourseRegistration.find()
+            .sort({ createdAt: -1 })
+            .limit(5);
+
         return NextResponse.json({
             stats: {
                 students: studentCount,
@@ -122,7 +127,8 @@ export async function GET(request: NextRequest) {
                 time: p.createdAt,
                 status: 'success'
             }))].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5),
-            recentApplications: recentApplications
+            recentApplications: recentApplications,
+            recentCourseRegistrations: recentCourseRegistrations
         }, { status: 200 });
 
     } catch (error: any) {

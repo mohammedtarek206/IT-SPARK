@@ -70,6 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 { title: 'Courses', icon: FiBook, href: '/admin/courses-control' },
                 { title: 'Exams', icon: FiFileText, href: '/admin/exams' },
                 { title: 'Results', icon: FiAward, href: '/admin/results' },
+                { title: 'Course Requests', icon: FiBook, href: '/admin/training-registrations' },
             ]
         },
         {
