@@ -260,9 +260,9 @@ export default function TrainingCoursesPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-[101] p-4"
+              className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
             >
-              <div className="bg-surface/95 backdrop-blur-3xl rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden max-h-[90vh] flex flex-col relative" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="bg-surface/95 backdrop-blur-3xl rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden max-h-[90vh] w-full max-w-lg flex flex-col relative pointer-events-auto" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
                 
                 {/* Modal Header */}
                 <div className="px-8 py-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-primary/10 to-transparent">
@@ -317,7 +317,7 @@ export default function TrainingCoursesPage() {
                             value={formData.full_name}
                             onChange={handleInputChange}
                             placeholder={lang === 'ar' ? 'أدخل اسمك رباعي' : 'Enter your full name'}
-                            className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pr-4 pl-12 rtl:pl-4 rtl:pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold"
+                            className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 rtl:pr-4 rtl:pl-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold"
                           />
                         </div>
                       </div>
@@ -337,7 +337,7 @@ export default function TrainingCoursesPage() {
                               value={formData.phone}
                               onChange={handleInputChange}
                               placeholder="01xxxxxxxxx"
-                              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pr-4 pl-12 rtl:pl-4 rtl:pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold dir-ltr"
+                              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 rtl:pr-4 rtl:pl-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold dir-ltr"
                             />
                           </div>
                         </div>
@@ -355,7 +355,7 @@ export default function TrainingCoursesPage() {
                               value={formData.email}
                               onChange={handleInputChange}
                               placeholder="example@mail.com"
-                              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pr-4 pl-12 rtl:pl-4 rtl:pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold dir-ltr"
+                              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 rtl:pr-4 rtl:pl-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold dir-ltr"
                             />
                           </div>
                         </div>
@@ -376,7 +376,7 @@ export default function TrainingCoursesPage() {
                               value={formData.university}
                               onChange={handleInputChange}
                               placeholder={lang === 'ar' ? 'أدخل اسم الكلية' : 'Enter university name'}
-                              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pr-4 pl-12 rtl:pl-4 rtl:pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold"
+                              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 rtl:pr-4 rtl:pl-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold"
                             />
                           </div>
                         </div>
@@ -395,7 +395,7 @@ export default function TrainingCoursesPage() {
                               value={formData.academic_year}
                               onChange={handleInputChange}
                               placeholder={lang === 'ar' ? 'الفرقة الثالثة' : 'e.g. 3rd Year'}
-                              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pr-4 pl-12 rtl:pl-4 rtl:pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold"
+                              className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 rtl:pr-4 rtl:pl-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold"
                             />
                           </div>
                         </div>
@@ -415,7 +415,7 @@ export default function TrainingCoursesPage() {
                             value={formData.governorate}
                             onChange={handleInputChange}
                             placeholder={lang === 'ar' ? 'القاهرة' : 'Cairo'}
-                            className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pr-4 pl-12 rtl:pl-4 rtl:pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold"
+                            className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 rtl:pr-4 rtl:pl-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold"
                           />
                         </div>
                       </div>
@@ -433,7 +433,7 @@ export default function TrainingCoursesPage() {
                             value={formData.notes}
                             onChange={handleInputChange}
                             placeholder={lang === 'ar' ? 'أي ملاحظات إضافية...' : 'Any additional notes...'}
-                            className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pr-4 pl-12 rtl:pl-4 rtl:pr-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold resize-none"
+                            className="w-full bg-black/20 border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 rtl:pr-4 rtl:pl-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm font-bold resize-none"
                           ></textarea>
                         </div>
                       </div>
