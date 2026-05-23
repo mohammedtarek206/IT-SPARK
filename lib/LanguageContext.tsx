@@ -13,6 +13,7 @@ interface LanguageContextType {
 const translations: Record<Language, Record<string, string>> = {
     en: {
         home: 'Home',
+        jobs: 'Jobs',
         tracks: 'Tracks',
         team: 'Team',
         projects: 'Projects',
@@ -130,6 +131,7 @@ const translations: Record<Language, Record<string, string>> = {
     },
     ar: {
         home: 'الرئيسية',
+        jobs: 'الوظائف',
         tracks: 'المسارات',
         team: 'الفريق',
         projects: 'المشاريع',
