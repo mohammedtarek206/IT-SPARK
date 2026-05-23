@@ -8,92 +8,15 @@ import { AuthProvider } from '@/lib/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ToastContainer from '@/components/ToastContainer';
+import StructuredData from '@/components/seo/StructuredData';
+import Analytics from '@/components/seo/Analytics';
+import InternalSeoNav from '@/components/seo/InternalSeoNav';
+import { rootMetadata } from '@/lib/seo/metadata';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo', display: 'swap' });
 
-export const metadata: Metadata = {
-  title: 'IT-SPARK | THERE IS MUCH MORE TO LEARN',
-  description: 'IT-SPARK تقدم أفضل الكورسات والتدريبات الاحترافية في البرمجة، الذكاء الاصطناعي، الأمن السيبراني، تحليل البيانات، الشبكات، الجرافيك، وتطوير التطبيقات.',
-  keywords: [
-    'IT-SPARK',
-    'IT SPARK Academy',
-    'THERE IS MUCH MORE TO LEARN',
-    'كورسات برمجة',
-    'Cyber Security',
-    'AI Courses',
-    'React Courses',
-    'دورات ذكاء اصطناعي',
-    'تحليل البيانات',
-    'Full Stack',
-    'تعلم البرمجة',
-    'كورسات تكنولوجيا'
-  ],
-  authors: [{ name: 'IT-SPARK' }],
-  creator: 'IT-SPARK',
-  publisher: 'IT-SPARK',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL('https://it-spark.com'),
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    title: 'IT-SPARK | THERE IS MUCH MORE TO LEARN',
-    description: 'Professional Technology Courses & Training Platform.',
-    url: 'https://it-spark.com',
-    siteName: 'IT-SPARK',
-    images: [
-      {
-        url: '/logo.png',
-        width: 800,
-        height: 600,
-        alt: 'IT-SPARK Logo',
-      },
-    ],
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'IT-SPARK | THERE IS MUCH MORE TO LEARN',
-    description: 'Professional Technology Academy & Courses Platform.',
-    images: ['/logo.png'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  verification: {
-    google: '5HfQh42j4ifu715DCxeTmkymwCOR-nUvRqFGKZ7BYoE',
-  },
-};
-
-const organizationSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'EducationalOrganization',
-  name: 'IT-SPARK',
-  slogan: 'THERE IS MUCH MORE TO LEARN',
-  description: 'Professional Technology Learning Platform',
-  url: 'https://it-spark.com',
-  logo: 'https://it-spark.com/logo.png',
-  contactPoint: {
-    '@type': 'ContactPoint',
-    telephone: '01010710656',
-    contactType: 'customer service',
-    email: 'itspark2018@gmail.com'
-  }
-};
+export const metadata: Metadata = rootMetadata;
 
 export default function RootLayout({
   children,
@@ -101,19 +24,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" suppressHydrationWarning>
-      <body className={`${inter.className} overflow-x-hidden`}>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <body className={`${inter.variable} ${cairo.variable} ${inter.className} overflow-x-hidden antialiased`}>
+        <StructuredData />
+        <Analytics />
+        <InternalSeoNav />
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
               <Navbar />
-              <main className="min-h-screen pt-16 lg:pt-20">
-                {children}
-              </main>
+              <main className="min-h-screen pt-16 lg:pt-20">{children}</main>
               <Footer />
               <ToastContainer />
             </AuthProvider>

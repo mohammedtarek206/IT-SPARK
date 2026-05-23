@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
     try {
         await connectDB();
-        const courses = await Course.find({ isActive: true })
+        const courses = await Course.find({ isActive: true, status: 'published' })
             .populate('instructor', 'name')
             .sort({ createdAt: -1 });
         return NextResponse.json(courses, { status: 200 });

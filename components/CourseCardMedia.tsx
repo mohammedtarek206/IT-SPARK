@@ -5,6 +5,7 @@ import { FiPlay } from 'react-icons/fi';
 import { resolveCourseMedia } from '@/lib/courseMedia';
 import CoursePlaceholder from '@/components/CoursePlaceholder';
 import { getDriveImageFallbacks } from '@/lib/media';
+import { courseImageAlt } from '@/lib/seo/imageAlt';
 
 export { isMediaVideo } from '@/lib/media';
 
@@ -103,7 +104,7 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
             {showInstructorImage && currentImageSrc && (
                 <img
                     src={currentImageSrc}
-                    alt={title}
+                    alt={courseImageAlt(title)}
                     onError={() => {
                         if (imageSrcIndex < imageFallbacks.length - 1) {
                             setImageSrcIndex((i) => i + 1);

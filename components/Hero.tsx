@@ -6,9 +6,12 @@ import { FiCode, FiShield, FiCpu, FiPlay, FiArrowRight, FiArrowLeft } from 'reac
 import Link from 'next/link';
 import { useLanguage } from '@/lib/LanguageContext';
 import HomeHeroMedia from '@/components/HomeHeroMedia';
+import { HOME_METADATA } from '@/lib/seo/config';
+import { getCoursePath } from '@/lib/seo/slug';
 
 interface FeaturedCourse {
   _id: string;
+  slug?: string;
   title: string;
   shortDescription?: string;
   description?: string;
@@ -39,14 +42,13 @@ export default function Hero() {
     featured?.description?.trim() ||
     t('hero_desc');
 
-  const courseHref = featured?._id ? `/courses/${featured._id}` : '/courses';
+  const courseHref = featured ? getCoursePath(featured) : '/courses';
 
   return (
-    <section className="relative w-full overflow-hidden bg-background">
-      {/* Full-width media layer */}
+    <section className="relative w-full overflow-hidden bg-background" aria-label="IT-SPARK Home">
       <div className="relative min-h-[72vh] sm:min-h-[80vh] lg:min-h-[88vh] w-full">
         {loading ? (
-          <div className="absolute inset-0 bg-slate-900 animate-pulse" />
+          <div className="absolute inset-0 bg-slate-900 animate-pulse" aria-hidden />
         ) : featured ? (
           <HomeHeroMedia
             thumbnail={featured.thumbnail}
@@ -54,13 +56,12 @@ export default function Hero() {
             title={featured.title}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-primary/20 to-slate-900" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-primary/20 to-slate-900" aria-hidden />
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/30" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/40 rtl:bg-gradient-to-l" />
 
-        {/* Overlay content */}
         <div className="absolute inset-0 flex flex-col justify-end">
           <div className="container mx-auto px-4 pb-10 sm:pb-14 lg:pb-20 pt-28 lg:pt-24 relative z-10">
             <motion.div
@@ -69,39 +70,28 @@ export default function Hero() {
               transition={{ duration: 0.7 }}
               className="max-w-3xl"
             >
-              <span
-                className="inline-block text-2xl sm:text-3xl font-black mb-3 brand-title-gradient"
+              <h1
+                className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight mb-2 drop-shadow-lg"
                 dir="ltr"
               >
-                IT-SPARK
-              </span>
+                {HOME_METADATA.h1}
+              </h1>
+
+              <h2 className="text-base sm:text-lg md:text-xl font-bold text-white/90 mb-4 max-w-2xl leading-relaxed">
+                {HOME_METADATA.h2}
+              </h2>
 
               {featured ? (
                 <>
-                  <motion.h1
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1, duration: 0.6 }}
-                    className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-3 drop-shadow-lg line-clamp-2"
-                  >
+                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-white/95 leading-tight mb-2 line-clamp-2">
                     {featured.title}
-                  </motion.h1>
+                  </h3>
 
-                  <motion.p
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                    className="text-sm sm:text-base md:text-lg text-white/85 font-medium mb-6 max-w-2xl line-clamp-3 leading-relaxed"
-                  >
+                  <p className="text-sm sm:text-base text-white/80 font-medium mb-6 max-w-2xl line-clamp-3 leading-relaxed">
                     {description}
-                  </motion.p>
+                  </p>
 
-                  <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.35, duration: 0.6 }}
-                    className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4"
-                  >
+                  <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
                     <Link
                       href={courseHref}
                       className="px-6 py-3.5 sm:px-8 sm:py-4 bg-gradient-to-r from-primary to-accent rounded-full text-white font-black text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg shadow-primary/40 text-center flex items-center justify-center gap-2"
@@ -116,23 +106,31 @@ export default function Hero() {
                       <FiPlay />
                       {isRtl ? 'سجّل الآن' : 'Enroll Now'}
                     </Link>
-                  </motion.div>
+                    <Link
+                      href="/courses"
+                      className="px-6 py-3.5 text-white/90 text-sm font-bold underline-offset-4 hover:underline text-center"
+                    >
+                      {isRtl ? 'كل كورسات IT Spark' : 'All IT Spark Courses'}
+                    </Link>
+                  </div>
                 </>
               ) : (
                 <>
-                  <h2
-                    className="text-lg sm:text-2xl font-bold mb-4 bg-gradient-to-r from-primary/90 to-accent bg-clip-text text-transparent tracking-wide"
-                    dir="ltr"
-                  >
-                    THERE IS MUCH MORE TO LEARN
-                  </h2>
                   <p className="text-foreground/70 mb-6 max-w-xl">{t('hero_subtitle')}</p>
-                  <Link
-                    href="/courses"
-                    className="inline-flex px-8 py-4 bg-gradient-to-r from-primary to-accent rounded-full text-white font-semibold"
-                  >
-                    {t('start_journey')}
-                  </Link>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href="/courses"
+                      className="inline-flex px-8 py-4 bg-gradient-to-r from-primary to-accent rounded-full text-white font-semibold"
+                    >
+                      {t('start_journey')}
+                    </Link>
+                    <Link
+                      href="/training-courses"
+                      className="inline-flex px-8 py-4 border border-primary/40 rounded-full text-primary font-semibold hover:bg-primary/10"
+                    >
+                      {isRtl ? 'التدريبات' : 'Trainings'}
+                    </Link>
+                  </div>
                 </>
               )}
             </motion.div>
@@ -140,7 +138,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Features row */}
       <div className="container mx-auto px-4 relative z-10 -mt-4 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -170,7 +167,7 @@ export default function Hero() {
               key={index}
               className="glass rounded-2xl p-5 md:p-6 border border-border/10 flex flex-col items-center text-center hover:border-primary/20 transition-colors"
             >
-              <item.icon className="w-10 h-10 text-primary mb-3" />
+              <item.icon className="w-10 h-10 text-primary mb-3" aria-hidden />
               <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
               <p className="text-sm text-foreground/60 mt-1">{item.desc}</p>
             </div>

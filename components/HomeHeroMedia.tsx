@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { resolveCourseMedia } from '@/lib/courseMedia';
 import { buildYouTubeEmbedUrl } from '@/lib/youtube';
 import CoursePlaceholder from '@/components/CoursePlaceholder';
+import { courseImageAlt } from '@/lib/seo/imageAlt';
 
 interface HomeHeroMediaProps {
     thumbnail?: string;
@@ -62,7 +63,7 @@ export default function HomeHeroMedia({ thumbnail, videoUrl, title }: HomeHeroMe
         return (
             <img
                 src={media.instructorImageUrl!}
-                alt={title}
+                alt={courseImageAlt(title)}
                 onError={() => setImageError(true)}
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="eager"

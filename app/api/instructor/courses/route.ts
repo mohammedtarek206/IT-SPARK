@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import { authenticateRequest } from '@/lib/auth';
 import { normalizeOptionalMediaUrl } from '@/lib/media';
+import { ensureCourseSlug } from '@/lib/seo/courseServer';
+import { slugify } from '@/lib/seo/slug';
 
 export async function POST(request: NextRequest) {
     try {
@@ -21,6 +23,7 @@ export async function POST(request: NextRequest) {
 
         const newCourse = await Course.create({
             title: data.title,
+            slug: data.slug ? slugify(data.slug) : undefined,
             shortDescription: data.shortDescription,
             description: data.description,
             whatYouWillLearn: data.whatYouWillLearn || [],
@@ -42,6 +45,8 @@ export async function POST(request: NextRequest) {
             isActive: true, // Visible automatically as requested
             status: 'published'
         });
+
+        await ensureCourseSlug(String(newCourse._id), newCourse.title, newCourse.slug);
 
         return NextResponse.json({ message: 'Course created successfully', course: newCourse }, { status: 201 });
 

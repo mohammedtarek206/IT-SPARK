@@ -1,0 +1,34 @@
+# IT-SPARK (IT Spark Academy)
+
+> IT-SPARK — THERE IS MUCH MORE TO LEARN
+> Professional technology learning platform in Assiut, Egypt.
+
+## Official site
+- https://it-spark.com
+
+## What we offer
+- Online & offline programming courses (React, Angular, Python, Full Stack)
+- AI, data analysis, cyber security, networks (CCNA), graphic design, digital marketing
+- Professional trainings & workshops
+- Job opportunities & certificate applications
+
+## Key pages
+- Home: https://it-spark.com/
+- Courses: https://it-spark.com/courses
+- Trainings: https://it-spark.com/training-courses
+- Jobs: https://it-spark.com/jobs
+- Apply: https://it-spark.com/apply
+- About: https://it-spark.com/about
+- Contact: https://it-spark.com/contact
+
+## Brand names
+IT Spark, IT-SPARK, IT Spark Academy, IT Spark Courses, IT Spark Egypt
+
+## Contact
+- Email: itspark2018@gmail.com
+- Phone: +20 101 071 0656
+- Location: Assiut, Egypt
+
+## Crawling
+- Sitemap: https://it-spark.com/sitemap.xml
+- Robots: https://it-spark.com/robots.txt

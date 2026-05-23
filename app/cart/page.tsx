@@ -10,9 +10,11 @@ import { useAuth } from '@/lib/AuthContext';
 import { getCartIds, removeFromCart, syncCartWithServer, clearCart } from '@/lib/cart';
 import { showToast } from '@/lib/toast';
 import CourseCardMedia from '@/components/CourseCardMedia';
+import { getCoursePath } from '@/lib/seo/slug';
 
 interface CartCourse {
     _id: string;
+    slug?: string;
     title: string;
     thumbnail?: string;
     previewVideoUrl?: string;
@@ -174,7 +176,7 @@ export default function CartPage() {
                                     className="flex gap-4 p-4 bg-surface border border-border rounded-2xl"
                                 >
                                     <Link
-                                        href={`/courses/${course._id}`}
+                                        href={getCoursePath(course)}
                                         className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-slate-900 block"
                                     >
                                         <CourseCardMedia
@@ -186,7 +188,7 @@ export default function CartPage() {
                                     </Link>
                                     <div className="flex-1 min-w-0 flex flex-col justify-between">
                                         <div>
-                                            <Link href={`/courses/${course._id}`}>
+                                            <Link href={getCoursePath(course)}>
                                                 <h3 className="font-bold text-foreground line-clamp-2 hover:text-primary transition-colors">
                                                     {course.title}
                                                 </h3>

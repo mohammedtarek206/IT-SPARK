@@ -1,45 +1,46 @@
 import { MetadataRoute } from 'next';
 import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
+import { SITE_URL } from '@/lib/seo/config';
+import { backfillMissingSlugs, getCoursePath } from '@/lib/seo/courseServer';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://it-spark.com';
+  const baseUrl = SITE_URL;
 
-    // Static routes
-    const staticRoutes = [
-        '',
-        '/courses',
-        '/about',
-        '/contact',
-        '/pricing',
-        '/partners',
-        '/projects',
-        '/team',
-    ].map((route) => ({
-        url: `${baseUrl}${route}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: route === '' ? 1 : 0.8,
-    }));
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: baseUrl, changeFrequency: 'daily', priority: 1, lastModified: new Date() },
+    { url: `${baseUrl}/courses`, changeFrequency: 'daily', priority: 0.95, lastModified: new Date() },
+    { url: `${baseUrl}/training-courses`, changeFrequency: 'daily', priority: 0.9, lastModified: new Date() },
+    { url: `${baseUrl}/jobs`, changeFrequency: 'weekly', priority: 0.85, lastModified: new Date() },
+    { url: `${baseUrl}/apply`, changeFrequency: 'monthly', priority: 0.75, lastModified: new Date() },
+    { url: `${baseUrl}/about`, changeFrequency: 'monthly', priority: 0.8, lastModified: new Date() },
+    { url: `${baseUrl}/contact`, changeFrequency: 'monthly', priority: 0.8, lastModified: new Date() },
+    { url: `${baseUrl}/pricing`, changeFrequency: 'weekly', priority: 0.7, lastModified: new Date() },
+    { url: `${baseUrl}/partners`, changeFrequency: 'monthly', priority: 0.65, lastModified: new Date() },
+    { url: `${baseUrl}/projects`, changeFrequency: 'weekly', priority: 0.7, lastModified: new Date() },
+    { url: `${baseUrl}/team`, changeFrequency: 'monthly', priority: 0.65, lastModified: new Date() },
+    { url: `${baseUrl}/media`, changeFrequency: 'weekly', priority: 0.6, lastModified: new Date() },
+  ];
 
-    // Dynamic routes for courses
-    let courseRoutes: any[] = [];
-    try {
-        if (!process.env.MONGODB_URI) {
-            console.warn('Sitemap generation: MONGODB_URI is missing, skipping dynamic courses.');
-        } else {
-            await connectDB();
-            const courses = await Course.find({ isActive: true }).select('_id updatedAt').lean();
-            courseRoutes = courses.map((course: any) => ({
-                url: `${baseUrl}/courses/${course._id}`,
-                lastModified: course.updatedAt || new Date(),
-                changeFrequency: 'weekly' as const,
-                priority: 0.7,
-            }));
-        }
-    } catch (error) {
-        console.error('Error fetching courses for sitemap:', error);
+  let courseRoutes: MetadataRoute.Sitemap = [];
+  try {
+    if (process.env.MONGODB_URI) {
+      await backfillMissingSlugs();
+      await connectDB();
+      const courses = await Course.find({ isActive: true, status: 'published' })
+        .select('slug title _id updatedAt')
+        .lean();
+
+      courseRoutes = courses.map((course) => ({
+        url: `${baseUrl}${getCoursePath(course)}`,
+        lastModified: course.updatedAt || new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }));
     }
+  } catch (error) {
+    console.error('Sitemap: course fetch error', error);
+  }
 
-    return [...staticRoutes, ...courseRoutes];
+  return [...staticRoutes, ...courseRoutes];
 }

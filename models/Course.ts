@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ICourse extends Document {
     title: string;
+    slug?: string;
     shortDescription: string;
     description: string;
     whatYouWillLearn: string[];
@@ -58,6 +59,7 @@ const ModuleSchema = new Schema({
 const CourseSchema: Schema = new Schema(
     {
         title: { type: String, required: true },
+        slug: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
         shortDescription: { type: String, required: true },
         description: { type: String, required: true },
         whatYouWillLearn: [{ type: String }],
