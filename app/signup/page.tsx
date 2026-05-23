@@ -31,6 +31,7 @@ export default function SignUpPage() {
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const { t, lang } = useLanguage();
+    const isRtl = lang === 'ar';
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target as any;
@@ -54,6 +55,18 @@ export default function SignUpPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (role === 'instructor') {
+            if (!formData.cvUrl) {
+                setError(isRtl ? 'يرجى إدخال رابط السيرة الذاتية (Google Drive) الخاص بك' : 'Please provide your Google Drive CV link');
+                return;
+            }
+            if (!formData.cvUrl.includes('drive.google.com')) {
+                setError(isRtl ? 'يجب أن يكون رابط السيرة الذاتية من Google Drive' : 'CV link must be a valid Google Drive link');
+                return;
+            }
+        }
+
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
             return;
@@ -271,14 +284,17 @@ export default function SignUpPage() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-accent uppercase tracking-widest">{t('cv_label')}</label>
+                                            <label className="text-[10px] font-black text-accent uppercase tracking-widest">
+                                                {isRtl ? 'رابط السيرة الذاتية (Google Drive) *' : 'Google Drive CV Link *'}
+                                            </label>
                                             <input
                                                 name="cvUrl"
                                                 type="text"
+                                                required
                                                 value={formData.cvUrl}
                                                 onChange={handleInputChange}
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:outline-none focus:border-accent/50 transition-all"
-                                                placeholder="Link to your CV (Google Drive/Dropbox)"
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:outline-none focus:border-accent/50 transition-all border-red-500/20 focus:border-accent"
+                                                placeholder="https://drive.google.com/..."
                                             />
                                         </div>
                                     </div>

@@ -3,6 +3,7 @@
 import React from 'react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { useAuth } from '@/lib/AuthContext';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
     FiUsers, FiEye, FiStar, FiDollarSign,
@@ -12,6 +13,7 @@ import {
 export default function InstructorOverview() {
     const { t, lang } = useLanguage();
     const { user } = useAuth();
+    const router = useRouter();
 
     if (user?.status === 'pending') {
         return (
@@ -117,13 +119,22 @@ export default function InstructorOverview() {
                 <div className="glass p-8 rounded-[3rem] border border-border bg-surface shadow-sm hover:shadow-xl transition-all">
                     <h2 className="text-2xl font-black text-foreground mb-8 uppercase tracking-tight">Quick Actions</h2>
                     <div className="space-y-4">
-                        <button className="w-full py-5 bg-primary text-white font-black rounded-2xl hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 uppercase text-xs tracking-[0.15em] active:scale-[0.98]">
+                        <button
+                            onClick={() => router.push('/instructor/courses/new')}
+                            className="w-full py-5 bg-primary text-white font-black rounded-2xl hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 uppercase text-xs tracking-[0.15em] active:scale-[0.98]"
+                        >
                             <FiPlus className="w-5 h-5" /> {t('create_course')}
                         </button>
-                        <button className="w-full py-5 bg-accent text-white font-black rounded-2xl hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3 uppercase text-xs tracking-[0.15em] active:scale-[0.98]">
+                        <button
+                            onClick={() => router.push('/instructor/exams/new')}
+                            className="w-full py-5 bg-accent text-white font-black rounded-2xl hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3 uppercase text-xs tracking-[0.15em] active:scale-[0.98]"
+                        >
                             <FiPlus className="w-5 h-5" /> {t('create_exam')}
                         </button>
-                        <button className="w-full py-5 bg-foreground/5 border border-border text-foreground font-black rounded-2xl hover:bg-foreground/10 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-[0.15em] active:scale-[0.98]">
+                        <button
+                            onClick={() => router.push('/instructor/communications')}
+                            className="w-full py-5 bg-foreground/5 border border-border text-foreground font-black rounded-2xl hover:bg-foreground/10 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-[0.15em] active:scale-[0.98]"
+                        >
                             <FiMessageSquare className="w-5 h-5 text-primary" /> {t('send_announcement')}
                         </button>
                     </div>

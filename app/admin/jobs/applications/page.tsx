@@ -19,10 +19,13 @@ export default function AdminJobApplicationsPage() {
             });
             if (res.ok) {
                 const data = await res.json();
-                setApplications(data);
+                setApplications(Array.isArray(data) ? data : []);
+            } else {
+                setApplications([]);
             }
         } catch (err) {
             console.error('Fetch applications error:', err);
+            setApplications([]);
         } finally {
             setLoading(false);
         }
@@ -66,21 +69,23 @@ export default function AdminJobApplicationsPage() {
     };
 
     const exportToCSV = () => {
-        const headers = ['Candidate Name', 'Email', 'Phone', 'University', 'Major', 'Governorate', 'Job Applied For', 'Applied Date', 'Status', 'Resume Link', 'Notes'];
+        const headers = ['Candidate Name', 'Email', 'Phone', 'University', 'Major', 'Governorate', 'Job Applied For', 'Applied Date', 'Status', 'Resume Link', 'Notes', 'National ID', 'Cover Letter'];
         const csvContent = [
             headers.join(','),
             ...applications.map(app => [
-                `"${app.fullName}"`,
+                `"${app.fullName || ''}"`,
                 `"${app.email || ''}"`,
-                `"${app.phone}"`,
-                `"${app.university}"`,
-                `"${app.major}"`,
-                `"${app.governorate}"`,
+                `"${app.phone || ''}"`,
+                `"${app.university || ''}"`,
+                `"${app.major || ''}"`,
+                `"${app.governorate || ''}"`,
                 `"${app.job?.title || ''}"`,
-                `"${new Date(app.appliedAt).toLocaleDateString()}"`,
-                `"${app.status}"`,
-                `"${app.resumeUrl}"`,
-                `"${app.notes || ''}"`
+                `"${app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : ''}"`,
+                `"${app.status || ''}"`,
+                `"${app.resumeUrl || ''}"`,
+                `"${app.notes || ''}"`,
+                `"${app.nationalId || ''}"`,
+                `"${app.coverLetter || ''}"`
             ].join(','))
         ].join('\n');
 
@@ -133,62 +138,82 @@ export default function AdminJobApplicationsPage() {
                                                     {app.fullName?.charAt(0) || 'A'}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-black text-white">{app.fullName}</p>
+                                                    <p className="text-sm font-black text-white">{app.fullName || 'N/A'}</p>
                                                     <div className="flex flex-col gap-0.5">
                                                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1">
                                                             <FiMail className="text-[8px]" /> {app.email || 'N/A'}
                                                         </p>
                                                         <p className="text-[10px] font-bold text-primary uppercase tracking-widest">
-                                                            Phone: {app.phone}
+                                                            Phone: {app.phone || 'N/A'}
                                                         </p>
-                                                        <p className="text-[10px] font-bold text-accent uppercase tracking-widest">
-                                                            {app.university} - {app.major} ({app.academicYear})
-                                                        </p>
-                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                            {app.governorate}
-                                                        </p>
+                                                        {app.university || app.major || app.academicYear ? (
+                                                            <p className="text-[10px] font-bold text-accent uppercase tracking-widest">
+                                                                {app.university || 'N/A'} - {app.major || 'N/A'} ({app.academicYear || 'N/A'})
+                                                            </p>
+                                                        ) : app.nationalId ? (
+                                                            <p className="text-[10px] font-bold text-accent uppercase tracking-widest">
+                                                                National ID: {app.nationalId}
+                                                            </p>
+                                                        ) : null}
+                                                        {app.governorate && (
+                                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                                {app.governorate}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div>
-                                                <p className="text-sm font-black text-white">{app.job?.title}</p>
-                                                <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{app.job?.company}</p>
+                                                <p className="text-sm font-black text-white">{app.job?.title || 'Unknown Job'}</p>
+                                                <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{app.job?.company || 'N/A'}</p>
                                                 {app.notes && (
                                                     <p className="text-xs text-gray-400 mt-2 max-w-[200px] truncate" title={app.notes}>
                                                         Note: {app.notes}
+                                                    </p>
+                                                )}
+                                                {app.coverLetter && (
+                                                    <p className="text-xs text-gray-400 mt-2 max-w-[200px] truncate" title={app.coverLetter}>
+                                                        Cover Letter: {app.coverLetter}
                                                     </p>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                                                <FiClock className="text-primary" /> {new Date(app.appliedAt).toLocaleDateString()}
+                                                <FiClock className="text-primary" /> {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : 'N/A'}
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <a
-                                                href={app.resumeUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors"
-                                            >
-                                                <FiExternalLink /> View Resume
-                                            </a>
+                                            {app.resumeUrl ? (
+                                                <a
+                                                    href={app.resumeUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors"
+                                                >
+                                                    <FiExternalLink /> View Resume
+                                                </a>
+                                            ) : (
+                                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">No Resume</span>
+                                            )}
                                         </td>
                                         <td className="px-8 py-6">
                                             <select
-                                                value={app.status}
+                                                value={app.status || 'New'}
                                                 onChange={(e) => handleStatusChange(app._id, e.target.value)}
                                                 className={`text-[10px] font-black uppercase tracking-[0.2em] px-3 py-2 rounded-xl outline-none border transition-colors ${
-                                                    app.status === 'New' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 focus:border-blue-500' :
+                                                    app.status === 'New' || app.status === 'Pending' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 focus:border-blue-500' :
                                                     app.status === 'Reviewed' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 focus:border-yellow-500' :
                                                     app.status === 'Interview' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20 focus:border-purple-500' :
                                                     app.status === 'Accepted' ? 'bg-green-500/10 text-green-400 border-green-500/20 focus:border-green-500' :
                                                     'bg-red-500/10 text-red-400 border-red-500/20 focus:border-red-500'
                                                 }`}
                                             >
+                                                {(app.status === 'Pending' || !['New', 'Reviewed', 'Interview', 'Accepted', 'Rejected'].includes(app.status)) && (
+                                                    <option value={app.status || 'Pending'} className="bg-dark">{app.status || 'Pending'}</option>
+                                                )}
                                                 <option value="New" className="bg-dark">New</option>
                                                 <option value="Reviewed" className="bg-dark">Reviewed</option>
                                                 <option value="Interview" className="bg-dark">Interview</option>

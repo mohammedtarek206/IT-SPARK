@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import JobApplication from '@/models/JobApplication';
+import Job from '@/models/Job';
 import { authenticateRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {

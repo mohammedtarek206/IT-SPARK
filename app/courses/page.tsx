@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getDriveDirectLink } from '@/lib/media';
 import CourseCardMedia from '@/components/CourseCardMedia';
+import CourseCard from '@/components/CourseCard';
 
 export default function PublicCoursesPage() {
     const { t } = useLanguage();
@@ -135,57 +136,10 @@ export default function PublicCoursesPage() {
                 </div>
 
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredCourses.map((course, i) => (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    {filteredCourses.map((course) => (
                         <Link href={`/courses/${course._id || course.id}`} key={course._id || course.id}>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                className="glass rounded-[2rem] border border-white/5 overflow-hidden group hover:border-primary/30 hover:shadow-[0_0_30px_rgba(var(--primary),0.15)] transition-all flex flex-col relative h-full cursor-pointer"
-                            >
-                                <div className="w-full overflow-hidden shrink-0 relative">
-                                    <CourseCardMedia 
-                                        thumbnail={course.thumbnail} 
-                                        videoUrl={course.previewVideoUrl}
-                                        title={course.title} 
-                                    />
-                                    <div className="absolute top-4 right-4 bg-primary/20 backdrop-blur-md rounded-xl px-3 py-1.5 border border-primary/20 z-10">
-                                        <span className="text-xs font-black text-primary">{course.isFree ? 'Free' : `${course.price} EGP`}</span>
-                                    </div>
-                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
-                                </div>
-
-                                <div className="p-6 flex-1 flex flex-col justify-between relative z-10 -mt-6">
-                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-surface px-3 py-1 rounded w-max border border-border mb-3">{course.level || 'Professional'}</span>
-
-                                    <div>
-                                        <h3 className="text-xl font-black text-foreground group-hover:text-primary transition-colors leading-tight mb-2">
-                                            {course.title}
-                                        </h3>
-
-                                    </div>
-
-                                    <div className="flex justify-between items-center text-[10px] font-bold text-foreground/40 uppercase mt-6 pt-4 border-t border-border">
-                                        <span className="flex items-center gap-1.5"><FiBook /> {course.level || 'All Levels'}</span>
-                                        <span className="flex items-center gap-1.5"><FiClock /> 40 Hours</span>
-                                    </div>
-
-                                    <button
-                                        onClick={(e) => {
-                                            if (enrolledCourseIds.includes(course._id || course.id)) {
-                                                e.preventDefault();
-                                                router.push(`/learn/${course._id || course.id}`);
-                                            } else {
-                                                enrollCourse(e, course);
-                                            }
-                                        }}
-                                        className="mt-6 w-full py-3 bg-surface hover:bg-primary text-foreground hover:text-white font-black text-xs uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition-all border border-border"
-                                    >
-                                        {enrolledCourseIds.includes(course._id || course.id) ? 'Go to Course' : (course.price > 0 ? 'Buy Now' : 'Enroll Now')}
-                                    </button>
-                                </div>
-                            </motion.div>
+                            <CourseCard course={course} />
                         </Link>
                     ))}
                 </div>

@@ -57,7 +57,7 @@ const initialCourses: Course[] = [
 ];
 
 // Course Preview Modal
-function CoursePreviewModal({ course, onClose }: { course: Course; onClose: () => void }) {
+function CoursePreviewModal({ course, onClose }: { course: any; onClose: () => void }) {
     const isCourseActive = (course as any).isActive !== undefined ? (course as any).isActive : (course.status === 'active');
     const courseLevel = (course as any).level || course.track || 'Professional';
     const numStudents = course.studentsCount || 0;

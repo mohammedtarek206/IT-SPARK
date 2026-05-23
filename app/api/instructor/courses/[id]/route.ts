@@ -62,50 +62,73 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
         await connectDB();
 
-        // Ensure instructor owns the course and update it
-        const course = await Course.findOneAndUpdate(
-            { _id: params.id, instructor: user.userId },
-            { ...courseData, isActive: true },
-            { new: true }
-        );
+        // Ensure instructor owns the course
+        const course = await Course.findOne({ _id: params.id, instructor: user.userId });
 
         if (!course) {
             return NextResponse.json({ error: 'Course not found or unauthorized' }, { status: 404 });
         }
 
-        // Handle modules and lessons replacement
+        // Update basic course details
+        Object.assign(course, courseData);
+        course.isActive = true;
+
+        // Handle modules and lessons replacement and update embedded modules
         if (modules && Array.isArray(modules)) {
             const existingModules = await Module.find({ course: course._id });
             const moduleIds = existingModules.map(m => m._id);
             await Lesson.deleteMany({ module: { $in: moduleIds } });
             await Module.deleteMany({ course: course._id });
 
+            const embeddedModules = [];
+
             for (let i = 0; i < modules.length; i++) {
                 const modData = modules[i];
-                const module = new Module({
+                const dbModule = new Module({
                     title: modData.title,
                     course: course._id,
                     order: i
                 });
-                await module.save();
+                await dbModule.save();
+
+                const embeddedLessons = [];
 
                 if (modData.lessons && Array.isArray(modData.lessons)) {
                     for (let j = 0; j < modData.lessons.length; j++) {
                         const lessonData = modData.lessons[j];
-                        const lesson = new Lesson({
+                        const dbLesson = new Lesson({
                             title: lessonData.title,
-                            module: module._id,
+                            module: dbModule._id,
                             type: lessonData.type,
                             contentUrl: lessonData.contentUrl,
                             examQuestions: lessonData.examQuestions,
-                            duration: lessonData.duration, // Add duration
+                            duration: lessonData.duration,
                             order: j
                         });
-                        await lesson.save();
+                        await dbLesson.save();
+
+                        embeddedLessons.push({
+                            title: lessonData.title,
+                            description: lessonData.description || '',
+                            duration: lessonData.duration || '',
+                            videoUrl: lessonData.type === 'video' ? lessonData.contentUrl : '',
+                            order: j
+                        });
                     }
                 }
+
+                embeddedModules.push({
+                    title: modData.title,
+                    order: i,
+                    lessons: embeddedLessons
+                });
             }
+
+            course.modules = embeddedModules;
+            course.lecturesCount = modules.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0);
         }
+
+        await course.save();
 
         return NextResponse.json(
             { message: 'Course updated successfully', course },

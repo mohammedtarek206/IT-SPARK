@@ -132,6 +132,30 @@ export default function ManageModulesPage() {
     };
 
     const handleSave = async () => {
+        // Simple client-side validation first
+        for (let i = 0; i < modules.length; i++) {
+            const m = modules[i];
+            if (!m.title.trim()) {
+                alert(`Please enter a title for Section ${i + 1}`);
+                return;
+            }
+            for (let j = 0; j < m.lessons.length; j++) {
+                const l = m.lessons[j];
+                if (!l.title.trim()) {
+                    alert(`Please enter a title for Lecture ${j + 1} in Section ${i + 1}`);
+                    return;
+                }
+                if (!l.duration.trim()) {
+                    alert(`Please enter duration for Lecture ${j + 1} in Section ${i + 1}`);
+                    return;
+                }
+                if (!l.videoUrl.trim()) {
+                    alert(`Please enter YouTube URL for Lecture ${j + 1} in Section ${i + 1}`);
+                    return;
+                }
+            }
+        }
+
         setSaving(true);
         try {
             const token = localStorage.getItem('token');
@@ -143,9 +167,13 @@ export default function ManageModulesPage() {
             if (res.ok) {
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
+            } else {
+                const errData = await res.json();
+                alert(`Failed to save: ${errData.error || 'Unknown error'}`);
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
+            alert(`An error occurred: ${err.message || 'Please check your connection'}`);
         } finally {
             setSaving(false);
         }

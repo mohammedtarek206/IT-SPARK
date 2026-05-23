@@ -90,7 +90,7 @@ export default function LearnPage() {
             updated.add(lessonId);
         }
         setCompletedLessons(updated);
-        localStorage.setItem(`progress_${courseId}`, JSON.stringify([...updated]));
+        localStorage.setItem(`progress_${courseId}`, JSON.stringify(Array.from(updated)));
     };
 
     const goNext = () => {

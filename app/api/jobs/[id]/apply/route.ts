@@ -20,6 +20,13 @@ export async function POST(
         if (existing) {
             return NextResponse.json({ error: 'You have already applied for this job with this phone or email' }, { status: 400 });
         }
+
+        if (!data.resumeUrl) {
+            return NextResponse.json({ error: 'CV/Resume link is required' }, { status: 400 });
+        }
+        if (!data.resumeUrl.includes('drive.google.com')) {
+            return NextResponse.json({ error: 'CV/Resume link must be a valid Google Drive link' }, { status: 400 });
+        }
         
         const application = new JobApplication({
             job: params.id,

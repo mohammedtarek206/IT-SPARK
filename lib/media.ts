@@ -1,84 +1,46 @@
-export const getDriveDirectLink = (url: string) => {
-    if (!url) return '';
-
-    // Check if it's a Google Drive link
-    if (url.includes('drive.google.com')) {
-        let fileId = '';
-
-        // Extract ID from various Drive URL formats
-        const patterns = [
-            /\/file\/d\/([^\/]+)/,
-            /id=([^&|?]+)/,
-            /\/open\?id=([^\/&]+)/,
-            /\/d\/([^\/\s]+)/
-        ];
-
-        for (const pattern of patterns) {
-            const match = url.match(pattern);
-            if (match && match[1]) {
-                fileId = match[1];
-                break;
-            }
-        }
-
-        if (fileId) {
-            // Using the Google Drive thumbnail endpoint which works perfectly for standard image URLs in Next.js
-            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1536-h1024`;
-        }
+const extractDriveFileId = (url: string): string => {
+    if (!url || !url.includes('drive.google.com')) return '';
+    const patterns = [
+        /\/file\/d\/([a-zA-Z0-9_-]+)/,
+        /[?&]id=([a-zA-Z0-9_-]+)/,
+        /\/open\?id=([a-zA-Z0-9_-]+)/,
+        /\/d\/([a-zA-Z0-9_-]+)/
+    ];
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) return match[1];
     }
-
-    return url;
+    return '';
 };
 
-export const getDriveEmbedLink = (url: string) => {
+export const getDriveDirectLink = (url: string): string => {
     if (!url) return '';
-    if (url.includes('drive.google.com')) {
-        let fileId = '';
-        const patterns = [
-            /\/file\/d\/([^\/]+)/,
-            /id=([^&|?]+)/,
-            /\/open\?id=([^\/&]+)/,
-            /\/d\/([^\/\s]+)/
-        ];
-
-        for (const pattern of patterns) {
-            const match = url.match(pattern);
-            if (match && match[1]) {
-                fileId = match[1];
-                break;
-            }
-        }
-
-        if (fileId) {
-            return `https://drive.google.com/file/d/${fileId}/preview`;
-        }
+    // Already a processed lh3 URL — return as-is
+    if (url.includes('lh3.googleusercontent.com')) return url;
+    const fileId = extractDriveFileId(url);
+    if (fileId) {
+        // lh3.googleusercontent.com/d/FILEID serves public Drive images reliably
+        return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
     return url;
 };
 
-export const getDriveStreamLink = (url: string) => {
+export const getDriveEmbedLink = (url: string): string => {
     if (!url) return '';
-    if (url.includes('drive.google.com')) {
-        let fileId = '';
-        const patterns = [
-            /\/file\/d\/([^\/]+)/,
-            /id=([^&|?]+)/,
-            /\/open\?id=([^\/&]+)/,
-            /\/d\/([^\/\s]+)/
-        ];
-
-        for (const pattern of patterns) {
-            const match = url.match(pattern);
-            if (match && match[1]) {
-                fileId = match[1];
-                break;
-            }
-        }
-
-        if (fileId) {
-            // This direct download link works as a source for <video> tags
-            return `https://drive.google.com/uc?id=${fileId}&export=download`;
-        }
-    }
+    // Already an embed URL
+    if (url.includes('/preview')) return url;
+    const fileId = extractDriveFileId(url);
+    if (fileId) return `https://drive.google.com/file/d/${fileId}/preview`;
     return url;
 };
+
+export const getDriveStreamLink = (url: string): string => {
+    if (!url) return '';
+    // For Drive URLs, use the embed/preview link (iframe-based)
+    const fileId = extractDriveFileId(url);
+    if (fileId) return `https://drive.google.com/file/d/${fileId}/preview`;
+    return url;
+};
+
+export const isDriveUrl = (url: string): boolean =>
+    !!url && url.includes('drive.google.com');

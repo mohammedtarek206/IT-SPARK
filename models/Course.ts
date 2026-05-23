@@ -44,8 +44,8 @@ export interface ICourse extends Document {
 const LessonSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String },
-    duration: { type: String, required: true },
-    videoUrl: { type: String, required: true },
+    duration: { type: String },
+    videoUrl: { type: String },
     order: { type: Number, required: true },
 });
 

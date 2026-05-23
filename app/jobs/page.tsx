@@ -62,6 +62,15 @@ export default function JobsPage() {
     const handleApply = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!formData.resumeUrl) {
+            alert(isRtl ? 'يرجى إدخال رابط السيرة الذاتية (Google Drive) الخاص بك' : 'Please provide your Google Drive CV link');
+            return;
+        }
+        if (!formData.resumeUrl.includes('drive.google.com')) {
+            alert(isRtl ? 'يجب أن يكون رابط السيرة الذاتية من Google Drive' : 'Resume link must be a valid Google Drive link');
+            return;
+        }
+
         setApplying(true);
         try {
             const res = await fetch(`/api/jobs/${selectedJob._id}/apply`, {
@@ -343,12 +352,14 @@ export default function JobsPage() {
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'رابط السيرة الذاتية (Google Drive / PDF)' : 'Resume Link (Google Drive / PDF)'} *</label>
+                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">
+                                                        {isRtl ? 'رابط السيرة الذاتية (Google Drive) *' : 'Resume Link (Google Drive) *'}
+                                                    </label>
                                                     <input
                                                         required
                                                         value={formData.resumeUrl}
                                                         onChange={e => setFormData({ ...formData, resumeUrl: e.target.value })}
-                                                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
+                                                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all border-red-500/20 focus:border-primary"
                                                         placeholder="https://drive.google.com/..."
                                                     />
                                                 </div>
