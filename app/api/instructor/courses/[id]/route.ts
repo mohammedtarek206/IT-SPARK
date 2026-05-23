@@ -1,82 +1,104 @@
 import { NextRequest, NextResponse } from 'next/server';
-import * as mongoose from 'mongoose';
 import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import Module from '@/models/Module';
 import Lesson from '@/models/Lesson';
 import { authenticateRequest } from '@/lib/auth';
+import { courseAccessQuery, canManageCourses, isValidObjectId } from '@/lib/courseQuery';
 
 export const dynamic = 'force-dynamic';
+
+async function loadCourseWithModules(courseId: string) {
+    const course = await Course.findById(courseId).populate('instructor', 'name email');
+    if (!course) return null;
+
+    const modules = await Module.find({ course: course._id }).sort({ order: 1 });
+    const modulesWithLessons = [];
+
+    for (const mod of modules) {
+        const lessons = await Lesson.find({ module: mod._id }).sort({ order: 1 });
+        modulesWithLessons.push({
+            ...mod.toObject(),
+            lessons: lessons.map((l) => ({
+                ...l.toObject(),
+                id: l._id.toString(),
+                videoUrl: l.type === 'video' ? l.contentUrl : undefined,
+                fileName: l.type === 'pdf' ? l.contentUrl : undefined,
+            })),
+        });
+    }
+
+    return {
+        ...course.toObject(),
+        modules: modulesWithLessons,
+    };
+}
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const user = await authenticateRequest(request);
-        if (!user || (user.role !== 'instructor' && user.role !== 'admin')) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!canManageCourses(user)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
+
+        if (!isValidObjectId(params.id)) {
+            return NextResponse.json({ message: 'Invalid course id' }, { status: 400 });
+        }
+
+        const accessQuery = courseAccessQuery(params.id, user!);
+        if (!accessQuery) {
+            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
         await connectDB();
-        const course = await Course.findOne({ _id: params.id, instructor: user.userId })
-            .populate('track', 'title');
-
-        if (!course) {
-            return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+        const owned = await Course.findOne(accessQuery).select('_id');
+        if (!owned) {
+            return NextResponse.json({ message: 'Course not found' }, { status: 404 });
         }
 
-        // Fetch modules and lessons
-        const modules = await Module.find({ course: course._id }).sort({ order: 1 });
-        const modulesWithLessons = [];
-
-        for (const mod of modules) {
-            const lessons = await Lesson.find({ module: mod._id }).sort({ order: 1 });
-            modulesWithLessons.push({
-                ...mod.toObject(),
-                lessons: lessons.map(l => ({
-                    ...l.toObject(),
-                    id: l._id.toString(), // For frontend builder
-                    videoUrl: l.type === 'video' ? l.contentUrl : undefined,
-                    fileName: l.type === 'pdf' ? l.contentUrl : undefined,
-                }))
-            });
+        const payload = await loadCourseWithModules(params.id);
+        if (!payload) {
+            return NextResponse.json({ message: 'Course not found' }, { status: 404 });
         }
 
-        return NextResponse.json({
-            ...course.toObject(),
-            modules: modulesWithLessons
-        }, { status: 200 });
-    } catch (error: any) {
+        return NextResponse.json(payload, { status: 200 });
+    } catch (error: unknown) {
         console.error('Instructor Course GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch course data' }, { status: 500 });
+        return NextResponse.json({ message: 'Failed to fetch course data' }, { status: 500 });
     }
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const user = await authenticateRequest(request);
-        if (!user || (user.role !== 'instructor' && user.role !== 'admin')) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!canManageCourses(user)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
+
+        if (!isValidObjectId(params.id)) {
+            return NextResponse.json({ message: 'Invalid course id' }, { status: 400 });
+        }
+
+        const accessQuery = courseAccessQuery(params.id, user!);
+        if (!accessQuery) {
+            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
         const data = await request.json();
         const { modules, ...courseData } = data;
 
         await connectDB();
-
-        // Ensure instructor owns the course
-        const course = await Course.findOne({ _id: params.id, instructor: user.userId });
-
+        const course = await Course.findOne(accessQuery);
         if (!course) {
-            return NextResponse.json({ error: 'Course not found or unauthorized' }, { status: 404 });
+            return NextResponse.json({ message: 'Course not found' }, { status: 404 });
         }
 
-        // Update basic course details
         Object.assign(course, courseData);
         course.isActive = true;
 
-        // Handle modules and lessons replacement and update embedded modules
         if (modules && Array.isArray(modules)) {
             const existingModules = await Module.find({ course: course._id });
-            const moduleIds = existingModules.map(m => m._id);
+            const moduleIds = existingModules.map((m) => m._id);
             await Lesson.deleteMany({ module: { $in: moduleIds } });
             await Module.deleteMany({ course: course._id });
 
@@ -87,7 +109,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
                 const dbModule = new Module({
                     title: modData.title,
                     course: course._id,
-                    order: i
+                    order: i,
                 });
                 await dbModule.save();
 
@@ -103,7 +125,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
                             contentUrl: lessonData.contentUrl,
                             examQuestions: lessonData.examQuestions,
                             duration: lessonData.duration,
-                            order: j
+                            order: j,
                         });
                         await dbLesson.save();
 
@@ -112,7 +134,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
                             description: lessonData.description || '',
                             duration: lessonData.duration || '',
                             videoUrl: lessonData.type === 'video' ? lessonData.contentUrl : '',
-                            order: j
+                            order: j,
                         });
                     }
                 }
@@ -120,12 +142,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
                 embeddedModules.push({
                     title: modData.title,
                     order: i,
-                    lessons: embeddedLessons
+                    lessons: embeddedLessons,
                 });
             }
 
             course.modules = embeddedModules;
-            course.lecturesCount = modules.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0);
+            course.lecturesCount = modules.reduce(
+                (acc: number, m: { lessons?: unknown[] }) => acc + (m.lessons?.length || 0),
+                0
+            );
         }
 
         await course.save();
@@ -134,47 +159,45 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
             { message: 'Course updated successfully', course },
             { status: 200 }
         );
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to update course';
         console.error('Instructor Courses API PATCH error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to update course' }, { status: 500 });
+        return NextResponse.json({ message }, { status: 500 });
     }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const user = await authenticateRequest(request);
-        if (!user || (user.role !== 'instructor' && user.role !== 'admin')) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!canManageCourses(user)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
+
+        if (!isValidObjectId(params.id)) {
+            return NextResponse.json({ message: 'Invalid course id' }, { status: 400 });
+        }
+
+        const accessQuery = courseAccessQuery(params.id, user!);
+        if (!accessQuery) {
+            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
         await connectDB();
-        
-        // If user is admin, allow deleting any course. If instructor, only their own.
-        const query: any = { _id: params.id };
-        if (user.role !== 'admin') {
-            query.instructor = user.userId;
-        }
-
-        console.log('Attempting to delete course with query:', query);
-        const course = await Course.findOneAndDelete(query);
+        const course = await Course.findOneAndDelete(accessQuery);
 
         if (!course) {
-            console.log('Course not found or unauthorized for deletion. User:', user.userId, 'ID:', params.id);
-            return NextResponse.json({ error: 'Course not found or unauthorized' }, { status: 404 });
+            return NextResponse.json({ message: 'Course not found' }, { status: 404 });
         }
 
-        console.log('Course deleted, cleaning up modules and lessons for course:', course._id);
         const existingModules = await Module.find({ course: course._id });
-        const moduleIds = existingModules.map(m => m._id);
-        
-        const lessonsDeleted = await Lesson.deleteMany({ module: { $in: moduleIds } });
-        const modulesDeleted = await Module.deleteMany({ course: course._id });
-        
-        console.log(`Deleted ${modulesDeleted.deletedCount} modules and ${lessonsDeleted.deletedCount} lessons.`);
+        const moduleIds = existingModules.map((m) => m._id);
+        await Lesson.deleteMany({ module: { $in: moduleIds } });
+        await Module.deleteMany({ course: course._id });
 
         return NextResponse.json({ message: 'Course deleted successfully' }, { status: 200 });
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to delete course';
         console.error('Instructor Courses API DELETE error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to delete course' }, { status: 500 });
+        return NextResponse.json({ message }, { status: 500 });
     }
 }

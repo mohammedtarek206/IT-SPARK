@@ -4,18 +4,26 @@ import Course from '@/models/Course';
 import Module from '@/models/Module';
 import Lesson from '@/models/Lesson';
 import { authenticateRequest } from '@/lib/auth';
+import { courseAccessQuery, canManageCourses, isValidObjectId } from '@/lib/courseQuery';
 
 // GET /api/instructor/courses/[id]/modules — get all modules for a course
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const user = await authenticateRequest(request);
-        if (!user || user.role !== 'instructor') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!canManageCourses(user)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
+        if (!isValidObjectId(params.id)) {
+            return NextResponse.json({ message: 'Invalid course id' }, { status: 400 });
+        }
+        const accessQuery = courseAccessQuery(params.id, user!);
+        if (!accessQuery) {
+            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
         await connectDB();
-        const course = await Course.findOne({ _id: params.id, instructor: user.userId });
-        if (!course) return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+        const course = await Course.findOne(accessQuery);
+        if (!course) return NextResponse.json({ message: 'Course not found' }, { status: 404 });
 
         // Source of truth: Fetch modules and lessons from standalone collections
         const dbModules = await Module.find({ course: course._id }).sort({ order: 1 });
@@ -46,15 +54,22 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const user = await authenticateRequest(request);
-        if (!user || user.role !== 'instructor') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!canManageCourses(user)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
+        if (!isValidObjectId(params.id)) {
+            return NextResponse.json({ message: 'Invalid course id' }, { status: 400 });
+        }
+        const accessQuery = courseAccessQuery(params.id, user!);
+        if (!accessQuery) {
+            return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
         await connectDB();
         const { modules } = await request.json();
 
-        const course = await Course.findOne({ _id: params.id, instructor: user.userId });
-        if (!course) return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+        const course = await Course.findOne(accessQuery);
+        if (!course) return NextResponse.json({ message: 'Course not found' }, { status: 404 });
 
         // 1. Delete existing modules and lessons for this course from standalone collections
         const existingModules = await Module.find({ course: course._id });

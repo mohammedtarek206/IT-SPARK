@@ -78,7 +78,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             label: 'Career',
             items: [
                 { title: 'Manage Jobs', icon: FiBriefcase, href: '/admin/jobs' },
-                { title: 'Applications', icon: FiFileText, href: '/admin/jobs/applications' },
+                { title: 'Job Applications', icon: FiFileText, href: '/admin/job-applications' },
+                { title: 'Job CV Applications', icon: FiFileText, href: '/admin/jobs/applications' },
             ]
         },
         {

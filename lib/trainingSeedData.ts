@@ -13,6 +13,8 @@ export interface TrainingSeedItem {
     price: number;
     isFree: boolean;
     seats: number;
+    seats_total?: number;
+    seats_available?: number;
     location: string;
     thumbnail: string;
     category: string;
@@ -88,6 +90,8 @@ export const LEGACY_TRAINING_SEED: TrainingSeedItem[] = LEGACY_RAW.map((item) =>
         price: 0,
         isFree: false,
         seats: 30,
+        seats_total: 30,
+        seats_available: 30,
         location: trainingType === 'Online' ? '' : 'IT-SPARK Center',
         thumbnail: item.image,
         category: item.category,

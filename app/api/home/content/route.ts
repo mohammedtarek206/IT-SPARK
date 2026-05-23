@@ -34,11 +34,41 @@ export async function GET() {
         const courses = rawCourses.map((course: any) => ({
             ...course,
             thumbnail: sanitizeImageUrl(course.thumbnail),
+            previewVideoUrl: sanitizeImageUrl(course.previewVideoUrl),
             instructor: {
                 ...course.instructor,
                 image: course.instructor ? sanitizeImageUrl(course.instructor.image) : null
             }
         }));
+
+        const mediaFilter = {
+            isActive: true,
+            $or: [
+                { previewVideoUrl: { $exists: true, $nin: [null, ''] } },
+                { thumbnail: { $exists: true, $nin: [null, ''] } },
+            ],
+        };
+
+        let featuredRaw = await Course.findOne(mediaFilter)
+            .sort({ createdAt: -1 })
+            .populate({ path: 'instructor', select: 'name', model: User })
+            .lean();
+
+        if (!featuredRaw) {
+            featuredRaw = await Course.findOne({ isActive: true })
+                .sort({ createdAt: -1 })
+                .populate({ path: 'instructor', select: 'name', model: User })
+                .lean();
+        }
+
+        const featuredCourse = featuredRaw
+            ? {
+                  ...featuredRaw,
+                  _id: featuredRaw._id.toString(),
+                  thumbnail: sanitizeImageUrl(featuredRaw.thumbnail),
+                  previewVideoUrl: sanitizeImageUrl(featuredRaw.previewVideoUrl),
+              }
+            : null;
 
         let allVideos: any[] = [];
         
@@ -79,6 +109,7 @@ export async function GET() {
             .slice(0, 8);
 
         return NextResponse.json({
+            featuredCourse,
             courses,
             lessons
         }, { status: 200 });

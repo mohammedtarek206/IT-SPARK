@@ -26,6 +26,20 @@ export async function POST(req: Request) {
             if (!training || !training.isActive) {
                 return NextResponse.json({ error: 'Training not found' }, { status: 404 });
             }
+            const available =
+                typeof training.seats_available === 'number'
+                    ? training.seats_available
+                    : training.seats ?? 0;
+            const total =
+                typeof training.seats_total === 'number' && training.seats_total > 0
+                    ? training.seats_total
+                    : training.seats ?? 0;
+            if (total > 0 && available <= 0) {
+                return NextResponse.json(
+                    { error: 'No seats available for this training' },
+                    { status: 400 }
+                );
+            }
             courseName = training.title;
         }
 
@@ -45,6 +59,25 @@ export async function POST(req: Request) {
             training: trainingId || undefined,
             status: 'new',
         });
+
+        if (trainingId) {
+            const training = await Training.findById(trainingId);
+            if (training) {
+                const total =
+                    training.seats_total > 0 ? training.seats_total : training.seats ?? 0;
+                if (total > 0) {
+                    const current =
+                        typeof training.seats_available === 'number'
+                            ? training.seats_available
+                            : training.seats ?? 0;
+                    if (current > 0) {
+                        training.seats_available = current - 1;
+                        training.seats = training.seats_available;
+                        await training.save();
+                    }
+                }
+            }
+        }
 
         return NextResponse.json({ success: true, data: registration }, { status: 201 });
     } catch (error) {

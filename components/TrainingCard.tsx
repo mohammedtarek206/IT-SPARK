@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FiClock, FiMapPin, FiUsers } from 'react-icons/fi';
 import CourseCardMedia from '@/components/CourseCardMedia';
 import { useLanguage } from '@/lib/LanguageContext';
+import { getTrainingSeatsAvailable, getTrainingSeatsTotal } from '@/lib/trainingSeats';
 
 export interface TrainingItem {
     _id: string;
@@ -15,6 +16,8 @@ export interface TrainingItem {
     price?: number;
     isFree?: boolean;
     seats?: number;
+    seats_total?: number;
+    seats_available?: number;
     thumbnail?: string;
     previewVideoUrl?: string;
     category?: string;
@@ -35,6 +38,9 @@ export default function TrainingCard({ training, onApply }: TrainingCardProps) {
             currency: 'EGP',
             maximumFractionDigits: 0,
         }).format(value);
+
+    const seatsTotal = getTrainingSeatsTotal(training);
+    const seatsAvailable = getTrainingSeatsAvailable(training);
 
     const typeLabel = (type?: string) => {
         if (!type) return '';
@@ -95,10 +101,14 @@ export default function TrainingCard({ training, onApply }: TrainingCardProps) {
                             {typeLabel(training.type)}
                         </div>
                     )}
-                    {(training.seats ?? 0) > 0 && (
+                    {seatsTotal > 0 && (
                         <div className="flex items-center gap-2">
                             <FiUsers className="text-primary/70 shrink-0" />
-                            {training.seats} {isRtl ? 'مقعد' : 'seats'}
+                            <span>
+                                {isRtl
+                                    ? `${seatsAvailable} / ${seatsTotal} مقعد متاح`
+                                    : `${seatsAvailable} / ${seatsTotal} seats available`}
+                            </span>
                         </div>
                     )}
                 </div>

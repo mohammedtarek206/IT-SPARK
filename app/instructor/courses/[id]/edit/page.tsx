@@ -45,14 +45,37 @@ export default function EditCoursePage() {
 
     useEffect(() => {
         const fetchCourse = async () => {
+            if (!courseId) {
+                setError('Invalid course link.');
+                setLoading(false);
+                return;
+            }
             try {
                 const token = localStorage.getItem('token');
+                if (!token) {
+                    setError('Please log in to edit this course.');
+                    setLoading(false);
+                    return;
+                }
                 const res = await fetch(`/api/instructor/courses/${courseId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                if (res.status === 404) { setNotFound(true); return; }
-                if (!res.ok) throw new Error('Failed to fetch');
-                const data = await res.json();
+                const data = await res.json().catch(() => ({}));
+                if (res.status === 401) {
+                    setError('Session expired. Please log in again.');
+                    return;
+                }
+                if (res.status === 403) {
+                    setError('You are not allowed to edit this course.');
+                    return;
+                }
+                if (res.status === 404) {
+                    setNotFound(true);
+                    return;
+                }
+                if (!res.ok) {
+                    throw new Error(data.message || 'Failed to fetch course');
+                }
                 // Pre-populate form — thumbnail/video stored as processed URLs so keep them
                 setFormData({
                     title: data.title || '',
@@ -74,8 +97,9 @@ export default function EditCoursePage() {
                     isFree: data.isFree || false,
                     discountPrice: data.discountPrice || 0,
                 });
-            } catch {
-                setError('Failed to load course data.');
+            } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : 'Failed to load course data.';
+                setError(msg);
             } finally {
                 setLoading(false);
             }
@@ -132,11 +156,29 @@ export default function EditCoursePage() {
         }
     };
 
-    if (loading) return (
-        <div className="h-[60vh] flex items-center justify-center">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        </div>
-    );
+    if (loading) {
+        return (
+            <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">Loading course...</p>
+            </div>
+        );
+    }
+
+    if (error && !notFound) {
+        return (
+            <div className="max-w-lg mx-auto py-24 text-center space-y-4">
+                <p className="text-red-400 font-black text-lg">{error}</p>
+                <button
+                    type="button"
+                    onClick={() => router.push('/instructor/courses')}
+                    className="text-primary font-bold hover:underline flex items-center gap-2 mx-auto"
+                >
+                    <FiArrowLeft /> Back to Courses
+                </button>
+            </div>
+        );
+    }
 
     if (notFound) return (
         <div className="text-center py-24">

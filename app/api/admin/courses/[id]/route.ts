@@ -1,7 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
+import Module from '@/models/Module';
+import Lesson from '@/models/Lesson';
 import { authenticateRequest } from '@/lib/auth';
+import { isValidObjectId } from '@/lib/courseQuery';
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+    try {
+        const user = await authenticateRequest(request);
+        if (!user || user.role !== 'admin') {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
+        if (!isValidObjectId(params.id)) {
+            return NextResponse.json({ message: 'Invalid course id' }, { status: 400 });
+        }
+
+        await connectDB();
+        const course = await Course.findById(params.id).populate('instructor', 'name email');
+        if (!course) {
+            return NextResponse.json({ message: 'Course not found' }, { status: 404 });
+        }
+
+        const modules = await Module.find({ course: course._id }).sort({ order: 1 });
+        const modulesWithLessons = [];
+        for (const mod of modules) {
+            const lessons = await Lesson.find({ module: mod._id }).sort({ order: 1 });
+            modulesWithLessons.push({
+                ...mod.toObject(),
+                lessons: lessons.map((l) => ({
+                    ...l.toObject(),
+                    id: l._id.toString(),
+                })),
+            });
+        }
+
+        return NextResponse.json({ ...course.toObject(), modules: modulesWithLessons });
+    } catch (error: unknown) {
+        console.error('Admin Course GET error:', error);
+        return NextResponse.json({ message: 'Failed to fetch course' }, { status: 500 });
+    }
+}
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
     try {

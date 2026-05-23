@@ -14,6 +14,11 @@ import {
   FiRefreshCw,
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import CourseCardMedia from '@/components/CourseCardMedia';
+import {
+  getThumbnailPreviewUrl,
+  getVideoPreviewEmbedUrl,
+} from '@/lib/courseMedia';
 
 const emptyForm = {
   title: '',
@@ -24,7 +29,6 @@ const emptyForm = {
   type: 'Offline' as 'Online' | 'Offline' | 'Hybrid',
   price: 0,
   isFree: false,
-  seats: 0,
   startDate: '',
   endDate: '',
   location: '',
@@ -122,7 +126,6 @@ export default function AdminTrainingsPage() {
       type: t.type || 'Offline',
       price: t.price || 0,
       isFree: !!t.isFree,
-      seats: t.seats || 0,
       startDate: t.startDate ? t.startDate.slice(0, 10) : '',
       endDate: t.endDate ? t.endDate.slice(0, 10) : '',
       location: t.location || '',
@@ -260,16 +263,14 @@ export default function AdminTrainingsPage() {
               key={t._id}
               className="glass border border-white/10 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
-              {t.thumbnail && (
-                <div
-                  className="w-full md:w-28 h-20 md:h-16 rounded-xl overflow-hidden bg-black/30 shrink-0"
-                  style={{
-                    backgroundImage: `url(${t.thumbnail})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  }}
+              <div className="w-full md:w-32 h-20 rounded-xl overflow-hidden bg-slate-900 shrink-0 relative">
+                <CourseCardMedia
+                  thumbnail={t.thumbnail}
+                  videoUrl={t.previewVideoUrl}
+                  title={t.title}
+                  className="absolute inset-0 w-full h-full"
                 />
-              )}
+              </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-black text-white text-lg">{t.title}</h3>
@@ -389,15 +390,6 @@ export default function AdminTrainingsPage() {
                       className="admin-input"
                     />
                   </Field>
-                  <Field label="المقاعد">
-                    <input
-                      type="number"
-                      min={0}
-                      value={form.seats}
-                      onChange={(e) => setForm({ ...form, seats: +e.target.value })}
-                      className="admin-input"
-                    />
-                  </Field>
                   <Field label="السعر">
                     <input
                       type="number"
@@ -457,21 +449,52 @@ export default function AdminTrainingsPage() {
                     className="admin-input"
                   />
                 </Field>
-                <Field label="رابط الصورة (1536×1024) أو Google Drive">
+                <Field label="رابط الصورة (Drive / JPG / PNG / WEBP)">
                   <input
                     value={form.thumbnail}
                     onChange={(e) => setForm({ ...form, thumbnail: e.target.value })}
                     className="admin-input dir-ltr"
-                    placeholder="https://..."
+                    placeholder="https://drive.google.com/file/d/... أو رابط صورة مباشر"
                   />
+                  {getThumbnailPreviewUrl(form.thumbnail) && (
+                    <div className="mt-3 relative w-full max-w-sm aspect-video rounded-xl overflow-hidden border border-white/10 bg-black">
+                      <img
+                        src={getThumbnailPreviewUrl(form.thumbnail)!}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                 </Field>
-                <Field label="فيديو Intro (YouTube / Drive)">
+                <Field label="فيديو Intro (YouTube / Drive / MP4)">
                   <input
                     value={form.previewVideoUrl}
                     onChange={(e) => setForm({ ...form, previewVideoUrl: e.target.value })}
                     className="admin-input dir-ltr"
-                    placeholder="YouTube or Drive link"
+                    placeholder="YouTube أو Google Drive أو MP4"
                   />
+                  {getVideoPreviewEmbedUrl(form.previewVideoUrl) && (
+                    <div className="mt-3 relative w-full max-w-lg aspect-video rounded-xl overflow-hidden border border-white/10 bg-black">
+                      <iframe
+                        src={getVideoPreviewEmbedUrl(form.previewVideoUrl)!}
+                        className="w-full h-full border-0"
+                        allow="autoplay; fullscreen"
+                        allowFullScreen
+                        title="Video preview"
+                      />
+                    </div>
+                  )}
+                  {form.previewVideoUrl?.trim() &&
+                    !getVideoPreviewEmbedUrl(form.previewVideoUrl) &&
+                    /\.(mp4|webm|ogg|mov)(\?|$)/i.test(form.previewVideoUrl) && (
+                      <div className="mt-3 relative w-full max-w-lg aspect-video rounded-xl overflow-hidden border border-white/10 bg-black">
+                        <video
+                          src={form.previewVideoUrl}
+                          controls
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
                 </Field>
                 <div className="flex flex-wrap gap-4">
                   <label className="flex items-center gap-2 text-white text-sm font-bold cursor-pointer">

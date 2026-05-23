@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FiPlay } from 'react-icons/fi';
 import { resolveCourseMedia } from '@/lib/courseMedia';
 import CoursePlaceholder from '@/components/CoursePlaceholder';
+import { getDriveImageFallbacks } from '@/lib/media';
 
 export { isMediaVideo } from '@/lib/media';
 
@@ -27,10 +28,18 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
     const [isHovered, setIsHovered] = useState(false);
     const [videoLoaded, setVideoLoaded] = useState(false);
     const [imageFailed, setImageFailed] = useState(false);
+    const [imageSrcIndex, setImageSrcIndex] = useState(0);
     const [showEmbed, setShowEmbed] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     const media = resolveCourseMedia(thumbnail, videoUrl);
+    const imageFallbacks = media.instructorImageUrl
+        ? getDriveImageFallbacks(thumbnail || media.instructorImageUrl)
+        : [];
+    const currentImageSrc =
+        imageFallbacks.length > 0
+            ? imageFallbacks[Math.min(imageSrcIndex, imageFallbacks.length - 1)]
+            : media.instructorImageUrl;
     const needsEmbedPlayer = media.isYouTube || media.isDriveVideo;
     const hasNativeVideo = media.isNativeVideo;
 
@@ -39,6 +48,7 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
 
     useEffect(() => {
         setImageFailed(false);
+        setImageSrcIndex(0);
         setVideoLoaded(false);
         setShowEmbed(false);
     }, [thumbnail, videoUrl]);
@@ -90,11 +100,17 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
                 <CoursePlaceholder title={title} className="absolute inset-0" />
             )}
 
-            {showInstructorImage && (
+            {showInstructorImage && currentImageSrc && (
                 <img
-                    src={media.instructorImageUrl!}
+                    src={currentImageSrc}
                     alt={title}
-                    onError={() => setImageFailed(true)}
+                    onError={() => {
+                        if (imageSrcIndex < imageFallbacks.length - 1) {
+                            setImageSrcIndex((i) => i + 1);
+                        } else {
+                            setImageFailed(true);
+                        }
+                    }}
                     className={`w-full h-full transition-all duration-700 ${fitClass} ${
                         isHovered ? 'scale-105' : 'scale-100'
                     } ${hasNativeVideo && isHovered && videoLoaded ? 'opacity-0' : 'opacity-100'}`}
@@ -118,6 +134,8 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
                                 isHovered && videoLoaded ? 'opacity-100' : 'opacity-100'
                             }`}
                         />
+                    ) : needsEmbedPlayer ? (
+                        <div className="absolute inset-0 bg-slate-900" aria-hidden />
                     ) : (
                         <CoursePlaceholder title={title} className="absolute inset-0" />
                     )}

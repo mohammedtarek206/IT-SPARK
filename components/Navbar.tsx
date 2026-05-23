@@ -77,6 +77,7 @@ export default function Navbar() {
       icon: FiAward,
     },
     { href: '/jobs', label: t('jobs') || (isRtl ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
+    { href: '/apply', label: isRtl ? 'تقديم شهادة' : 'Apply', icon: FiBriefcase },
     {
       label: t('about'),
       icon: FiInfo,
@@ -98,6 +99,7 @@ export default function Navbar() {
       icon: FiAward,
     },
     { href: '/jobs', label: t('jobs') || (isRtl ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
+    { href: '/apply', label: isRtl ? 'تقديم شهادة' : 'Apply', icon: FiBriefcase },
     { href: '/contact', label: t('contact'), icon: FiMail },
   ];
 
