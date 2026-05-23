@@ -1,0 +1,154 @@
+[33mcommit 65d022179e77cd91492b18d46281c93a4822e659[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sat May 23 22:01:15 2026 +0200
+
+    fix: استرجاع UI مستقر وإصلاح Navbar المكرر + Google verification
+
+[33mcommit a1dc6b92e9f32d33b183859c9c55487bb42a6112[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sat May 23 21:55:42 2026 +0200
+
+    feat: latest updates
+
+[33mcommit 13f373e0b73650bdc620616f2fffddd5fcaf2a88[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sat May 23 20:53:02 2026 +0200
+
+    feat: SEO شامل لـ IT-SPARK وGoogle Search Console verification
+
+[33mcommit a31e799a57e825050dcc890da4562ec13d6a851c[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sat May 23 20:35:41 2026 +0200
+
+    feat: طلبات التوظيف، تحسينات التدريب والوسائط
+
+[33mcommit a2df2c00de2e44a2cf59319aafd5db765bbced90[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sat May 23 19:44:34 2026 +0200
+
+    feat: توحيد media الكورسات وHero branding
+    
+    - إزالة Unsplash والصور العشوائية؛ placeholder ثابت IT-SPARK فقط عند غياب media
+    
+    - منطق resolveCourseMedia: فيديو المدرب ثم الصورة ثم placeholder
+    
+    - Hero IT-SPARK بنفس تدرج Navbar (primary إلى accent)
+    
+    - جعل thumbnail وintro video اختياريين في نماذج المدرب والـ API
+    
+    Co-authored-by: Cursor <cursoragent@cursor.com>
+
+[33mcommit 92f56caee6e32b9b8b1b893772eb6f92d1c31ebd[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sat May 23 17:41:42 2026 +0200
+
+    @
+    feat: تحسينات المنصة - كورسات، سلة، دفع، تدريبات، وNavbar
+    - Hero احترافي لصفحة تفاصيل الكورس + معاينة YouTube
+    - سلة مشتريات + صفحة checkout + ربط المدفوعات بالأدمن
+    - نظام التدريبات (CRUD للأدمن + صفحة عامة + تقديم بدون login)
+    - Navbar متجاوبة للموبايل + Toast + عداد السلة
+    - استيراد 30 تدريب قديم في لوحة الأدمن
+    @
+
+[33mcommit b699767d8cf3bc6b17c067e47a8054f0ad682db2[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sat May 23 03:17:05 2026 +0200
+
+    translation: translate jobs to Arabic in main navbar
+
+[33mcommit de8514f5f0c717e5b3a3f167664ba9dacccb9ca6[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sat May 23 03:13:25 2026 +0200
+
+    update: apply latest changes
+
+[33mcommit bca6dd07905b12c4691d43a1a2014c0e9a82c195[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Fri May 22 00:43:43 2026 +0200
+
+    fix: Admin job applications client-side crash (missing FiTrash2 import)
+
+[33mcommit dad0e3cbffb131c20fcb49a17727ceb8e43ecd6e[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Fri May 22 00:33:07 2026 +0200
+
+    feat: Hide instructor name from UI and overhaul Jobs system
+
+[33mcommit d77065da631d09006a94a6d1ead6be35a3c8b93a[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Thu May 21 17:08:47 2026 +0200
+
+    feat: Course system + YouTube player + modal fixes
+
+[33mcommit 1d725ce6db6a654e420f7687a938a3d62c1da71d[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Thu May 21 16:50:21 2026 +0200
+
+    feat: Full course system with YouTube player, modules & Udemy-style learn page
+
+[33mcommit 411c2cbcb8be6560f097def6d51cc714086307a4[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Tue May 19 13:31:12 2026 +0200
+
+    feat: support dynamic Google Drive images & video previews for courses in builder, cards and modals
+
+[33mcommit 0f2ac95be1470408c4135d1da319bd330949b93b[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Wed May 13 20:08:31 2026 +0200
+
+    Final decoupling of Tracks and enhancement of Job Application system with National ID and candidate details
+
+[33mcommit 0cf85f5d20bb0cc19120c7d26278606bdf9bd48e[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Tue May 12 12:19:51 2026 +0200
+
+    fix: course deletion, Google Drive thumbnails, YouTube embed improvements
+
+[33mcommit 5d2fc0fa84b98db6bc358f416e861133bf79232e[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Wed Apr 29 22:14:13 2026 +0200
+
+    Update: Update contact email, phone, and add physical address
+
+[33mcommit 6925f9423a028e4697fff9fd14a933b91314c7fc[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Wed Apr 29 21:59:49 2026 +0200
+
+    Fix: Instructor dashboard 404 broken link in Navbar
+
+[33mcommit 1237271a913b927948bcc3ebc2df1b5939d04f51[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Wed Apr 29 21:52:53 2026 +0200
+
+    UI: Fix IT-SPARK logo RTL visibility and update tagline
+
+[33mcommit e226ba993b02cdc571fb3f614ad289429e1a3f62[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Tue Apr 28 00:47:33 2026 +0200
+
+    fix: improve mobile responsiveness, fix navbar layout, and adjust dark mode colors
+
+[33mcommit 87a5e88d5b1db759e22e65eef7966d953f3fec4b[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sun Apr 26 17:16:18 2026 +0200
+
+    Make course library categories and list dynamic
+
+[33mcommit f1caf307f7736c01f47c9f85191f20695484b936[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sun Apr 26 17:10:15 2026 +0200
+
+    Make tracks dynamic and enhance home page content with course videos
+
+[33mcommit 37eb6027e1c1430ca52a54686826b1e5ff05e4d1[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sun Apr 26 15:28:29 2026 +0200
+
+    Update: Added intro video to Hero section, fixed dashboard branding, and connected MongoDB Atlas
+
+[33mcommit 7353d348f0977e21170f5d84ace716f4c813c79b[m
+Author: mohammedtarek206 <mm1062686@gmail.com>
+Date:   Sun Apr 26 15:06:02 2026 +0200
+
+    First commit: IT-SPARK Platform
