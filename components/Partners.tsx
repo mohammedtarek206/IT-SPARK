@@ -56,6 +56,8 @@ export default function Partners() {
                                 src={partner.logoUrl}
                                 alt={partner.name}
                                 className="h-6 sm:h-8 md:h-10 w-auto object-contain group-hover:scale-110 transition-transform"
+                                loading="lazy"
+                                decoding="async"
                             />
                             <span className="text-lg sm:text-xl md:text-2xl font-black text-white/50 group-hover:text-white transition-colors tracking-tighter">
                                 {partner.name}

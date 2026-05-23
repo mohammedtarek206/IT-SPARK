@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/AuthContext';
@@ -8,13 +9,15 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiPhone, FiAlertCircle, FiArrowRight, FiKey } from 'react-icons/fi';
 
-export default function LoginPage() {
+function LoginForm() {
     const [identifier, setIdentifier] = useState(''); // Email or Phone
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const { t, lang } = useLanguage();
+    const searchParams = useSearchParams();
+    const redirect = searchParams.get('redirect') || undefined;
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,7 +37,7 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (res.ok) {
-                login(data.token, data.user);
+                login(data.token, data.user, redirect);
             } else {
                 setError(data.error || 'Login failed');
             }
@@ -161,5 +164,19 @@ export default function LoginPage() {
                 </div>
             </motion.div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-screen flex items-center justify-center bg-background">
+                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+            }
+        >
+            <LoginForm />
+        </Suspense>
     );
 }

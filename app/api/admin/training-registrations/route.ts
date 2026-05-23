@@ -12,7 +12,9 @@ export async function GET(request: NextRequest) {
 
         await connectDB();
 
-        const registrations = await CourseRegistration.find().sort({ createdAt: -1 });
+        const registrations = await CourseRegistration.find()
+            .populate('training', 'title type price isFree')
+            .sort({ createdAt: -1 });
 
         return NextResponse.json({ registrations }, { status: 200 });
 

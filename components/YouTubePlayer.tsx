@@ -10,40 +10,7 @@ interface YouTubePlayerProps {
     onEnded?: () => void;
 }
 
-const extractYouTubeId = (url: string): string | null => {
-    if (!url) return null;
-    const patterns = [
-        /youtu\.be\/([^?&\s]+)/,
-        /youtube\.com\/watch\?v=([^&\s]+)/,
-        /youtube\.com\/embed\/([^?&\s]+)/,
-        /youtube\.com\/v\/([^?&\s]+)/,
-        /youtube\.com\/shorts\/([^?&\s]+)/,
-    ];
-    for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match) return match[1];
-    }
-    return null;
-};
-
-const buildEmbedUrl = (videoId: string, autoplay = false): string => {
-    const params = new URLSearchParams({
-        autoplay: autoplay ? '1' : '0',
-        rel: '0',            // No related videos
-        modestbranding: '1', // Minimal YouTube branding
-        showinfo: '0',       // No video title bar
-        controls: '1',       // Show controls
-        fs: '1',             // Allow fullscreen
-        iv_load_policy: '3', // No annotations
-        disablekb: '0',      // Allow keyboard shortcuts
-        enablejsapi: '1',    // Enable JS API
-        origin: typeof window !== 'undefined' ? window.location.origin : '',
-        playsinline: '1',    // Play inline on iOS
-        color: 'white',      // Use white progress bar
-        widget_referrer: typeof window !== 'undefined' ? window.location.origin : '',
-    });
-    return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
-};
+import { extractYouTubeId, buildYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/youtube';
 
 export default function YouTubePlayer({ videoUrl, title, autoplay = false, onEnded }: YouTubePlayerProps) {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -75,8 +42,8 @@ export default function YouTubePlayer({ videoUrl, title, autoplay = false, onEnd
         );
     }
 
-    const embedUrl = buildEmbedUrl(videoId, isPlaying || autoplay);
-    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    const embedUrl = buildYouTubeEmbedUrl(videoId, isPlaying || autoplay);
+    const thumbnailUrl = getYouTubeThumbnail(videoId);
 
     return (
         <div
@@ -96,8 +63,10 @@ export default function YouTubePlayer({ videoUrl, title, autoplay = false, onEnd
                         alt={title || 'Video thumbnail'}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                            (e.target as HTMLImageElement).src = getYouTubeThumbnail(videoId, 'hq');
                         }}
+                        loading="lazy"
+                        decoding="async"
                     />
                     {/* Dark overlay */}
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />

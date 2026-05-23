@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaCheck } from 'react-icons/fa';
 import { useLanguage } from '@/lib/LanguageContext';
+import { toggleCart, isInCart, dispatchCartUpdate } from '@/lib/cart';
+import { showToast } from '@/lib/toast';
 import CourseCardMedia from './CourseCardMedia';
 
 interface CourseCardProps {
@@ -36,8 +38,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
             const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
             setIsWishlisted(wishlist.includes(course._id));
 
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            setInCart(cart.includes(course._id));
+            setInCart(isInCart(course._id));
         } catch (e) {
             console.error('Failed to parse localStorage:', e);
         }
@@ -62,23 +63,22 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
         }
     };
 
-    const toggleCart = (e: React.MouseEvent) => {
+    const handleToggleCart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        try {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            let newCart;
-            if (cart.includes(course._id)) {
-                newCart = cart.filter((id: string) => id !== course._id);
-                setInCart(false);
-            } else {
-                newCart = [...cart, course._id];
-                setInCart(true);
-            }
-            localStorage.setItem('cart', JSON.stringify(newCart));
-        } catch (err) {
-            console.error(err);
-        }
+        const nowInCart = toggleCart(course._id);
+        setInCart(nowInCart);
+        dispatchCartUpdate();
+        showToast(
+            nowInCart
+                ? isRtl
+                    ? 'تمت إضافة الكورس إلى السلة'
+                    : 'Course added to cart'
+                : isRtl
+                  ? 'تمت إزالة الكورس من السلة'
+                  : 'Removed from cart',
+            nowInCart ? 'success' : 'info'
+        );
     };
 
     // Deterministic rating and review count based on ID if not provided, for realistic UX
@@ -127,8 +127,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
 
                 {/* Wishlist Button */}
                 <button
+                    type="button"
                     onClick={toggleWishlist}
-                    className="pointer-events-auto ml-auto p-2 rounded-full bg-white/90 dark:bg-slate-800/90 shadow-md hover:bg-white dark:hover:bg-slate-700 transition-colors flex items-center justify-center text-rose-500 border border-slate-100 dark:border-slate-750"
+                    className="pointer-events-auto ml-auto p-2 rounded-full relative z-20 bg-white/90 dark:bg-slate-800/90 shadow-md hover:bg-white dark:hover:bg-slate-700 transition-colors flex items-center justify-center text-rose-500 border border-slate-100 dark:border-slate-750"
                     title={isRtl ? 'إضافة للمفضلة' : 'Add to Wishlist'}
                 >
                     {isWishlisted ? <FaHeart size={14} /> : <FaRegHeart size={14} className="text-slate-400 dark:text-slate-300 hover:text-rose-500" />}
@@ -202,8 +203,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
 
                     {/* Action Button: Add to Cart */}
                     <button
-                        onClick={toggleCart}
-                        className={`w-full py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-300 ${
+                        type="button"
+                        onClick={handleToggleCart}
+                        className={`w-full py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-300 relative z-20 ${
                             inCart 
                                 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
                                 : 'bg-gradient-to-r from-primary to-primary/95 text-white shadow-sm hover:shadow hover:from-primary/90 hover:to-primary hover:scale-[1.01] active:scale-[0.98]'

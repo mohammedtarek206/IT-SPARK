@@ -9,7 +9,8 @@ export interface ICourseRegistration extends Document {
     governorate: string;
     notes?: string;
     course_name: string;
-    status: 'new' | 'contacted' | 'registered' | 'cancelled';
+    training?: mongoose.Types.ObjectId;
+    status: 'new' | 'contacted' | 'accepted' | 'rejected';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -24,15 +25,18 @@ const CourseRegistrationSchema: Schema = new Schema(
         governorate: { type: String, required: true },
         notes: { type: String },
         course_name: { type: String, required: true },
+        training: { type: Schema.Types.ObjectId, ref: 'Training' },
         status: {
             type: String,
-            enum: ['new', 'contacted', 'registered', 'cancelled'],
+            enum: ['new', 'contacted', 'accepted', 'rejected'],
             default: 'new',
         },
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 );
 
-export default mongoose.models.CourseRegistration || mongoose.model<ICourseRegistration>('CourseRegistration', CourseRegistrationSchema);
+if (mongoose.models.CourseRegistration) {
+    delete mongoose.models.CourseRegistration;
+}
+
+export default mongoose.model<ICourseRegistration>('CourseRegistration', CourseRegistrationSchema);

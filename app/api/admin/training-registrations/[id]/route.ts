@@ -15,9 +15,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
         await connectDB();
 
+        const allowed = ['new', 'contacted', 'accepted', 'rejected'];
+        const status = allowed.includes(data.status) ? data.status : 'new';
+
         const updatedRegistration = await CourseRegistration.findByIdAndUpdate(
             id,
-            { status: data.status },
+            { status },
             { new: true }
         );
 

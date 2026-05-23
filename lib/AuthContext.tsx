@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { syncCartWithServer } from '@/lib/cart';
 
 interface User {
     id: string;
@@ -17,7 +18,7 @@ interface User {
 interface AuthContextType {
     user: User | null;
     token: string | null;
-    login: (token: string, user: User) => void;
+    login: (token: string, user: User, redirectTo?: string) => void;
     logout: () => void;
     isLoading: boolean;
 }
@@ -38,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
                 setToken(storedToken);
                 setUser(JSON.parse(storedUser));
+                void syncCartWithServer();
             } catch (e) {
                 console.error('Failed to parse stored user');
                 localStorage.removeItem('token');
@@ -47,14 +49,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
     }, []);
 
-    const login = (newToken: string, newUser: User) => {
+    const login = (newToken: string, newUser: User, redirectTo?: string) => {
         setToken(newToken);
         setUser(newUser);
         localStorage.setItem('token', newToken);
         localStorage.setItem('user', JSON.stringify(newUser));
         document.cookie = `token=${newToken}; path=/; max-age=604800; samesite=lax`;
+        void syncCartWithServer();
 
-        // Redirect based on role
+        if (redirectTo && newUser.role === 'student') {
+            router.push(redirectTo);
+            return;
+        }
+
         if (newUser.role === 'admin') router.push('/admin/dashboard');
         else if (newUser.role === 'instructor') router.push('/instructor');
         else router.push('/dashboard');

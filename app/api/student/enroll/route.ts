@@ -34,8 +34,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Item not found' }, { status: 404 });
         }
 
-        // Only allow direct enrollment if it's free
-        if (item.price > 0) {
+        if (!item.isFree && (item.price ?? 0) > 0) {
             return NextResponse.json({ error: 'This item requires payment' }, { status: 400 });
         }
 

@@ -7,10 +7,9 @@ export default function Footer() {
     <footer className="bg-surface border-t border-border">
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8">
-          {/* Brand */}
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="relative w-20 h-20 flex items-center justify-center">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="relative w-16 h-16 flex items-center justify-center shrink-0">
                 <Image
                   src="/logo.png"
                   alt="IT-SPARK Logo"
@@ -18,7 +17,10 @@ export default function Footer() {
                   className="object-contain"
                 />
               </div>
-              <span className="text-xl font-bold text-foreground" dir="ltr">IT-SPARK</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-foreground leading-tight" dir="ltr">IT-SPARK</span>
+                <span className="text-[10px] text-accent font-extrabold tracking-wider mt-1" dir="ltr">THERE IS MUCH MORE TO LEARN</span>
+              </div>
             </div>
             <p className="text-foreground/60 text-sm">
               Empowering the next generation of tech leaders through world-class education.

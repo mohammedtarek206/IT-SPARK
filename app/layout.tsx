@@ -7,18 +7,27 @@ import { LanguageProvider } from '@/lib/LanguageContext';
 import { AuthProvider } from '@/lib/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ToastContainer from '@/components/ToastContainer';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo' });
 
 export const metadata: Metadata = {
-  title: 'IT-SPARK | Excellence in Tech Education',
-  description: 'IT-SPARK - The leading platform for programming and technology education. We offer certified courses in AI, Cybersecurity, Data Analysis, and more.',
+  title: 'IT-SPARK | THERE IS MUCH MORE TO LEARN',
+  description: 'IT-SPARK تقدم أفضل الكورسات والتدريبات الاحترافية في البرمجة، الذكاء الاصطناعي، الأمن السيبراني، تحليل البيانات، الشبكات، الجرافيك، وتطوير التطبيقات.',
   keywords: [
-    'IT-SPARK', 'Programming', 'Technology', 'Beni Suef', 'Data analysis', 'Power bi',
-    'Math', 'Science', 'UC math', 'Coding for Kids', 'AI', 'Graphic Design', 'Video Production',
-    'Excel', 'Information Security', 'Soft skills', 'Certified Center', 'Marketing', 'ICDL',
-    'Web Design', 'Networking', 'Cyber security'
+    'IT-SPARK',
+    'IT SPARK Academy',
+    'THERE IS MUCH MORE TO LEARN',
+    'كورسات برمجة',
+    'Cyber Security',
+    'AI Courses',
+    'React Courses',
+    'دورات ذكاء اصطناعي',
+    'تحليل البيانات',
+    'Full Stack',
+    'تعلم البرمجة',
+    'كورسات تكنولوجيا'
   ],
   authors: [{ name: 'IT-SPARK' }],
   creator: 'IT-SPARK',
@@ -33,8 +42,8 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'IT-SPARK | Excellence in Tech Education',
-    description: 'Empowering the next generation of tech leaders. Professional courses in programming and AI.',
+    title: 'IT-SPARK | THERE IS MUCH MORE TO LEARN',
+    description: 'Professional Technology Courses & Training Platform.',
     url: 'https://it-spark.com',
     siteName: 'IT-SPARK',
     images: [
@@ -50,8 +59,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IT-SPARK | Excellence in Tech Education',
-    description: 'Tech education for youth and professionals.',
+    title: 'IT-SPARK | THERE IS MUCH MORE TO LEARN',
+    description: 'Professional Technology Academy & Courses Platform.',
     images: ['/logo.png'],
   },
   robots: {
@@ -70,6 +79,22 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  name: 'IT-SPARK',
+  slogan: 'THERE IS MUCH MORE TO LEARN',
+  description: 'Professional Technology Learning Platform',
+  url: 'https://it-spark.com',
+  logo: 'https://it-spark.com/logo.png',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '01010710656',
+    contactType: 'customer service',
+    email: 'itspark2018@gmail.com'
+  }
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -78,14 +103,19 @@ export default function RootLayout({
   return (
     <html lang="ar" suppressHydrationWarning>
       <body className={`${inter.className} overflow-x-hidden`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
               <Navbar />
-              <main className="min-h-screen pt-20">
+              <main className="min-h-screen pt-16 lg:pt-20">
                 {children}
               </main>
               <Footer />
+              <ToastContainer />
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>

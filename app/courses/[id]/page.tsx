@@ -3,46 +3,56 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiClock, FiBook, FiAward, FiStar, FiPlayCircle, FiCheck, FiArrowRight, FiShield, FiX, FiCreditCard, FiUpload, FiCheckCircle, FiInfo } from 'react-icons/fi';
+import {
+    FiClock,
+    FiBook,
+    FiAward,
+    FiCheck,
+    FiArrowRight,
+    FiX,
+    FiInfo,
+    FiUpload,
+    FiPlayCircle,
+} from 'react-icons/fi';
 import Link from 'next/link';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
+import CourseHero from '@/components/CourseHero';
+import { addToCart, isInCart } from '@/lib/cart';
+import { showToast } from '@/lib/toast';
 
-import { getDriveDirectLink, getDriveEmbedLink } from '@/lib/media';
-
-// Helper to convert Drive links or YouTube links to embeddable URLs
-const getEmbedUrl = (url: string) => {
-    if (!url) return '';
-    if (url.includes('drive.google.com')) {
-        return getDriveEmbedLink(url);
-    }
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        if (match && match[2].length === 11) {
-            return `https://www.youtube.com/embed/${match[2]}`;
-        }
-    }
-    return url;
-};
+function CoursePageSkeleton() {
+    return (
+        <div className="min-h-screen bg-background">
+            <div className="w-full aspect-video max-h-[min(70vh,520px)] bg-slate-800 animate-pulse" />
+            <div className="max-w-7xl mx-auto px-4 py-12 space-y-6">
+                <div className="h-10 w-2/3 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+                <div className="h-4 w-full max-w-xl bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                <div className="flex gap-4">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function CourseDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const { user } = useAuth();
-    const { lang, t } = useLanguage();
+    const { lang } = useLanguage();
     const courseId = params.id as string;
 
     const [course, setCourse] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [paymentStep, setPaymentStep] = useState<'select' | 'upload' | 'visa'>('select');
+    const [paymentStep, setPaymentStep] = useState<'select' | 'upload'>('select');
     const [selectedMethod, setSelectedMethod] = useState<string>('');
     const [proofImage, setProofImage] = useState<string>('');
-    const [visaData, setVisaData] = useState({ number: '', expiry: '', cvv: '' });
     const [uploading, setUploading] = useState(false);
     const [enrollmentStatus, setEnrollmentStatus] = useState<'none' | 'pending' | 'enrolled'>('none');
-    const [showVideo, setShowVideo] = useState(false);
 
     useEffect(() => {
         const fetchCourse = async () => {
@@ -52,17 +62,22 @@ export default function CourseDetailsPage() {
                     const data = await res.json();
                     setCourse(data);
 
-                    // Check enrollment if user is logged in
                     if (user) {
                         const paymentsRes = await fetch('/api/payments', {
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                            },
                         });
                         if (paymentsRes.ok) {
                             const payments = await paymentsRes.json();
-                            const coursePayment = payments.find((p: any) => p.course?._id === courseId);
+                            const coursePayment = payments.find(
+                                (p: any) => p.course?._id === courseId
+                            );
                             if (coursePayment) {
-                                if (coursePayment.status === 'approved') setEnrollmentStatus('enrolled');
-                                else if (coursePayment.status === 'pending') setEnrollmentStatus('pending');
+                                if (coursePayment.status === 'approved')
+                                    setEnrollmentStatus('enrolled');
+                                else if (coursePayment.status === 'pending')
+                                    setEnrollmentStatus('pending');
                             }
                         }
                     }
@@ -74,18 +89,14 @@ export default function CourseDetailsPage() {
             }
         };
 
-        if (courseId) {
-            fetchCourse();
-        }
+        if (courseId) fetchCourse();
     }, [courseId, user]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setProofImage(reader.result as string);
-            };
+            reader.onloadend = () => setProofImage(reader.result as string);
             reader.readAsDataURL(file);
         }
     };
@@ -98,14 +109,14 @@ export default function CourseDetailsPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
                 body: JSON.stringify({
                     courseId,
                     amount: course.price,
                     method: selectedMethod,
-                    proofImage
-                })
+                    proofImage,
+                }),
             });
 
             if (res.ok) {
@@ -113,17 +124,24 @@ export default function CourseDetailsPage() {
                 setShowPaymentModal(false);
                 setPaymentStep('select');
                 setProofImage('');
-                setVisaData({ number: '', expiry: '', cvv: '' });
-                alert(lang === 'ar' ? 'تم إرسال طلب الدفع بنجاح. بانتظار موافقة الإدارة.' : 'Payment submitted successfully. Waiting for admin approval.');
+                showToast(
+                    lang === 'ar'
+                        ? 'تم إرسال طلب الدفع. بانتظار موافقة الإدارة.'
+                        : 'Payment submitted. Waiting for admin approval.',
+                    'success'
+                );
                 const langUrl = lang === 'ar' ? '/ar' : '';
                 router.push(`${langUrl}/dashboard`);
             } else {
                 const error = await res.json();
-                alert(error.error || 'Failed to submit payment');
+                showToast(error.error || 'Failed to submit payment', 'error');
             }
         } catch (err) {
             console.error(err);
-            alert(lang === 'ar' ? 'حدث خطأ أثناء إرسال الطلب' : 'Error submitting request');
+            showToast(
+                lang === 'ar' ? 'حدث خطأ أثناء إرسال الطلب' : 'Error submitting request',
+                'error'
+            );
         } finally {
             setUploading(false);
         }
@@ -134,186 +152,85 @@ export default function CourseDetailsPage() {
             router.push('/login');
             return;
         }
-
         if (course.price && course.price > 0 && !course.isFree) {
             setShowPaymentModal(true);
         } else {
-            // Free course logic or auto-enroll API could go here
             router.push('/dashboard');
         }
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-background pt-32 pb-20 flex items-center justify-center">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
+    const handleMobileAddToCart = () => {
+        if (isInCart(courseId)) {
+            showToast(lang === 'ar' ? 'الكورس موجود في السلة' : 'Already in cart', 'info');
+            return;
+        }
+        addToCart(courseId);
+        showToast(lang === 'ar' ? 'تمت الإضافة للسلة' : 'Added to cart', 'success');
+    };
+
+    if (loading) return <CoursePageSkeleton />;
 
     if (!course) {
         return (
-            <div className="min-h-screen bg-background pt-32 pb-20 text-center">
-                <h1 className="text-foreground text-2xl">Course not found</h1>
-                <Link href="/courses" className="text-primary mt-4 inline-block underline">Back to Courses</Link>
+            <div className="min-h-screen bg-background py-20 text-center">
+                <h1 className="text-foreground text-2xl font-black">Course not found</h1>
+                <Link href="/courses" className="text-primary mt-4 inline-block underline font-bold">
+                    Back to Courses
+                </Link>
             </div>
         );
     }
 
+    const isRtl = lang === 'ar';
+    const isFree = course.isFree;
+    const currentPrice = course.discountPrice ?? course.price;
+
     return (
-        <div className="min-h-screen bg-background pt-24 pb-20">
-            {/* Hero Section */}
-            <div className="relative border-b border-border pb-12 overflow-hidden">
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/20 to-transparent blur-[120px] pointer-events-none -z-10" />
-
-                <div className="max-w-7xl mx-auto px-4 md:px-8 mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-surface px-3 py-1 rounded border border-border">{course.level}</span>
-                            <span className="flex items-center gap-1 text-xs font-bold text-yellow-500">
-                                <FiStar className="fill-current" /> 4.9 (1.2k students)
-                            </span>
-                        </div>
-
-                        <h1 className="text-4xl md:text-5xl font-black text-foreground leading-tight uppercase tracking-tighter">
-                            {course.title}
-                        </h1>
-
-                        <p className="text-foreground/60 font-medium text-lg max-w-xl leading-relaxed">
-                            {course.shortDescription || course.description}
-                        </p>
-
-                        <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-border">
-
-                            <div className="flex items-center gap-2 text-foreground/40 text-sm font-bold">
-                                <FiClock /> {course.hours || 0} Hours
-                            </div>
-                            <div className="flex items-center gap-2 text-foreground/40 text-sm font-bold">
-                                <FiBook /> {course.level || 'All Levels'}
-                            </div>
-                            <div className="flex items-center gap-2 text-foreground/40 text-sm font-bold">
-                                <FiAward /> {course.type || 'Online'}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Floating Enrollment Card */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="relative hidden lg:block"
-                    >
-                        <div className="glass rounded-[2rem] p-4 border border-border shadow-2xl relative z-10 w-full max-w-md mx-auto">
-                            <div 
-                                className="aspect-video w-full relative rounded-xl overflow-hidden mb-6 group cursor-pointer"
-                                onClick={() => course.previewVideoUrl && setShowVideo(true)}
-                            >
-                                <img src={getDriveDirectLink(course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800')} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors group-hover:bg-black/30">
-                                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 transform group-hover:scale-110 transition-transform">
-                                        <FiPlayCircle className="text-4xl text-white" />
-                                    </div>
-                                </div>
-                                {course.previewVideoUrl && (
-                                    <div className="absolute bottom-4 left-4 bg-primary text-white text-[8px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded">
-                                        Preview Available
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="px-4 pb-4">
-                                <div className="flex items-baseline gap-2 mb-6">
-                                    <span className="text-4xl font-black text-foreground">{course.isFree ? 'Free' : `${course.price} EGP`}</span>
-                                </div>
-
-                                {enrollmentStatus === 'enrolled' ? (
-                                    <button
-                                        onClick={() => router.push(`/learn/${courseId}`)}
-                                        className="w-full py-4 bg-green-500 text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all shadow-xl flex items-center justify-center gap-2"
-                                    >
-                                        <FiCheckCircle /> Start Learning
-                                    </button>
-                                ) : enrollmentStatus === 'pending' ? (
-                                    <button
-                                        disabled
-                                        className="w-full py-4 bg-yellow-500/20 text-yellow-400 font-black text-sm uppercase tracking-widest rounded-xl border border-yellow-500/30 flex items-center justify-center gap-2"
-                                    >
-                                        <FiInfo /> Pending Approval
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={handleEnroll}
-                                        className="w-full py-4 bg-gradient-to-r from-primary to-accent text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 hover:opacity-90"
-                                    >
-                                        Enroll Now
-                                    </button>
-                                )}
-
-                                <p className="text-center text-[10px] font-bold text-foreground/40 mt-4 uppercase tracking-widest flex items-center justify-center gap-1">
-                                    <FiShield /> 30-Day Money-Back Guarantee
-                                </p>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-            </div>
-
-            {/* Mobile Enrollment Card Banner (Sticky Bottom) - Only visible on small screens */}
-            <div className="lg:hidden fixed bottom-0 inset-x-0 bg-background/90 backdrop-blur-xl border-t border-border p-4 z-50 flex items-center justify-between">
-                <div>
-                    <span className="block text-[10px] font-black uppercase text-foreground/40 mb-1">Course Price</span>
-                    <span className="text-2xl font-black text-foreground">{course.isFree ? 'Free' : `${course.price} EGP`}</span>
-                </div>
-                {enrollmentStatus === 'enrolled' ? (
-                    <button
-                        onClick={() => router.push(`/learn/${courseId}`)}
-                        className="py-3 px-8 bg-green-500 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-xl shadow-green-500/20"
-                    >
-                        Start
-                    </button>
-                ) : enrollmentStatus === 'pending' ? (
-                    <button
-                        disabled
-                        className="py-3 px-8 bg-yellow-500/20 text-yellow-400 font-black text-xs uppercase tracking-widest rounded-xl border border-yellow-500/30"
-                    >
-                        Pending
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleEnroll}
-                        className="py-3 px-8 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20"
-                    >
-                        Enroll Now
-                    </button>
-                )}
-            </div>
+        <div className="min-h-screen bg-background pb-24 lg:pb-20 -mt-20">
+            <CourseHero
+                course={course}
+                enrollmentStatus={enrollmentStatus}
+                onEnroll={handleEnroll}
+                onStartLearning={() => router.push(`/learn/${courseId}`)}
+            />
 
             {/* Content Section */}
-            <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 grid grid-cols-1 lg:grid-cols-3 gap-16">
-                <div className="lg:col-span-2 space-y-16">
-                    <div className="bg-surface border border-border rounded-[2rem] p-8 md:p-12">
-                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-8 border-b border-border pb-4">
-                            What you'll learn
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+                <div className="lg:col-span-2 space-y-12">
+                    <div className="bg-surface border border-border rounded-2xl sm:rounded-[2rem] p-6 sm:p-10 md:p-12">
+                        <h2 className="text-xl sm:text-2xl font-black text-foreground uppercase tracking-tighter mb-6 sm:mb-8 border-b border-border pb-4">
+                            {isRtl ? 'ماذا ستتعلم' : "What you'll learn"}
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {(course.whatYouWillLearn?.length > 0 ? course.whatYouWillLearn : [
-                                'Hands-on practical experience.',
-                                'Mastering industry-standard tools.',
-                                'Building real-world graduation projects.'
-                            ]).map((item: string, idx: number) => (
+                            {(course.whatYouWillLearn?.length > 0
+                                ? course.whatYouWillLearn
+                                : [
+                                      isRtl
+                                          ? 'خبرة عملية مباشرة.'
+                                          : 'Hands-on practical experience.',
+                                      isRtl
+                                          ? 'إتقان أدوات الصناعة.'
+                                          : 'Mastering industry-standard tools.',
+                                      isRtl
+                                          ? 'مشاريع تخرج حقيقية.'
+                                          : 'Building real-world graduation projects.',
+                                  ]
+                            ).map((item: string, idx: number) => (
                                 <div key={idx} className="flex items-start gap-4">
                                     <div className="mt-1 shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                                         <FiCheck className="text-primary text-sm" />
                                     </div>
-                                    <p className="text-foreground/60 font-medium text-sm leading-relaxed">{item}</p>
+                                    <p className="text-foreground/60 font-medium text-sm leading-relaxed">
+                                        {item}
+                                    </p>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="bg-surface border border-border rounded-[2rem] p-8 md:p-12">
-                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
-                            Description
+                    <div className="bg-surface border border-border rounded-2xl sm:rounded-[2rem] p-6 sm:p-10 md:p-12">
+                        <h2 className="text-xl sm:text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
+                            {isRtl ? 'الوصف' : 'Description'}
                         </h2>
                         <p className="text-foreground/60 font-medium text-sm leading-relaxed whitespace-pre-wrap">
                             {course.description}
@@ -321,24 +238,24 @@ export default function CourseDetailsPage() {
                     </div>
 
                     {course.requirements?.length > 0 && (
-                        <div className="bg-surface border border-border rounded-[2rem] p-8 md:p-12">
-                            <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
-                                Requirements
+                        <div className="bg-surface border border-border rounded-2xl sm:rounded-[2rem] p-6 sm:p-10 md:p-12">
+                            <h2 className="text-xl sm:text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
+                                {isRtl ? 'المتطلبات' : 'Requirements'}
                             </h2>
-                            <ul className="list-disc pl-5 space-y-2 text-foreground/60 font-medium text-sm">
+                            <ul className="list-disc ps-5 space-y-2 text-foreground/60 font-medium text-sm">
                                 {course.requirements.map((req: string, idx: number) => (
                                     <li key={idx}>{req}</li>
                                 ))}
                             </ul>
                         </div>
                     )}
-                    
+
                     {course.targetAudience?.length > 0 && (
-                        <div className="bg-surface border border-border rounded-[2rem] p-8 md:p-12">
-                            <h2 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
-                                Who this course is for
+                        <div className="bg-surface border border-border rounded-2xl sm:rounded-[2rem] p-6 sm:p-10 md:p-12">
+                            <h2 className="text-xl sm:text-2xl font-black text-foreground uppercase tracking-tighter mb-6">
+                                {isRtl ? 'لمن هذا الكورس' : 'Who this course is for'}
                             </h2>
-                            <ul className="list-disc pl-5 space-y-2 text-foreground/60 font-medium text-sm">
+                            <ul className="list-disc ps-5 space-y-2 text-foreground/60 font-medium text-sm">
                                 {course.targetAudience.map((aud: string, idx: number) => (
                                     <li key={idx}>{aud}</li>
                                 ))}
@@ -348,23 +265,76 @@ export default function CourseDetailsPage() {
                 </div>
 
                 <div className="hidden lg:block space-y-8">
-                    <div className="bg-surface border border-border rounded-[2rem] p-8">
-                        <h3 className="text-xl font-black text-foreground uppercase tracking-tighter mb-6">Course Includes</h3>
+                    <div className="bg-surface border border-border rounded-[2rem] p-8 sticky top-28">
+                        <h3 className="text-xl font-black text-foreground uppercase tracking-tighter mb-6">
+                            {isRtl ? 'يتضمن الكورس' : 'Course Includes'}
+                        </h3>
                         <ul className="space-y-4">
-                            <li className="flex items-center gap-3 text-foreground/40 font-medium text-sm">
-                                <FiPlayCircle className="text-lg text-primary" /> {course.lecturesCount || 0} Lectures
+                            <li className="flex items-center gap-3 text-foreground/50 font-medium text-sm">
+                                <FiPlayCircle className="text-lg text-primary shrink-0" />
+                                {course.lecturesCount || 0}{' '}
+                                {isRtl ? 'محاضرة' : 'Lectures'}
                             </li>
-                            <li className="flex items-center gap-3 text-foreground/40 font-medium text-sm">
-                                <FiClock className="text-lg text-primary" /> {course.hours || 0} Total Hours
+                            <li className="flex items-center gap-3 text-foreground/50 font-medium text-sm">
+                                <FiClock className="text-lg text-primary shrink-0" />
+                                {course.hours || 0} {isRtl ? 'ساعة' : 'Total Hours'}
                             </li>
-                            <li className="flex items-center gap-3 text-foreground/40 font-medium text-sm">
-                                <FiAward className="text-lg text-primary" /> Certificate of completion
+                            <li className="flex items-center gap-3 text-foreground/50 font-medium text-sm">
+                                <FiAward className="text-lg text-primary shrink-0" />
+                                {isRtl ? 'شهادة إتمام' : 'Certificate of completion'}
                             </li>
-                            <li className="flex items-center gap-3 text-foreground/40 font-medium text-sm">
-                                <FiArrowRight className="text-lg text-primary" /> Full lifetime access
+                            <li className="flex items-center gap-3 text-foreground/50 font-medium text-sm">
+                                <FiArrowRight className="text-lg text-primary shrink-0" />
+                                {isRtl ? 'وصول مدى الحياة' : 'Full lifetime access'}
                             </li>
                         </ul>
                     </div>
+                </div>
+            </div>
+
+            {/* Mobile sticky bar */}
+            <div className="lg:hidden fixed bottom-0 inset-x-0 bg-background/95 backdrop-blur-xl border-t border-border p-3 sm:p-4 z-50 safe-area-pb">
+                <div className="flex items-center gap-3 max-w-lg mx-auto">
+                    <div className="shrink-0 min-w-0">
+                        <span className="block text-[10px] font-black uppercase text-foreground/40">
+                            {isRtl ? 'السعر' : 'Price'}
+                        </span>
+                        <span className="text-xl font-black text-foreground truncate block">
+                            {isFree ? (isRtl ? 'مجاني' : 'Free') : `${currentPrice} EGP`}
+                        </span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleMobileAddToCart}
+                        className="shrink-0 py-3 px-4 rounded-xl border border-border bg-surface text-foreground font-black text-xs uppercase"
+                    >
+                        {isRtl ? 'السلة' : 'Cart'}
+                    </button>
+                    {enrollmentStatus === 'enrolled' ? (
+                        <button
+                            type="button"
+                            onClick={() => router.push(`/learn/${courseId}`)}
+                            className="flex-1 py-3 bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl"
+                        >
+                            {isRtl ? 'ابدأ' : 'Start'}
+                        </button>
+                    ) : enrollmentStatus === 'pending' ? (
+                        <button
+                            type="button"
+                            disabled
+                            className="flex-1 py-3 bg-amber-500/20 text-amber-500 font-black text-xs uppercase rounded-xl"
+                        >
+                            {isRtl ? 'معلق' : 'Pending'}
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={handleEnroll}
+                            className="flex-1 py-3 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20"
+                        >
+                            {isRtl ? 'سجّل' : 'Enroll'}
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -386,6 +356,7 @@ export default function CourseDetailsPage() {
                             className="relative w-full max-w-xl glass border border-border rounded-[2.5rem] shadow-2xl p-8 overflow-hidden rtl:text-right"
                         >
                             <button
+                                type="button"
                                 onClick={() => setShowPaymentModal(false)}
                                 className="absolute top-6 right-6 p-2 text-foreground/40 hover:text-foreground transition-colors"
                             >
@@ -394,68 +365,91 @@ export default function CourseDetailsPage() {
 
                             <div className="mb-8">
                                 <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-2">
-                                    {lang === 'ar' ? 'إتمام التسجيل' : 'Enrollment Checkout'}
+                                    {isRtl ? 'إتمام التسجيل' : 'Enrollment Checkout'}
                                 </h3>
                                 <p className="text-foreground/60 font-medium">
-                                    {lang === 'ar'
+                                    {isRtl
                                         ? `أنت الآن تشترك في: ${course.title}`
                                         : `You are enrolling in: ${course.title}`}
                                 </p>
                             </div>
 
                             {paymentStep === 'select' ? (
-                                <>
-                                    <div className="grid gap-4">
-                                        <button
-                                            onClick={() => { setSelectedMethod('Vodafone Cash'); setPaymentStep('upload'); }}
-                                            className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500 transition-all p-4 rounded-xl flex items-center justify-between group"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-white font-black">VC</div>
-                                                <span className="text-white font-medium group-hover:text-red-400 transition-colors">Vodafone Cash</span>
+                                <div className="grid gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedMethod('Vodafone Cash');
+                                            setPaymentStep('upload');
+                                        }}
+                                        className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500 transition-all p-4 rounded-xl flex items-center justify-between group"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-white font-black">
+                                                VC
                                             </div>
-                                            <FiArrowRight className="text-gray-500 group-hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100" />
-                                        </button>
-
-                                        <button
-                                            onClick={() => { setSelectedMethod('InstaPay'); setPaymentStep('upload'); }}
-                                            className="w-full bg-[#1A1A8C]/10 hover:bg-[#1A1A8C]/20 border border-[#1A1A8C]/30 hover:border-[#1A1A8C] transition-all p-4 rounded-xl flex items-center justify-between group"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-[#1A1A8C] flex items-center justify-center text-white font-black">IP</div>
-                                                <span className="text-white font-medium group-hover:text-[#1A1A8C] transition-colors">InstaPay</span>
+                                            <span className="text-white font-medium group-hover:text-red-400 transition-colors">
+                                                Vodafone Cash
+                                            </span>
+                                        </div>
+                                        <FiArrowRight className="text-gray-500 group-hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedMethod('InstaPay');
+                                            setPaymentStep('upload');
+                                        }}
+                                        className="w-full bg-[#1A1A8C]/10 hover:bg-[#1A1A8C]/20 border border-[#1A1A8C]/30 hover:border-[#1A1A8C] transition-all p-4 rounded-xl flex items-center justify-between group"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-[#1A1A8C] flex items-center justify-center text-white font-black">
+                                                IP
                                             </div>
-                                            <FiArrowRight className="text-gray-500 group-hover:text-[#1A1A8C] transition-colors opacity-0 group-hover:opacity-100" />
-                                        </button>
-                                    </div>
-                                </>
+                                            <span className="text-white font-medium group-hover:text-[#1A1A8C] transition-colors">
+                                                InstaPay
+                                            </span>
+                                        </div>
+                                        <FiArrowRight className="text-gray-500 group-hover:text-[#1A1A8C] opacity-0 group-hover:opacity-100 transition-all" />
+                                    </button>
+                                </div>
                             ) : (
                                 <div className="space-y-6">
                                     <div className="p-6 bg-primary/10 border border-primary/20 rounded-2xl space-y-4">
                                         <h4 className="text-foreground font-black uppercase tracking-widest text-xs flex items-center gap-2">
                                             <FiInfo className="text-primary" /> Instructions / تعليمات الدفع
                                         </h4>
-                                        <div className="space-y-4">
-                                            {selectedMethod === 'Vodafone Cash' && (
-                                                <div className="text-center py-4 bg-dark rounded-xl border border-border">
-                                                    <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1">تحويل فودافون كاش إلى الرقم التالي:</p>
-                                                    <p className="text-3xl font-black text-primary tracking-tighter select-all cursor-pointer">01006093939</p>
-                                                </div>
-                                            )}
-                                            {selectedMethod === 'InstaPay' && (
-                                                <div className="text-center py-4 bg-dark rounded-xl border border-border">
-                                                    <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1">تحويل انستا باي إلى الحساب التالي:</p>
-                                                    <p className="text-xl font-black text-primary tracking-tight select-all cursor-pointer">mo.tarek@instapay</p>
-                                                </div>
-                                            )}
-                                            <p className="text-foreground/60 text-[10px] font-bold text-center uppercase tracking-widest">
-                                                {lang === 'ar' ? 'بعد التحويل، يرجى رفع صورة الإيصال أو لقطة الشاشة أدناه' : 'After transfer, please upload the receipt screenshot below'}
-                                            </p>
-                                        </div>
+                                        {selectedMethod === 'Vodafone Cash' && (
+                                            <div className="text-center py-4 bg-dark rounded-xl border border-border">
+                                                <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1">
+                                                    تحويل فودافون كاش إلى الرقم التالي:
+                                                </p>
+                                                <p className="text-3xl font-black text-primary tracking-tighter select-all">
+                                                    01006093939
+                                                </p>
+                                            </div>
+                                        )}
+                                        {selectedMethod === 'InstaPay' && (
+                                            <div className="text-center py-4 bg-dark rounded-xl border border-border">
+                                                <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1">
+                                                    تحويل انستا باي إلى الحساب التالي:
+                                                </p>
+                                                <p className="text-xl font-black text-primary tracking-tight select-all">
+                                                    mo.tarek@instapay
+                                                </p>
+                                            </div>
+                                        )}
+                                        <p className="text-foreground/60 text-[10px] font-bold text-center uppercase tracking-widest">
+                                            {isRtl
+                                                ? 'بعد التحويل، يرجى رفع صورة الإيصال أدناه'
+                                                : 'After transfer, please upload the receipt screenshot below'}
+                                        </p>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="block text-foreground/60 text-xs font-bold uppercase tracking-widest">Screenshot / Receipt</label>
+                                        <label className="block text-foreground/60 text-xs font-bold uppercase tracking-widest">
+                                            Screenshot / Receipt
+                                        </label>
                                         <div className="relative group">
                                             <input
                                                 type="file"
@@ -469,11 +463,17 @@ export default function CourseDetailsPage() {
                                                 className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-2xl hover:border-primary/50 hover:bg-surface transition-all cursor-pointer overflow-hidden"
                                             >
                                                 {proofImage ? (
-                                                    <img src={proofImage} alt="Proof" className="w-full h-full object-cover" />
+                                                    <img
+                                                        src={proofImage}
+                                                        alt="Proof"
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                 ) : (
                                                     <>
                                                         <FiUpload className="text-3xl text-foreground/40 mb-2 group-hover:text-primary transition-colors" />
-                                                        <span className="text-xs text-foreground/40 font-bold group-hover:text-foreground/60 transition-colors">Click to upload screenshot</span>
+                                                        <span className="text-xs text-foreground/40 font-bold">
+                                                            Click to upload screenshot
+                                                        </span>
                                                     </>
                                                 )}
                                             </label>
@@ -482,59 +482,29 @@ export default function CourseDetailsPage() {
 
                                     <div className="flex gap-3">
                                         <button
+                                            type="button"
                                             onClick={() => setPaymentStep('select')}
                                             className="flex-1 py-4 bg-surface text-foreground font-bold rounded-xl border border-border hover:bg-foreground/5 transition-all uppercase text-xs"
                                         >
-                                            {lang === 'ar' ? 'رجوع' : 'Back'}
+                                            {isRtl ? 'رجوع' : 'Back'}
                                         </button>
                                         <button
+                                            type="button"
                                             onClick={handlePaymentSubmit}
                                             disabled={!proofImage || uploading}
                                             className="flex-[2] py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 disabled:opacity-50 transition-all uppercase text-xs"
                                         >
-                                            {uploading ? (lang === 'ar' ? 'جاري الإرسال...' : 'Sending...') : (lang === 'ar' ? 'إرسال إثبات الدفع' : 'Submit Proof')}
+                                            {uploading
+                                                ? isRtl
+                                                    ? 'جاري الإرسال...'
+                                                    : 'Sending...'
+                                                : isRtl
+                                                  ? 'إرسال إثبات الدفع'
+                                                  : 'Submit Proof'}
                                         </button>
                                     </div>
                                 </div>
                             )}
-
-                            <div className="mt-8 text-center">
-                                <p className="text-xs text-foreground/20">Secure payments powered by IT-SPARK</p>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-
-            {/* Video Preview Modal */}
-            <AnimatePresence>
-                {showVideo && (
-                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowVideo(false)}
-                            className="absolute inset-0 bg-black/95 backdrop-blur-xl"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="relative w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10"
-                        >
-                            <button
-                                onClick={() => setShowVideo(false)}
-                                className="absolute top-6 right-6 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-primary transition-all"
-                            >
-                                <FiX size={24} />
-                            </button>
-                            <iframe
-                                src={getEmbedUrl(course.previewVideoUrl)}
-                                className="w-full h-full"
-                                allow="autoplay; fullscreen"
-                                allowFullScreen
-                            />
                         </motion.div>
                     </div>
                 )}

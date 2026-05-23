@@ -124,3 +124,12 @@ html[dir="rtl"] body {
 .animate-shimmer {
   animation: shimmer 3s infinite;
 }
+
+/* iOS safe areas for mobile nav */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

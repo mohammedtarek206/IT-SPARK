@@ -100,6 +100,8 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
                 } ${isHovered ? 'scale-105' : 'scale-100'} ${
                     hasNativeVideo && isHovered && videoLoaded ? 'opacity-0' : 'opacity-100'
                 }`}
+                loading="lazy"
+                decoding="async"
             />
 
             {/* Native (non-Drive) video hover layer */}

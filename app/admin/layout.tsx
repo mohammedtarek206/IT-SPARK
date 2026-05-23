@@ -10,7 +10,7 @@ import {
     FiMenu, FiX, FiFileText, FiGrid, FiAward,
     FiDollarSign, FiBarChart2, FiBell, FiSettings,
     FiShield, FiCreditCard, FiUserCheck, FiPackage,
-    FiChevronRight, FiImage, FiHeart, FiBriefcase
+    FiChevronRight, FiImage, FiHeart, FiBriefcase, FiShoppingCart
 } from 'react-icons/fi';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -68,9 +68,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             label: 'Education',
             items: [
                 { title: 'Courses', icon: FiBook, href: '/admin/courses-control' },
+                { title: 'Trainings', icon: FiAward, href: '/admin/trainings' },
                 { title: 'Exams', icon: FiFileText, href: '/admin/exams' },
                 { title: 'Results', icon: FiAward, href: '/admin/results' },
-                { title: 'Course Requests', icon: FiBook, href: '/admin/training-registrations' },
+                { title: 'Training Applications', icon: FiBook, href: '/admin/training-registrations' },
             ]
         },
         {
@@ -84,6 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             label: 'Finance',
             items: [
                 { title: 'Payments', icon: FiCreditCard, href: '/admin/payments' },
+                { title: 'Cart Orders', icon: FiShoppingCart, href: '/admin/cart-orders' },
                 { title: 'Subscriptions', icon: FiPackage, href: '/admin/subscriptions' },
             ]
         },

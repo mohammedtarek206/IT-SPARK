@@ -102,6 +102,8 @@ export default function AdminTrainingRegistrationsPage() {
         switch (status) {
             case 'new': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
             case 'contacted': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+            case 'accepted': return 'bg-green-500/10 text-green-400 border-green-500/20';
+            case 'rejected': return 'bg-red-500/10 text-red-400 border-red-500/20';
             case 'registered': return 'bg-green-500/10 text-green-400 border-green-500/20';
             case 'cancelled': return 'bg-red-500/10 text-red-400 border-red-500/20';
             default: return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
@@ -112,8 +114,8 @@ export default function AdminTrainingRegistrationsPage() {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-white uppercase tracking-tight">Course Registrations</h1>
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">Manage public course enrollments</p>
+                    <h1 className="text-3xl font-black text-white uppercase tracking-tight">Training Applications</h1>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">طلبات التدريبات والورش</p>
                 </div>
                 
                 <div className="flex items-center gap-3">
@@ -131,8 +133,8 @@ export default function AdminTrainingRegistrationsPage() {
                 {[
                     { label: 'Total', value: registrations.length, color: 'text-primary' },
                     { label: 'New', value: registrations.filter(r => r.status === 'new').length, color: 'text-blue-400' },
-                    { label: 'Registered', value: registrations.filter(r => r.status === 'registered').length, color: 'text-green-400' },
-                    { label: 'Cancelled', value: registrations.filter(r => r.status === 'cancelled').length, color: 'text-red-400' },
+                    { label: 'Accepted', value: registrations.filter(r => r.status === 'accepted' || r.status === 'registered').length, color: 'text-green-400' },
+                    { label: 'Rejected', value: registrations.filter(r => r.status === 'rejected' || r.status === 'cancelled').length, color: 'text-red-400' },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center">
                         <span className={`text-3xl font-black ${stat.color}`}>{stat.value}</span>
@@ -164,8 +166,8 @@ export default function AdminTrainingRegistrationsPage() {
                         <option value="All" className="bg-dark text-white">All Statuses</option>
                         <option value="new" className="bg-dark text-white">New</option>
                         <option value="contacted" className="bg-dark text-white">Contacted</option>
-                        <option value="registered" className="bg-dark text-white">Registered</option>
-                        <option value="cancelled" className="bg-dark text-white">Cancelled</option>
+                        <option value="accepted" className="bg-dark text-white">Accepted</option>
+                        <option value="rejected" className="bg-dark text-white">Rejected</option>
                     </select>
                 </div>
             </div>
@@ -218,8 +220,8 @@ export default function AdminTrainingRegistrationsPage() {
                                             >
                                                 <option value="new" className="bg-dark text-white">New</option>
                                                 <option value="contacted" className="bg-dark text-white">Contacted</option>
-                                                <option value="registered" className="bg-dark text-white">Registered</option>
-                                                <option value="cancelled" className="bg-dark text-white">Cancelled</option>
+                                                <option value="accepted" className="bg-dark text-white">Accepted</option>
+                                                <option value="rejected" className="bg-dark text-white">Rejected</option>
                                             </select>
                                         </td>
                                         <td className="p-4 text-xs text-gray-400 font-medium">

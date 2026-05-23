@@ -34,16 +34,26 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent inline-block pr-2 pb-2"
+              className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-2 bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent inline-block pr-2 pb-2 tracking-wide font-inter"
               dir="ltr"
             >
-              {t('hero_title')}
+              IT-SPARK
             </motion.h1>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-accent/90 tracking-widest font-inter block"
+              dir="ltr"
+            >
+              THERE IS MUCH MORE TO LEARN
+            </motion.h2>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
               className="text-lg sm:text-xl md:text-2xl text-foreground/80 mb-6 md:mb-8"
             >
               {t('hero_subtitle')}

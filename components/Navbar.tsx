@@ -1,119 +1,103 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTheme } from 'next-themes';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/LanguageContext';
 import { useAuth } from '@/lib/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FiMenu, FiX, FiSun, FiMoon, FiUser, FiLogOut,
-  FiSearch, FiBell, FiChevronDown, FiBook, FiAward,
-  FiLayout, FiPieChart, FiDollarSign, FiPlusCircle,
-  FiHome, FiMail, FiInfo, FiTag, FiBriefcase
+  FiMenu,
+  FiX,
+  FiUser,
+  FiLogOut,
+  FiSearch,
+  FiBell,
+  FiChevronDown,
+  FiBook,
+  FiAward,
+  FiLayout,
+  FiPieChart,
+  FiDollarSign,
+  FiHome,
+  FiMail,
+  FiInfo,
+  FiTag,
+  FiBriefcase,
+  FiShoppingCart,
 } from 'react-icons/fi';
+import { getCartCount, CART_UPDATE_EVENT } from '@/lib/cart';
+
+const MOBILE_MENU_ID = 'mobile-nav-drawer';
+
+function cn(...classes: (string | false | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const { user, token, logout } = useAuth();
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const { theme, setTheme } = useTheme();
   const { lang, setLang, t } = useLanguage();
-  const router = useRouter();
-  const navRef = useRef<HTMLDivElement>(null);
-  const [tracks, setTracks] = useState<{ href: string; label: string }[]>([]);
+  const navRef = useRef<HTMLElement>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const hasUnread = notifications.some(n => !n.read);
+  const [cartCount, setCartCount] = useState(0);
+  const hasUnread = notifications.some((n) => !n.read);
+  const isRtl = lang === 'ar';
 
-  // Do not show navbar on dashboard or admin pages to avoid overlap
-  const isDashboardPage = pathname?.startsWith('/dashboard') ||
+  const isDashboardPage =
+    pathname?.startsWith('/dashboard') ||
     pathname?.startsWith('/admin') ||
     pathname?.startsWith('/instructor') ||
     pathname?.startsWith('/learn');
 
-  useEffect(() => {
-    setMounted(true);
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    setAboutOpen(false);
+  }, []);
 
-    const fetchTracks = async () => {
-      try {
-        const res = await fetch('/api/tracks');
-        if (res.ok) {
-          const data = await res.json();
-          const trackLinks = data.map((track: any) => ({
-            href: `/tracks/${track._id}`,
-            label: track.title
-          }));
-          setTracks(trackLinks);
-        }
-      } catch (err) {
-        console.error('Failed to fetch tracks for navbar:', err);
-      }
-    };
-    fetchTracks();
-
-    const fetchNotifications = async (tkn: string) => {
-      try {
-        const res = await fetch('/api/notifications', {
-          headers: { Authorization: `Bearer ${tkn}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setNotifications(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch notifications:', err);
-      }
-    };
-    if (token) {
-      fetchNotifications(token);
-    }
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(event.target as Node)) {
-        setActiveDropdown(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [token]);
-
-  const handleLogout = () => {
-    logout();
-  };
-
-  const markAllAsRead = async () => {
-    if (!token) return;
-    try {
-      await fetch('/api/notifications', {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      });
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    } catch (err) {
-      console.error(err);
-    }
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname?.startsWith(`${href}/`);
   };
 
   const navLinks = [
     { href: '/', label: t('home'), icon: FiHome },
-    { href: '/jobs', label: t('jobs') || (lang === 'ar' ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
-    { href: '/training-courses', label: lang === 'ar' ? 'التدريبات' : 'Training', icon: FiAward },
     { href: '/courses', label: t('courses'), icon: FiBook },
-    { href: '/pricing', label: t('pricing'), icon: FiTag },
+    {
+      href: '/training-courses',
+      label: isRtl ? 'التدريبات والورش' : 'Trainings',
+      icon: FiAward,
+    },
+    { href: '/jobs', label: t('jobs') || (isRtl ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
     {
       label: t('about'),
+      icon: FiInfo,
       dropdown: [
         { href: '/about#vision', label: t('vision') },
         { href: '/about#mission', label: t('mission') },
         { href: '/about#goals', label: t('goals') },
-      ]
+      ],
     },
+    { href: '/contact', label: t('contact'), icon: FiMail },
+  ];
+
+  const mobilePrimaryLinks = [
+    { href: '/', label: t('home'), icon: FiHome },
+    { href: '/courses', label: t('courses'), icon: FiBook },
+    {
+      href: '/training-courses',
+      label: isRtl ? 'التدريبات والورش' : 'Trainings',
+      icon: FiAward,
+    },
+    { href: '/jobs', label: t('jobs') || (isRtl ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
     { href: '/contact', label: t('contact'), icon: FiMail },
   ];
 
@@ -133,7 +117,7 @@ export default function Navbar() {
           { href: '/instructor/exams', label: t('manage_exams'), icon: FiAward },
           { href: '/instructor/stats', label: t('earnings'), icon: FiDollarSign },
         ];
-      default: // student
+      default:
         return [
           { href: '/dashboard', label: t('dashboard'), icon: FiLayout },
           { href: '/dashboard/courses', label: t('my_courses'), icon: FiBook },
@@ -143,337 +127,605 @@ export default function Navbar() {
     }
   };
 
+  useEffect(() => {
+    setMounted(true);
+    setCartCount(getCartCount());
+    const onCartUpdate = () => setCartCount(getCartCount());
+    window.addEventListener(CART_UPDATE_EVENT, onCartUpdate);
+    return () => window.removeEventListener(CART_UPDATE_EVENT, onCartUpdate);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    closeMenu();
+    setActiveDropdown(null);
+  }, [pathname, closeMenu]);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      return;
+    }
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeMenu();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen, closeMenu]);
+
+  useEffect(() => {
+    const fetchNotifications = async (tkn: string) => {
+      try {
+        const res = await fetch('/api/notifications', {
+          headers: { Authorization: `Bearer ${tkn}` },
+        });
+        if (res.ok) setNotifications(await res.json());
+      } catch (err) {
+        console.error('Failed to fetch notifications:', err);
+      }
+    };
+    if (token) fetchNotifications(token);
+  }, [token]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const markAllAsRead = async () => {
+    if (!token) return;
+    try {
+      await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const linkClass = (href: string, mobile = false) =>
+    cn(
+      'font-bold transition-all',
+      mobile
+        ? 'flex items-center gap-4 px-4 py-3.5 rounded-2xl text-base min-h-[48px] touch-manipulation'
+        : 'px-3 py-2 rounded-xl text-sm block',
+      isActive(href)
+        ? mobile
+          ? 'bg-primary/15 text-primary'
+          : 'bg-primary/10 text-primary'
+        : mobile
+          ? 'text-foreground hover:bg-foreground/5 active:bg-foreground/10'
+          : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
+    );
+
   if (!mounted || isDashboardPage) return null;
 
-  return (
-    <nav ref={navRef} className="fixed top-0 w-full bg-background/80 backdrop-blur-xl z-50 border-b border-border transition-all duration-300">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20 gap-4">
-
-          <Link href="/" className="flex items-center gap-2 md:gap-3 shrink-0 group">
-            <div className="relative w-14 h-14 md:w-20 md:h-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-              <Image
-                src="/logo.png"
-                alt="IT-SPARK Logo"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-            <div className="hidden md:flex flex-col justify-center">
-                <div className="flex flex-col">
-                  <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tight leading-none pr-1 pb-1" dir="ltr">IT-SPARK</span>
-                  <span className="text-[9px] font-black text-foreground/40 uppercase tracking-[0.15em] block mt-1 leading-none" dir="ltr">THERE IS MUCH MORE TO LEARN</span>
+  const mobileMenu = (
+    <AnimatePresence>
+      {menuOpen && (
+        <>
+          <motion.div
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={closeMenu}
+            className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md lg:hidden"
+            aria-hidden
+          />
+          <motion.aside
+            key="drawer"
+            id={MOBILE_MENU_ID}
+            role="dialog"
+            aria-modal="true"
+            aria-label={isRtl ? 'القائمة الرئيسية' : 'Main menu'}
+            initial={{ x: isRtl ? '-100%' : '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: isRtl ? '-100%' : '100%' }}
+            transition={{ type: 'tween', duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+            className={cn(
+              'fixed top-0 bottom-0 z-[210] w-[min(100vw,320px)] bg-background border-border shadow-2xl flex flex-col lg:hidden',
+              isRtl ? 'left-0 border-r' : 'right-0 border-l'
+            )}
+          >
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0 safe-area-top">
+              <Link href="/" onClick={closeMenu} className="flex items-center gap-2.5">
+                <div className="relative w-10 h-10 shrink-0">
+                  <Image src="/logo.png" alt="IT-SPARK" fill className="object-contain" />
                 </div>
+                <span
+                  className="font-black text-lg uppercase tracking-tight text-foreground"
+                  dir="ltr"
+                >
+                  IT-SPARK
+                </span>
+              </Link>
+              <button
+                type="button"
+                onClick={closeMenu}
+                className="p-2.5 rounded-xl text-foreground bg-foreground/5 border border-border touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label={isRtl ? 'إغلاق القائمة' : 'Close menu'}
+              >
+                <FiX size={22} />
+              </button>
             </div>
-          </Link>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden xl:flex items-center space-x-1 rtl:space-x-reverse">
-            {navLinks.map((link) => (
-              <div key={link.label} className="relative group">
-                {link.dropdown ? (
-                  <button
-                    onClick={() => setActiveDropdown(activeDropdown === link.label ? null : link.label)}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1 transition-all ${activeDropdown === link.label ? 'bg-primary/10 text-primary' : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
-                      }`}
-                  >
-                    {link.label}
-                    <FiChevronDown className={`transition-transform duration-300 ${activeDropdown === link.label ? 'rotate-180' : ''}`} />
-                  </button>
-                ) : (
-                  <Link
-                    href={link.href}
-                    className="px-4 py-2 rounded-xl text-sm font-bold text-foreground/60 hover:text-foreground hover:bg-foreground/5 transition-all block"
-                  >
-                    {link.label}
-                  </Link>
-                )}
+            {/* Scrollable links */}
+            <nav className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-5 space-y-1">
+              {mobilePrimaryLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={closeMenu}
+                  className={linkClass(link.href, true)}
+                >
+                  <link.icon className="w-5 h-5 shrink-0 text-primary/70" />
+                  {link.label}
+                </Link>
+              ))}
 
-                {/* Dropdown Menu */}
+              {/* About accordion */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setAboutOpen((o) => !o)}
+                  className={cn(
+                    linkClass('/about', true),
+                    'w-full justify-between'
+                  )}
+                >
+                  <span className="flex items-center gap-4">
+                    <FiInfo className="w-5 h-5 shrink-0 text-primary/70" />
+                    {t('about')}
+                  </span>
+                  <FiChevronDown
+                    className={cn(
+                      'w-4 h-4 transition-transform shrink-0',
+                      aboutOpen && 'rotate-180'
+                    )}
+                  />
+                </button>
                 <AnimatePresence>
-                  {link.dropdown && activeDropdown === link.label && (
+                  {aboutOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute top-full mt-2 w-56 glass border border-border rounded-2xl shadow-2xl p-2 left-0 rtl:left-auto rtl:right-0"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden ps-4"
                     >
-                      {link.dropdown.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setActiveDropdown(null)}
-                          className="block px-4 py-3 rounded-xl text-sm font-medium text-foreground/80 hover:bg-primary/20 hover:text-primary transition-all"
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
+                      {navLinks
+                        .find((l) => l.dropdown)
+                        ?.dropdown?.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={closeMenu}
+                            className="flex items-center px-4 py-3 text-sm font-medium text-foreground/60 hover:text-primary rounded-xl touch-manipulation min-h-[44px]"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            ))}
-          </div>
 
-          {/* User Actions & Utility */}
-          <div className="flex items-center gap-2 md:gap-4 shrink-0">
-
-            {/* Search Bar (Desktop) */}
-            <div className="hidden md:flex items-center relative group">
-              <motion.div
-                animate={{ width: searchOpen ? '240px' : '40px' }}
-                className="relative h-10 bg-foreground/5 border border-border rounded-full overflow-hidden flex items-center transition-all group-hover:border-primary/50"
+              <Link
+                href="/cart"
+                onClick={closeMenu}
+                className={cn(linkClass('/cart', true), 'border border-border mt-2')}
               >
-                <FiSearch
-                  className="absolute left-3 rtl:right-3 text-foreground/40 cursor-pointer"
-                  onClick={() => setSearchOpen(!searchOpen)}
-                />
-                <input
-                  type="text"
-                  placeholder={t('search')}
-                  className="w-full bg-transparent border-none outline-none text-foreground font-bold text-sm px-10 placeholder:text-foreground/20"
-                />
-              </motion.div>
-            </div>
-
-            {/* Notifications */}
-            <div className="relative group">
-              <button
-                onClick={() => setActiveDropdown(activeDropdown === 'notifications' ? null : 'notifications')}
-                className={`relative p-2 transition-colors ${activeDropdown === 'notifications' ? 'text-white bg-white/10 rounded-xl' : 'text-gray-400 hover:text-primary'}`}
-              >
-                <FiBell className="w-5 h-5" />
-                {hasUnread && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-dark" />}
-              </button>
-
-              <AnimatePresence>
-                {activeDropdown === 'notifications' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute top-full mt-2 w-72 glass border border-white/10 rounded-2xl shadow-2xl p-4 right-0 rtl:right-auto rtl:left-0 overflow-hidden"
-                  >
-                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-white/5">
-                      <h3 className="text-white font-black uppercase text-sm">{t('notifications') || 'Notifications'}</h3>
-                      {hasUnread && (
-                        <button onClick={markAllAsRead} className="text-[10px] text-primary font-bold hover:underline">Mark all as read</button>
-                      )}
-                    </div>
-
-                    <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-                      {notifications.length === 0 ? (
-                        <div className="text-center py-6">
-                          <div className="w-12 h-12 rounded-full bg-white/5 mx-auto mb-3 flex items-center justify-center">
-                            <FiBell className="w-5 h-5 text-gray-500" />
-                          </div>
-                          <p className="text-gray-400 text-sm font-bold">No new notifications</p>
-                          <p className="text-gray-500 text-[10px] mt-1">We'll let you know when something arrives</p>
-                        </div>
-                      ) : (
-                        notifications.map((notif: any) => (
-                          <div key={notif._id} className={`p-3 rounded-xl border ${notif.read ? 'bg-white/5 border-white/5 text-gray-400' : 'bg-primary/10 border-primary/20 text-white'}`}>
-                            <p className="text-xs font-bold mb-1">{notif.title}</p>
-                            <p className="text-[10px] opacity-80 leading-relaxed">{notif.message}</p>
-                            <p className="text-[8px] opacity-50 mt-2 font-bold uppercase tracking-widest">{new Date(notif.createdAt).toLocaleDateString()}</p>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </motion.div>
+                <FiShoppingCart className="w-5 h-5 shrink-0 text-primary" />
+                <span className="flex-1">{isRtl ? 'سلة المشتريات' : 'Cart'}</span>
+                {cartCount > 0 && (
+                  <span className="min-w-[24px] h-6 px-1.5 flex items-center justify-center bg-primary text-white text-xs font-black rounded-full">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
                 )}
-              </AnimatePresence>
-            </div>
+              </Link>
 
-            {/* Theme & Language */}
-            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5">
-
+              {/* Lang toggle mobile */}
               <button
+                type="button"
                 onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-                className="px-2 py-1 text-[10px] font-black uppercase text-gray-400 hover:text-white transition-all"
+                className={cn(linkClass('/', true), 'w-full')}
               >
-                {lang === 'en' ? 'AR' : 'EN'}
+                <span className="w-5 h-5 flex items-center justify-center text-xs font-black text-primary border border-primary/30 rounded">
+                  {lang === 'en' ? 'AR' : 'EN'}
+                </span>
+                {isRtl ? 'تغيير اللغة' : 'Change language'}
               </button>
-            </div>
+            </nav>
 
-            {/* User Profile / Auth */}
-            <div className="relative group ml-2 rtl:mr-2 rtl:ml-0">
+            {/* Drawer footer — auth */}
+            <div className="shrink-0 p-4 border-t border-border safe-area-bottom space-y-3">
               {user ? (
-                <button
-                  onClick={() => setActiveDropdown(activeDropdown === 'user' ? null : 'user')}
-                  className="flex items-center gap-2 p-1 pl-3 rtl:pl-1 rtl:pr-3 bg-primary/10 rounded-full border border-primary/20 hover:border-primary/50 transition-all"
-                >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-bold text-white text-xs">
-                    {user.name?.charAt(0) || 'U'}
+                <>
+                  <div className="px-4 py-3 rounded-2xl bg-foreground/5 border border-border">
+                    <p className="font-black text-foreground text-sm truncate">{user.name}</p>
+                    <p className="text-[10px] text-primary font-bold uppercase tracking-widest mt-0.5">
+                      {user.role}
+                    </p>
                   </div>
-                  <FiChevronDown className={`text-primary transition-transform ${activeDropdown === 'user' ? 'rotate-180' : ''}`} />
-                </button>
+                  {getRoleMenu()?.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={closeMenu}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-foreground/70 hover:bg-primary/10 hover:text-primary touch-manipulation min-h-[44px]"
+                    >
+                      <item.icon className="w-4 h-4 text-primary" />
+                      {item.label}
+                    </Link>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMenu();
+                      logout();
+                    }}
+                    className="flex w-full items-center justify-center gap-2 py-3.5 rounded-xl text-red-500 font-bold border border-red-500/20 bg-red-500/5 touch-manipulation min-h-[48px]"
+                  >
+                    <FiLogOut />
+                    {t('logout')}
+                  </button>
+                </>
               ) : (
-                <div className="hidden md:flex items-center gap-2">
-                  <Link href="/login" className="px-5 py-2 text-sm font-bold text-gray-400 hover:text-white">
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    href="/login"
+                    onClick={closeMenu}
+                    className="flex items-center justify-center py-3.5 rounded-xl font-bold text-sm text-foreground border border-border bg-foreground/5 touch-manipulation min-h-[48px]"
+                  >
                     {t('login')}
                   </Link>
-                  <Link href="/signup" className="px-5 py-2 bg-gradient-to-r from-primary to-accent rounded-full text-white text-sm font-bold hover:shadow-[0_0_20px_rgba(0,163,255,0.4)] transition-all">
+                  <Link
+                    href="/signup"
+                    onClick={closeMenu}
+                    className="flex items-center justify-center py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20 touch-manipulation min-h-[48px]"
+                  >
                     {t('signup')}
                   </Link>
                 </div>
               )}
-
-              {/* Profile Dropdown */}
-              <AnimatePresence>
-                {user && activeDropdown === 'user' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute top-full mt-2 w-64 glass border border-white/10 rounded-2xl shadow-2xl p-3 right-0 rtl:right-auto rtl:left-0 overflow-hidden"
-                  >
-                    <div className="p-4 mb-2 border-b border-border bg-foreground/[0.02]">
-                      <p className="text-foreground font-black uppercase tracking-tight">{user.name}</p>
-                      <p className="text-primary text-[10px] uppercase font-black tracking-widest mt-1 shadow-sm">{user.role}</p>
-                    </div>
-                    <div className="space-y-1">
-                      {getRoleMenu()?.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setActiveDropdown(null)}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-all"
-                        >
-                          <item.icon className="w-4 h-4" />
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-400 hover:bg-red-400/10 transition-all border-t border-white/5 pt-3"
-                    >
-                      <FiLogOut className="w-4 h-4" />
-                      {t('logout')}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
+  );
 
-            {/* Mobile Menu Icon */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="xl:hidden p-2 text-white bg-white/5 rounded-xl border border-white/5"
+  return (
+    <>
+      <header
+        ref={navRef}
+        className={cn(
+          'fixed top-0 inset-x-0 z-[100] transition-all duration-300',
+          scrolled
+            ? 'bg-background/95 backdrop-blur-xl shadow-md border-b border-border'
+            : 'bg-background/70 backdrop-blur-lg border-b border-transparent'
+        )}
+      >
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between h-16 lg:h-20 gap-2 min-w-0">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="flex items-center gap-2 shrink-0 min-w-0 group touch-manipulation"
             >
-              {menuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
-            </button>
+              <div className="relative w-11 h-11 sm:w-14 sm:h-14 lg:w-16 lg:h-16 shrink-0 group-hover:scale-105 transition-transform">
+                <Image src="/logo.png" alt="IT-SPARK Logo" fill className="object-contain" priority />
+              </div>
+              <div className="hidden sm:flex flex-col justify-center min-w-0">
+                <span
+                  className="text-lg lg:text-xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tight leading-none truncate"
+                  dir="ltr"
+                >
+                  IT-SPARK
+                </span>
+                <span
+                  className="text-[8px] lg:text-[9px] font-black text-foreground/40 uppercase tracking-widest hidden md:block"
+                  dir="ltr"
+                >
+                  THERE IS MUCH MORE TO LEARN
+                </span>
+              </div>
+            </Link>
 
-          </div>
-        </div>
-
-        {/* Mobile Sidebar Navigation */}
-        <AnimatePresence>
-          {menuOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setMenuOpen(false)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 xl:hidden"
-              />
-              <motion.div
-                initial={{ x: lang === 'en' ? '100%' : '-100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: lang === 'en' ? '100%' : '-100%' }}
-                className="fixed top-0 bottom-0 right-0 rtl:right-auto rtl:left-0 w-80 bg-background z-[100] border-l rtl:border-l-0 rtl:border-r border-border p-6 overflow-y-auto xl:hidden shadow-2xl"
-              >
-                <div className="flex items-center justify-between mb-10">
-                  <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shrink-0">
-                      <Image src="/logo.png" alt="Logo" width={24} height={24} className="object-contain" />
-                    </div>
-                    <span className="font-black text-lg uppercase tracking-tighter text-foreground" dir="ltr">
-                      IT-SPARK
-                    </span>
-                  </Link>
-                  <button onClick={() => setMenuOpen(false)} className="p-2 text-foreground/40 hover:text-foreground hover:bg-foreground/5 rounded-xl transition-colors">
-                    <FiX size={24} />
-                  </button>
-                </div>
-
-                <div className="space-y-6">
-                  {navLinks.map((link) => (
-                    <div key={link.label}>
-                      {link.dropdown ? (
-                        <div className="space-y-2">
-                          <p className="text-[10px] font-black text-primary uppercase tracking-widest px-4 mb-2">{link.label}</p>
-                          <div className="grid grid-cols-1 gap-1">
+            {/* Desktop nav */}
+            <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center max-w-3xl mx-4">
+              {navLinks.map((link) => (
+                <div key={link.label} className="relative shrink-0">
+                  {link.dropdown ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveDropdown(activeDropdown === link.label ? null : link.label)
+                        }
+                        className={cn(
+                          'px-3 py-2 rounded-xl text-sm font-bold flex items-center gap-1 transition-all whitespace-nowrap',
+                          activeDropdown === link.label
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
+                        )}
+                      >
+                        {link.label}
+                        <FiChevronDown
+                          className={cn(
+                            'transition-transform',
+                            activeDropdown === link.label && 'rotate-180'
+                          )}
+                        />
+                      </button>
+                      <AnimatePresence>
+                        {activeDropdown === link.label && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            className="absolute top-full mt-1 w-52 glass border border-border rounded-2xl shadow-2xl p-2 start-0 z-50"
+                          >
                             {link.dropdown.map((item) => (
                               <Link
                                 key={item.href}
                                 href={item.href}
-                                onClick={() => setMenuOpen(false)}
-                                className="flex items-center gap-4 px-4 py-3 rounded-2xl text-foreground/60 hover:bg-primary/10 hover:text-primary transition-all font-medium"
+                                onClick={() => setActiveDropdown(null)}
+                                className="block px-4 py-2.5 rounded-xl text-sm font-medium text-foreground/80 hover:bg-primary/10 hover:text-primary"
                               >
                                 {item.label}
                               </Link>
                             ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <Link
-                          href={link.href}
-                          onClick={() => setMenuOpen(false)}
-                          className="flex items-center gap-4 px-4 py-4 rounded-2xl text-lg font-bold text-foreground hover:bg-primary/10 hover:text-primary transition-all"
-                        >
-                          {link.icon && <link.icon className="w-5 h-5 text-primary/40" />}
-                          {link.label}
-                        </Link>
-                      )}
-                    </div>
-                  ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </>
+                  ) : (
+                    <Link href={link.href!} className={linkClass(link.href!)}>
+                      {link.label}
+                    </Link>
+                  )}
+                </div>
+              ))}
+              <Link href="/pricing" className={linkClass('/pricing')}>
+                {t('pricing')}
+              </Link>
+            </div>
 
-                  <div className="pt-6 border-t border-white/5 space-y-4">
-                    {user ? (
-                      <div className="space-y-2">
-                        <p className="text-[10px] font-black text-primary uppercase tracking-widest px-4 mb-2">{t('profile')}</p>
-                        <div className="grid grid-cols-1 gap-1">
+            {/* Actions */}
+            <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
+              {/* Search — desktop only */}
+              <div className="hidden lg:flex items-center relative">
+                <motion.div
+                  animate={{ width: searchOpen ? 200 : 40 }}
+                  className="relative h-10 bg-foreground/5 border border-border rounded-full overflow-hidden flex items-center"
+                >
+                  <FiSearch
+                    className="absolute start-3 text-foreground/40 cursor-pointer shrink-0"
+                    onClick={() => setSearchOpen(!searchOpen)}
+                  />
+                  <input
+                    type="text"
+                    placeholder={t('search')}
+                    className="w-full bg-transparent border-none outline-none text-foreground font-bold text-sm ps-10 pe-3 placeholder:text-foreground/25"
+                  />
+                </motion.div>
+              </div>
+
+              {/* Cart — always visible */}
+              <Link
+                href="/cart"
+                className="relative p-2.5 rounded-xl text-foreground/60 hover:text-primary hover:bg-foreground/5 transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+                title={isRtl ? 'السلة' : 'Cart'}
+              >
+                <FiShoppingCart className="w-5 h-5" />
+                {cartCount > 0 && (
+                  <span className="absolute top-1 end-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-primary text-white text-[10px] font-black rounded-full border-2 border-background pointer-events-none">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* Notifications — tablet+ */}
+              {user && (
+                <div className="relative hidden md:block">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActiveDropdown(
+                        activeDropdown === 'notifications' ? null : 'notifications'
+                      )
+                    }
+                    className="relative p-2.5 rounded-xl text-foreground/60 hover:text-primary hover:bg-foreground/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  >
+                    <FiBell className="w-5 h-5" />
+                    {hasUnread && (
+                      <span className="absolute top-2 end-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
+                    )}
+                  </button>
+                  <AnimatePresence>
+                    {activeDropdown === 'notifications' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        className="absolute top-full mt-2 w-72 glass border border-border rounded-2xl shadow-2xl p-4 end-0 z-50"
+                      >
+                        <div className="flex justify-between items-center mb-3 pb-2 border-b border-border">
+                          <h3 className="text-foreground font-black text-sm uppercase">
+                            {t('notifications') || 'Notifications'}
+                          </h3>
+                          {hasUnread && (
+                            <button
+                              type="button"
+                              onClick={markAllAsRead}
+                              className="text-[10px] text-primary font-bold"
+                            >
+                              Mark all read
+                            </button>
+                          )}
+                        </div>
+                        <div className="space-y-2 max-h-56 overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <p className="text-center text-foreground/40 text-sm py-4">No notifications</p>
+                          ) : (
+                            notifications.map((notif: any) => (
+                              <div
+                                key={notif._id}
+                                className={cn(
+                                  'p-3 rounded-xl border text-xs',
+                                  notif.read
+                                    ? 'bg-foreground/5 border-border text-foreground/50'
+                                    : 'bg-primary/10 border-primary/20 text-foreground'
+                                )}
+                              >
+                                <p className="font-bold">{notif.title}</p>
+                                <p className="opacity-80 mt-0.5">{notif.message}</p>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Language — sm+ */}
+              <button
+                type="button"
+                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+                className="hidden sm:flex px-2.5 py-2 text-[10px] font-black uppercase text-foreground/50 hover:text-foreground bg-foreground/5 border border-border rounded-xl min-h-[40px] items-center touch-manipulation"
+              >
+                {lang === 'en' ? 'AR' : 'EN'}
+              </button>
+
+              {/* Desktop auth */}
+              <div className="hidden lg:flex items-center gap-2 ms-1">
+                {user ? (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveDropdown(activeDropdown === 'user' ? null : 'user')
+                      }
+                      className="flex items-center gap-2 p-1 ps-3 bg-primary/10 rounded-full border border-primary/20 hover:border-primary/40 transition-all"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-bold text-white text-xs">
+                        {user.name?.charAt(0) || 'U'}
+                      </div>
+                      <FiChevronDown
+                        className={cn(
+                          'text-primary transition-transform me-1',
+                          activeDropdown === 'user' && 'rotate-180'
+                        )}
+                      />
+                    </button>
+                    <AnimatePresence>
+                      {activeDropdown === 'user' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          className="absolute top-full mt-2 w-60 glass border border-border rounded-2xl shadow-2xl p-3 end-0 z-50"
+                        >
+                          <div className="p-3 mb-2 border-b border-border">
+                            <p className="font-black text-foreground text-sm truncate">{user.name}</p>
+                            <p className="text-[10px] text-primary font-bold uppercase">{user.role}</p>
+                          </div>
                           {getRoleMenu()?.map((item) => (
                             <Link
                               key={item.href}
                               href={item.href}
-                              onClick={() => setMenuOpen(false)}
-                              className="flex items-center gap-4 px-4 py-3 rounded-2xl text-foreground/60 hover:bg-primary/10 hover:text-primary transition-all font-medium"
+                              onClick={() => setActiveDropdown(null)}
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/60 hover:bg-primary/10 hover:text-primary"
                             >
-                              <item.icon className="w-5 h-5" />
+                              <item.icon className="w-4 h-4" />
                               {item.label}
                             </Link>
                           ))}
-                        </div>
-                        drum
-                        <button
-                          onClick={handleLogout}
-                          className="flex w-full items-center gap-4 px-4 py-3 rounded-2xl text-red-500 hover:bg-red-500/10 transition-all font-bold"
-                        >
-                          <FiLogOut className="w-5 h-5" /> {t('logout')}
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-4 pt-4">
-                        <Link href="/login" onClick={() => setMenuOpen(false)} className="px-6 py-4 rounded-2xl bg-white/5 text-white font-bold text-center border border-white/10">
-                          {t('login')}
-                        </Link>
-                        <Link href="/signup" onClick={() => setMenuOpen(false)} className="px-6 py-4 rounded-2xl bg-primary text-white font-bold text-center shadow-lg shadow-primary/20">
-                          {t('signup')}
-                        </Link>
-                      </div>
-                    )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveDropdown(null);
+                              logout();
+                            }}
+                            className="w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 hover:bg-red-500/10 border-t border-border pt-3"
+                          >
+                            <FiLogOut className="w-4 h-4" />
+                            {t('logout')}
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      </div>
-    </nav>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="px-4 py-2 text-sm font-bold text-foreground/60 hover:text-foreground"
+                    >
+                      {t('login')}
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="px-4 py-2 bg-gradient-to-r from-primary to-accent rounded-full text-white text-sm font-bold shadow-lg shadow-primary/20"
+                    >
+                      {t('signup')}
+                    </Link>
+                  </>
+                )}
+              </div>
+
+              {/* Hamburger — mobile & tablet */}
+              <button
+                type="button"
+                onClick={() => setMenuOpen((o) => !o)}
+                className="lg:hidden p-2.5 rounded-xl text-foreground bg-foreground/5 border border-border hover:bg-foreground/10 transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-expanded={menuOpen}
+                aria-controls={MOBILE_MENU_ID}
+                aria-label={menuOpen ? (isRtl ? 'إغلاق' : 'Close menu') : isRtl ? 'القائمة' : 'Menu'}
+              >
+                <motion.div
+                  initial={false}
+                  animate={{ rotate: menuOpen ? 90 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {menuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+                </motion.div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {mounted && createPortal(mobileMenu, document.body)}
+    </>
   );
 }
