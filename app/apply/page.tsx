@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { motion } from 'framer-motion';
 import { FiSend, FiUser, FiPhone, FiMail, FiBook } from 'react-icons/fi';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -65,10 +63,8 @@ export default function ApplyPage() {
         'w-full bg-black/30 border border-white/10 rounded-2xl py-4 px-4 pl-12 rtl:pl-4 rtl:pr-12 text-white font-medium focus:outline-none focus:border-primary/50 transition-colors placeholder:text-gray-500';
 
     return (
-        <main className="min-h-screen bg-background">
-            <Navbar />
-
-            <section className="pt-28 pb-20 px-4">
+        <div className="min-h-screen bg-background">
+            <section className="pb-20 px-4">
                 <div className="max-w-xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 16 }}
@@ -167,7 +163,6 @@ export default function ApplyPage() {
                 </div>
             </section>
 
-            <Footer />
-        </main>
+        </div>
     );
 }

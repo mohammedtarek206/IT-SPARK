@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { FaGraduationCap, FaArrowRight, FaArrowLeft, FaRocket } from 'react-icons/fa';
 import Link from 'next/link';
 import CourseCard from './CourseCard';
-import { getCoursePath } from '@/lib/seo/slug';
 import { useLanguage } from '@/lib/LanguageContext';
 
 const FeaturedCourses = () => {
@@ -68,7 +67,7 @@ const FeaturedCourses = () => {
                             viewport={{ once: true }}
                             className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight"
                         >
-                            {isRtl ? 'كورسات IT-SPARK المميزة' : 'Featured IT-SPARK Courses'}
+                            {isRtl ? 'أحدث الكورسات التدريبية' : 'Featured Training Courses'}
                         </motion.h2>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -98,10 +97,8 @@ const FeaturedCourses = () => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-                    {courses.map((course) => (
-                        <Link href={getCoursePath(course as { _id: string; title: string; slug?: string })} key={(course as { _id: string })._id}>
-                            <CourseCard course={course} />
-                        </Link>
+                    {courses.map((course, index) => (
+                        <CourseCard key={(course as any)._id} course={course} />
                     ))}
                 </div>
             </div>

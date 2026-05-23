@@ -1,179 +1,165 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FiCode, FiShield, FiCpu, FiPlay, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiCode, FiShield, FiCpu, FiPlay, FiVolume2, FiVolumeX } from 'react-icons/fi';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/LanguageContext';
-import HomeHeroMedia from '@/components/HomeHeroMedia';
-import { HOME_METADATA } from '@/lib/seo/config';
-import { getCoursePath } from '@/lib/seo/slug';
-
-interface FeaturedCourse {
-  _id: string;
-  slug?: string;
-  title: string;
-  shortDescription?: string;
-  description?: string;
-  thumbnail?: string;
-  previewVideoUrl?: string;
-  isFree?: boolean;
-  price?: number;
-}
+import { getDriveDirectLink, getDriveEmbedLink, getDriveStreamLink } from '@/lib/media';
 
 export default function Hero() {
   const { t, lang } = useLanguage();
-  const isRtl = lang === 'ar';
-  const [featured, setFeatured] = useState<FeaturedCourse | null>(null);
-  const [loading, setLoading] = useState(true);
-
+  const [videoLink, setVideoLink] = useState('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+  const [isMuted, setIsMuted] = useState(true);
   useEffect(() => {
-    fetch('/api/home/content')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.featuredCourse) setFeatured(data.featuredCourse);
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.introVideoUrl) setVideoLink(data.introVideoUrl);
       })
-      .catch((err) => console.error('Failed to fetch featured course:', err))
-      .finally(() => setLoading(false));
+      .catch(err => console.error('Failed to fetch Hero settings:', err));
   }, []);
 
-  const description =
-    featured?.shortDescription?.trim() ||
-    featured?.description?.trim() ||
-    t('hero_desc');
-
-  const courseHref = featured ? getCoursePath(featured) : '/courses';
-
   return (
-    <section className="relative w-full overflow-hidden bg-background" aria-label="IT-SPARK Home">
-      <div className="relative min-h-[72vh] sm:min-h-[80vh] lg:min-h-[88vh] w-full">
-        {loading ? (
-          <div className="absolute inset-0 bg-slate-900 animate-pulse" aria-hidden />
-        ) : featured ? (
-          <HomeHeroMedia
-            thumbnail={featured.thumbnail}
-            videoUrl={featured.previewVideoUrl}
-            title={featured.title}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-primary/20 to-slate-900" aria-hidden />
-        )}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-32 lg:pt-20">
+      {/* Animated Background */}
+      <div className="absolute inset-0 cyber-grid opacity-5"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-accent/20 animate-gradient"></div>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/40 rtl:bg-gradient-to-l" />
-
-        <div className="absolute inset-0 flex flex-col justify-end">
-          <div className="container mx-auto px-4 pb-10 sm:pb-14 lg:pb-20 pt-28 lg:pt-24 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
+      {/* Content */}
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-12">
+          <div className="flex-1 text-center lg:text-start rtl:lg:text-start">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              className="max-w-3xl"
+              transition={{ duration: 0.6 }}
+              className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-2 bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent inline-block pr-2 pb-2 tracking-wide font-inter"
+              dir="ltr"
             >
-              <h1
-                className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight mb-2 drop-shadow-lg"
-                dir="ltr"
+              IT-SPARK
+            </motion.h1>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-accent/90 tracking-widest font-inter block"
+              dir="ltr"
+            >
+              THERE IS MUCH MORE TO LEARN
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-lg sm:text-xl md:text-2xl text-foreground/80 mb-6 md:mb-8"
+            >
+              {t('hero_subtitle')}
+            </motion.p>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-sm sm:text-base md:text-lg text-foreground/60 mb-8 md:mb-12 max-w-2xl mx-auto lg:mx-0"
+            >
+              {t('hero_desc')}
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-4 mb-12 md:mb-16"
+            >
+              <Link
+                href="/signup"
+                className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-primary to-accent rounded-full text-white font-semibold hover:scale-105 transition-transform shadow-lg shadow-primary/50 text-center"
               >
-                {HOME_METADATA.h1}
-              </h1>
-
-              <h2 className="text-base sm:text-lg md:text-xl font-bold text-white/90 mb-4 max-w-2xl leading-relaxed">
-                {HOME_METADATA.h2}
-              </h2>
-
-              {featured ? (
-                <>
-                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-white/95 leading-tight mb-2 line-clamp-2">
-                    {featured.title}
-                  </h3>
-
-                  <p className="text-sm sm:text-base text-white/80 font-medium mb-6 max-w-2xl line-clamp-3 leading-relaxed">
-                    {description}
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-                    <Link
-                      href={courseHref}
-                      className="px-6 py-3.5 sm:px-8 sm:py-4 bg-gradient-to-r from-primary to-accent rounded-full text-white font-black text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg shadow-primary/40 text-center flex items-center justify-center gap-2"
-                    >
-                      {isRtl ? 'عرض الكورس' : 'View Course'}
-                      {isRtl ? <FiArrowLeft /> : <FiArrowRight />}
-                    </Link>
-                    <Link
-                      href={courseHref}
-                      className="px-6 py-3.5 sm:px-8 sm:py-4 bg-white/10 backdrop-blur-md border-2 border-white/25 rounded-full text-white font-bold hover:bg-white/20 transition-colors text-center flex items-center justify-center gap-2"
-                    >
-                      <FiPlay />
-                      {isRtl ? 'سجّل الآن' : 'Enroll Now'}
-                    </Link>
-                    <Link
-                      href="/courses"
-                      className="px-6 py-3.5 text-white/90 text-sm font-bold underline-offset-4 hover:underline text-center"
-                    >
-                      {isRtl ? 'كل كورسات IT Spark' : 'All IT Spark Courses'}
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p className="text-foreground/70 mb-6 max-w-xl">{t('hero_subtitle')}</p>
-                  <div className="flex flex-wrap gap-3">
-                    <Link
-                      href="/courses"
-                      className="inline-flex px-8 py-4 bg-gradient-to-r from-primary to-accent rounded-full text-white font-semibold"
-                    >
-                      {t('start_journey')}
-                    </Link>
-                    <Link
-                      href="/training-courses"
-                      className="inline-flex px-8 py-4 border border-primary/40 rounded-full text-primary font-semibold hover:bg-primary/10"
-                    >
-                      {isRtl ? 'التدريبات' : 'Trainings'}
-                    </Link>
-                  </div>
-                </>
-              )}
+                {t('start_journey')}
+              </Link>
+              <button
+                className="px-6 py-3 sm:px-8 sm:py-4 border-2 border-primary rounded-full text-primary font-semibold hover:bg-primary/10 transition-colors flex items-center justify-center gap-2 group"
+                onClick={() => window.open(videoLink, '_blank')}
+              >
+                <FiPlay className="group-hover:scale-125 transition-transform" />
+                {t('video_btn')}
+              </button>
             </motion.div>
           </div>
-        </div>
-      </div>
 
-      <div className="container mx-auto px-4 relative z-10 -mt-4 pb-16">
+          {/* Video / Visual Placeholder */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="flex-1 w-full max-w-2xl"
+          >
+            <div className="relative aspect-video rounded-2xl md:rounded-3xl overflow-hidden glass border border-white/10 shadow-2xl group bg-black/20">
+              <video
+                src="/intro.mp4"
+                className="w-full h-full object-cover rounded-2xl md:rounded-3xl"
+                autoPlay
+                loop
+                muted={isMuted}
+                playsInline
+                controls={false}
+              />
+              
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className="absolute bottom-4 right-4 md:bottom-6 md:right-6 p-3 md:p-4 rounded-xl bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 z-30 transition-all text-white group"
+                aria-label="Toggle Mute"
+              >
+                {isMuted ? (
+                  <FiVolumeX className="w-5 h-5 md:w-6 md:h-6 text-gray-300 group-hover:text-white" />
+                ) : (
+                  <FiVolume2 className="w-5 h-5 md:w-6 md:h-6 text-primary group-hover:scale-110 transition-transform" />
+                )}
+              </button>
+              
+
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Features Preview */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-16 md:mt-24"
         >
           {[
-            {
-              icon: FiCode,
-              title: lang === 'en' ? 'Programming' : 'البرمجة',
-              desc: lang === 'en' ? 'Master modern languages' : 'أتقن اللغات الحديثة',
-            },
-            {
-              icon: FiShield,
-              title: lang === 'en' ? 'Cybersecurity' : 'الأمن السيبراني',
-              desc: lang === 'en' ? 'Protect digital assets' : 'حماية الأصول الرقمية',
-            },
-            {
-              icon: FiCpu,
-              title: lang === 'en' ? 'AI & ML' : 'الذكاء الاصطناعي',
-              desc: lang === 'en' ? 'Build intelligent systems' : 'بناء أنظمة ذكية',
-            },
+            { icon: FiCode, title: lang === 'en' ? 'Programming' : 'البرمجة', desc: lang === 'en' ? 'Master modern languages' : 'أتقن اللغات الحديثة' },
+            { icon: FiShield, title: lang === 'en' ? 'Cybersecurity' : 'الأمن السيبراني', desc: lang === 'en' ? 'Protect digital assets' : 'حماية الأصول الرقمية' },
+            { icon: FiCpu, title: lang === 'en' ? 'AI & ML' : 'الذكاء الاصطناعي', desc: lang === 'en' ? 'Build intelligent systems' : 'بناء أنظمة ذكية' },
           ].map((item, index) => (
             <div
               key={index}
-              className="glass rounded-2xl p-5 md:p-6 border border-border/10 flex flex-col items-center text-center hover:border-primary/20 transition-colors"
+              className="glass rounded-2xl p-5 md:p-6 hover:scale-105 transition-transform border border-border/10 flex flex-col items-center text-center"
             >
-              <item.icon className="w-10 h-10 text-primary mb-3" aria-hidden />
-              <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
-              <p className="text-sm text-foreground/60 mt-1">{item.desc}</p>
+              <item.icon className="w-10 h-10 md:w-12 md:h-12 text-primary mb-4" />
+              <h3 className="text-lg md:text-xl font-bold mb-2 text-foreground">{item.title}</h3>
+              <p className="text-sm md:text-base text-foreground/60">{item.desc}</p>
             </div>
           ))}
         </motion.div>
       </div>
+
+      {/* Scroll Indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, repeat: Infinity, repeatType: 'reverse', duration: 1 }}
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+      >
+        <div className="w-6 h-10 border-2 border-accent rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-accent rounded-full mt-2 animate-bounce"></div>
+        </div>
+      </motion.div>
     </section>
   );
 }

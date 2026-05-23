@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { FiBriefcase, FiMapPin, FiClock, FiDollarSign, FiSearch, FiChevronRight, FiCheckCircle, FiX, FiSend } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -110,9 +108,7 @@ export default function JobsPage() {
     };
 
     return (
-        <main className="min-h-screen bg-background pt-32 pb-20">
-            <Navbar />
-            
+        <div className="min-h-screen bg-background pb-20">
             <div className="container mx-auto px-4">
                 <div className="max-w-4xl mx-auto text-center mb-16">
                     <motion.div
@@ -396,7 +392,6 @@ export default function JobsPage() {
                 )}
             </AnimatePresence>
 
-            <Footer />
-        </main>
+        </div>
     );
 }

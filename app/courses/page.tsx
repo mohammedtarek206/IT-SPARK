@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 import { getDriveDirectLink } from '@/lib/media';
 import CourseCardMedia from '@/components/CourseCardMedia';
 import CourseCard from '@/components/CourseCard';
-import { getCoursePath } from '@/lib/seo/slug';
 
 export default function PublicCoursesPage() {
     const { t } = useLanguage();
@@ -69,7 +68,7 @@ export default function PublicCoursesPage() {
         }
 
         if (course.price > 0) {
-            router.push(getCoursePath(course));
+            router.push(`/courses/${course._id || course.id}`);
             return;
         }
 
@@ -114,11 +113,11 @@ export default function PublicCoursesPage() {
 
             <div className="max-w-7xl mx-auto space-y-12">
                 <div className="text-center max-w-3xl mx-auto space-y-4">
-                    <h1 className="text-3xl md:text-5xl font-black text-foreground tracking-tight leading-tight" dir="ltr">
-                        IT-SPARK Courses
+                    <h1 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter leading-none">
+                        Explore Library
                     </h1>
-                    <p className="text-foreground/60 font-bold max-w-xl mx-auto" dir="rtl">
-                        كورسات IT Spark — برمجة، ذكاء اصطناعي، أمن سيبراني، شبكات وتصميم
+                    <p className="text-foreground/60 font-bold max-w-xl mx-auto">
+                        Discover top-tier courses across multiple disciplines and master the skills you need.
                     </p>
                 </div>
 
@@ -139,7 +138,7 @@ export default function PublicCoursesPage() {
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                     {filteredCourses.map((course) => (
-                        <Link href={getCoursePath(course)} key={course._id || course.id}>
+                        <Link href={`/courses/${course._id || course.id}`} key={course._id || course.id}>
                             <CourseCard course={course} />
                         </Link>
                     ))}
