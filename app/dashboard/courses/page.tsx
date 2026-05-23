@@ -5,7 +5,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { motion } from 'framer-motion';
 import { FiPlayCircle, FiMoreVertical, FiCheckCircle, FiClock, FiStar, FiSearch, FiMonitor } from 'react-icons/fi';
 import Link from 'next/link';
-import { getDriveDirectLink } from '@/lib/media';
+import CourseCardMedia from '@/components/CourseCardMedia';
 
 export default function MyCoursesPage() {
     const { t } = useLanguage();
@@ -29,7 +29,8 @@ export default function MyCoursesPage() {
                             title: c.title,
                             instructor: 'Instructor', // Can be populated if needed
                             progress: c.progress?.progressPercentage || 0,
-                            thumbnail: c.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800',
+                            thumbnail: c.thumbnail || '',
+                            previewVideoUrl: c.previewVideoUrl || '',
                             status: c.progress?.progressPercentage === 100 ? 'completed' : (c.progress?.progressPercentage > 0 ? 'in-progress' : 'not-started'),
                             lastAccessed: c.progress?.lastAccessed ? new Date(c.progress.lastAccessed).toLocaleDateString() : 'Never'
                         })));
@@ -122,14 +123,11 @@ export default function MyCoursesPage() {
                         )}
 
                         <div className="w-full h-48 relative overflow-hidden shrink-0">
-                            <img
-                                src={getDriveDirectLink(course.thumbnail)}
-                                alt={course.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                onError={(e) => {
-                                    const img = e.target as HTMLImageElement;
-                                    img.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800';
-                                }}
+                            <CourseCardMedia
+                                thumbnail={course.thumbnail}
+                                videoUrl={course.previewVideoUrl}
+                                title={course.title}
+                                className="w-full h-full"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
 

@@ -17,9 +17,11 @@ import {
 } from 'react-icons/fi';
 import YouTubePlayer from '@/components/YouTubePlayer';
 import CoursePreviewModal from '@/components/CoursePreviewModal';
-import { isMediaVideo } from '@/components/CourseCardMedia';
-import { getDriveDirectLink, getDriveEmbedLink, isDriveUrl } from '@/lib/media';
-import { isYouTubeUrl, extractYouTubeId, getYouTubeThumbnail } from '@/lib/youtube';
+import { isMediaVideo } from '@/lib/media';
+import { getDriveEmbedLink, isDriveUrl } from '@/lib/media';
+import { isYouTubeUrl } from '@/lib/youtube';
+import { resolveCourseMedia } from '@/lib/courseMedia';
+import CoursePlaceholder from '@/components/CoursePlaceholder';
 import { addToCart, isInCart, toggleCart } from '@/lib/cart';
 import { showToast } from '@/lib/toast';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -50,9 +52,6 @@ interface CourseHeroProps {
     onStartLearning: () => void;
 }
 
-const FALLBACK_IMAGE =
-    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop';
-
 function HeroMediaSkeleton() {
     return (
         <div className="absolute inset-0 bg-slate-800 animate-pulse">
@@ -75,21 +74,14 @@ export default function CourseHero({
     const [previewOpen, setPreviewOpen] = useState(false);
     const [inCart, setInCart] = useState(false);
     const [isWishlisted, setIsWishlisted] = useState(false);
-    const previewUrl = course.previewVideoUrl?.trim() || '';
-    const hasPreviewVideo = !!previewUrl;
-    const isYouTube = isYouTubeUrl(previewUrl);
-    const isDriveVideo = hasPreviewVideo && isDriveUrl(previewUrl);
-    const isNativeVideo = hasPreviewVideo && !isYouTube && !isDriveVideo && isMediaVideo(previewUrl);
 
-    const imageSrc = imageError
-        ? FALLBACK_IMAGE
-        : getDriveDirectLink(course.thumbnail || FALLBACK_IMAGE);
-
-    const youtubeId = isYouTube ? extractYouTubeId(previewUrl) : null;
-    const posterUrl =
-        youtubeId && !course.thumbnail
-            ? getYouTubeThumbnail(youtubeId)
-            : imageSrc;
+    const media = resolveCourseMedia(course.thumbnail, course.previewVideoUrl);
+    const previewUrl = media.videoUrl || '';
+    const hasPreviewVideo = media.hasVideo;
+    const isYouTube = media.isYouTube;
+    const isDriveVideo = media.isDriveVideo;
+    const isNativeVideo = media.isNativeVideo;
+    const instructorPoster = media.instructorImageUrl;
 
     useEffect(() => {
         setInCart(isInCart(course._id));
@@ -168,7 +160,11 @@ export default function CourseHero({
         if (hasPreviewVideo && isYouTube) {
             return (
                 <div className="absolute inset-0 [&>div]:rounded-none [&>div]:h-full [&>div]:aspect-auto">
-                    <YouTubePlayer videoUrl={previewUrl} title={course.title} />
+                    <YouTubePlayer
+                        videoUrl={previewUrl}
+                        title={course.title}
+                        posterUrl={instructorPoster || undefined}
+                    />
                 </div>
             );
         }
@@ -209,25 +205,33 @@ export default function CourseHero({
             );
         }
 
-        return (
-            <>
-                {!imageLoaded && <HeroMediaSkeleton />}
-                <img
-                    src={posterUrl}
-                    alt={course.title}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-                        imageLoaded ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    onLoad={() => setImageLoaded(true)}
-                    onError={() => {
-                        setImageError(true);
-                        setImageLoaded(true);
-                    }}
-                    loading="eager"
-                    decoding="async"
-                />
-            </>
-        );
+        if (media.usePlaceholder || (media.hasThumbnail && imageError)) {
+            return <CoursePlaceholder title={course.title} className="absolute inset-0" />;
+        }
+
+        if (media.hasThumbnail && instructorPoster) {
+            return (
+                <>
+                    {!imageLoaded && <HeroMediaSkeleton />}
+                    <img
+                        src={instructorPoster}
+                        alt={course.title}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                            imageLoaded ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        onLoad={() => setImageLoaded(true)}
+                        onError={() => {
+                            setImageError(true);
+                            setImageLoaded(true);
+                        }}
+                        loading="eager"
+                        decoding="async"
+                    />
+                </>
+            );
+        }
+
+        return <CoursePlaceholder title={course.title} className="absolute inset-0" />;
     };
 
     const showPosterPlay =
@@ -452,6 +456,7 @@ export default function CourseHero({
                 onClose={() => setPreviewOpen(false)}
                 previewVideoUrl={previewUrl}
                 title={course.title}
+                posterUrl={instructorPoster || undefined}
             />
         </>
     );

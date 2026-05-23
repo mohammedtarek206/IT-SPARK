@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { getDriveDirectLink, getDriveEmbedLink, isDriveUrl } from '@/lib/media';
+import { FiPlay } from 'react-icons/fi';
+import { resolveCourseMedia } from '@/lib/courseMedia';
+import CoursePlaceholder from '@/components/CoursePlaceholder';
+
+export { isMediaVideo } from '@/lib/media';
 
 interface CourseCardMediaProps {
     thumbnail?: string;
@@ -12,45 +16,33 @@ interface CourseCardMediaProps {
     bgColor?: string;
 }
 
-export const isMediaVideo = (url: string): boolean => {
-    if (!url) return false;
-    const urlClean = url.split('?')[0].split('#')[0].toLowerCase();
-    const videoExtensions = /\.(mp4|webm|ogg|mov|avi|mkv|3gp|flv)$/;
-    if (urlClean.match(videoExtensions)) return true;
-    const lowerUrl = url.toLowerCase();
-    if (lowerUrl.includes('#video') || lowerUrl.includes('type=video') || lowerUrl.includes('&video=true')) return true;
-    return false;
-};
-
 export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
     thumbnail,
     videoUrl,
     title,
     className = '',
     objectFit = 'cover',
-    bgColor = 'bg-slate-900'
+    bgColor = 'bg-slate-900',
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [videoLoaded, setVideoLoaded] = useState(false);
-    const [imageError, setImageError] = useState(false);
-    const [showDriveEmbed, setShowDriveEmbed] = useState(false);
+    const [imageFailed, setImageFailed] = useState(false);
+    const [showEmbed, setShowEmbed] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
-    const fallbackImage = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop';
 
-    const effectiveVideoUrl = videoUrl || (isMediaVideo(thumbnail || '') ? thumbnail : '');
-    const effectiveImageUrl = thumbnail || fallbackImage;
+    const media = resolveCourseMedia(thumbnail, videoUrl);
+    const needsEmbedPlayer = media.isYouTube || media.isDriveVideo;
+    const hasNativeVideo = media.isNativeVideo;
 
-    // Drive videos use iframe embed; non-Drive video files use <video> hover-play
-    const hasDriveVideo = isDriveUrl(effectiveVideoUrl || '');
-    const hasNativeVideo = !!effectiveVideoUrl && !hasDriveVideo;
+    const showInstructorImage = media.hasThumbnail && !imageFailed;
+    const showPlaceholderOnly = media.usePlaceholder || (media.hasThumbnail && imageFailed && !media.hasVideo);
 
     useEffect(() => {
-        setImageError(false);
+        setImageFailed(false);
         setVideoLoaded(false);
-        setShowDriveEmbed(false);
-    }, [effectiveVideoUrl, effectiveImageUrl]);
+        setShowEmbed(false);
+    }, [thumbnail, videoUrl]);
 
-    // Hover play only for native (non-Drive) video files
     useEffect(() => {
         if (hasNativeVideo && videoRef.current) {
             if (isHovered) {
@@ -63,49 +55,76 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
     }, [isHovered, hasNativeVideo]);
 
     const containerClasses = className || 'w-full h-48';
-    const directImageUrl = getDriveDirectLink(effectiveImageUrl);
+    const fitClass = objectFit === 'contain' ? 'object-contain p-2' : 'object-cover';
 
     return (
         <div
-            className={`relative overflow-hidden ${bgColor} ${containerClasses}`}
+            className={`relative overflow-hidden rounded-xl ${bgColor} ${containerClasses}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {/* Google Drive video embed — shown when user clicks the Play button */}
-            {hasDriveVideo && showDriveEmbed && (
+            {needsEmbedPlayer && showEmbed && media.embedUrl && (
                 <div className="absolute inset-0 z-30 bg-black">
                     <iframe
-                        src={getDriveEmbedLink(effectiveVideoUrl || '')}
+                        src={media.embedUrl}
                         className="w-full h-full border-0"
-                        allow="autoplay; fullscreen"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                         title={`${title} preview`}
                     />
                     <button
-                        onClick={(e) => { e.stopPropagation(); setShowDriveEmbed(false); }}
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowEmbed(false);
+                        }}
                         className="absolute top-2 right-2 w-8 h-8 bg-black/80 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-black z-40 transition-colors"
+                        aria-label="Close preview"
                     >
                         ✕
                     </button>
                 </div>
             )}
 
-            {/* Static Image */}
-            <img
-                src={imageError ? fallbackImage : directImageUrl}
-                alt={title}
-                onError={() => setImageError(true)}
-                className={`w-full h-full transition-all duration-700 ${
-                    objectFit === 'contain' ? 'object-contain p-2' : 'object-cover'
-                } ${isHovered ? 'scale-105' : 'scale-100'} ${
-                    hasNativeVideo && isHovered && videoLoaded ? 'opacity-0' : 'opacity-100'
-                }`}
-                loading="lazy"
-                decoding="async"
-            />
+            {showPlaceholderOnly && (
+                <CoursePlaceholder title={title} className="absolute inset-0" />
+            )}
 
-            {/* Native (non-Drive) video hover layer */}
-            {hasNativeVideo && (
+            {showInstructorImage && (
+                <img
+                    src={media.instructorImageUrl!}
+                    alt={title}
+                    onError={() => setImageFailed(true)}
+                    className={`w-full h-full transition-all duration-700 ${fitClass} ${
+                        isHovered ? 'scale-105' : 'scale-100'
+                    } ${hasNativeVideo && isHovered && videoLoaded ? 'opacity-0' : 'opacity-100'}`}
+                    loading="lazy"
+                    decoding="async"
+                />
+            )}
+
+            {media.hasVideo && !media.hasThumbnail && !showPlaceholderOnly && (
+                <>
+                    {hasNativeVideo ? (
+                        <video
+                            ref={videoRef}
+                            src={media.videoUrl}
+                            muted
+                            loop
+                            playsInline
+                            preload="metadata"
+                            onLoadedData={() => setVideoLoaded(true)}
+                            className={`absolute inset-0 w-full h-full object-cover ${
+                                isHovered && videoLoaded ? 'opacity-100' : 'opacity-100'
+                            }`}
+                        />
+                    ) : (
+                        <CoursePlaceholder title={title} className="absolute inset-0" />
+                    )}
+                </>
+            )}
+
+            {hasNativeVideo && media.hasThumbnail && (
                 <>
                     {isHovered && !videoLoaded && (
                         <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-10">
@@ -114,7 +133,8 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
                     )}
                     <video
                         ref={videoRef}
-                        src={effectiveVideoUrl}
+                        src={media.videoUrl}
+                        poster={media.instructorImageUrl || undefined}
                         muted
                         loop
                         playsInline
@@ -124,28 +144,34 @@ export const CourseCardMedia: React.FC<CourseCardMediaProps> = ({
                             isHovered && videoLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
                         }`}
                     />
-                    <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md rounded-lg px-2 py-1 border border-white/10 text-[9px] font-black uppercase tracking-widest text-primary flex items-center gap-1 z-10">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                        Preview
-                    </div>
                 </>
             )}
 
-            {/* Drive video — Play button overlay */}
-            {hasDriveVideo && !showDriveEmbed && (
+            {media.hasVideo && needsEmbedPlayer && !showEmbed && (
                 <button
-                    onClick={(e) => { e.stopPropagation(); setShowDriveEmbed(true); }}
-                    className={`absolute bottom-3 right-3 bg-black/75 hover:bg-primary/90 backdrop-blur-md rounded-lg px-2 py-1 border border-white/10 hover:border-primary/50 text-[9px] font-black uppercase tracking-widest text-primary hover:text-white flex items-center gap-1 z-10 transition-all ${
-                        isHovered ? 'opacity-100' : 'opacity-60'
-                    }`}
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setShowEmbed(true);
+                    }}
+                    className="absolute inset-0 z-20 flex items-center justify-center"
+                    aria-label="Play preview"
                 >
-                    ▶ Play Preview
+                    <span className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-black/60 hover:bg-primary/90 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg shadow-primary/30 transition-all hover:scale-105">
+                        <FiPlay className="text-2xl ml-1" />
+                    </span>
                 </button>
             )}
 
-            {/* Subtle gradient overlay */}
-            {!isHovered && (
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-60 pointer-events-none" />
+            {hasNativeVideo && media.hasThumbnail && isHovered && (
+                <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md rounded-lg px-2 py-1 border border-white/10 text-[9px] font-black uppercase tracking-widest text-primary flex items-center gap-1 z-10 pointer-events-none">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    Preview
+                </div>
+            )}
+
+            {!isHovered && !showEmbed && (
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-60 pointer-events-none" />
             )}
         </div>
     );

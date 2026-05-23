@@ -8,11 +8,14 @@ interface YouTubePlayerProps {
     title?: string;
     autoplay?: boolean;
     onEnded?: () => void;
+    /** Instructor course image — never replaced by YouTube auto-thumbnail when set */
+    posterUrl?: string;
 }
 
-import { extractYouTubeId, buildYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/youtube';
+import { extractYouTubeId, buildYouTubeEmbedUrl } from '@/lib/youtube';
+import CoursePlaceholder from '@/components/CoursePlaceholder';
 
-export default function YouTubePlayer({ videoUrl, title, autoplay = false, onEnded }: YouTubePlayerProps) {
+export default function YouTubePlayer({ videoUrl, title, autoplay = false, onEnded, posterUrl }: YouTubePlayerProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -43,7 +46,6 @@ export default function YouTubePlayer({ videoUrl, title, autoplay = false, onEnd
     }
 
     const embedUrl = buildYouTubeEmbedUrl(videoId, isPlaying || autoplay);
-    const thumbnailUrl = getYouTubeThumbnail(videoId);
 
     return (
         <div
@@ -51,23 +53,23 @@ export default function YouTubePlayer({ videoUrl, title, autoplay = false, onEnd
             className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden group"
             onContextMenu={(e) => e.preventDefault()}
         >
-            {/* Thumbnail + Play Button Overlay (shown before play) */}
+            {/* Poster / play overlay (shown before play) */}
             {!isPlaying && !autoplay && (
                 <div
                     className="absolute inset-0 z-10 cursor-pointer"
                     onClick={handlePlay}
                 >
-                    {/* Thumbnail */}
-                    <img
-                        src={thumbnailUrl}
-                        alt={title || 'Video thumbnail'}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = getYouTubeThumbnail(videoId, 'hq');
-                        }}
-                        loading="lazy"
-                        decoding="async"
-                    />
+                    {posterUrl ? (
+                        <img
+                            src={posterUrl}
+                            alt={title || 'Course cover'}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                        />
+                    ) : (
+                        <CoursePlaceholder title={title} className="absolute inset-0" />
+                    )}
                     {/* Dark overlay */}
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
 

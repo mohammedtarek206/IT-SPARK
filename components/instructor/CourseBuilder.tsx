@@ -10,6 +10,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { getDriveDirectLink, getDriveEmbedLink } from '@/lib/media';
+import { processThumbnailUrl, processPreviewVideoUrl, getVideoPreviewEmbedUrl } from '@/lib/courseMedia';
+import { isYouTubeUrl } from '@/lib/youtube';
 import CourseCardMedia from '@/components/CourseCardMedia';
 
 interface Lesson {
@@ -296,17 +298,28 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
             const method = course?._id ? 'PATCH' : 'POST';
             const url = course?._id ? `/api/instructor/courses/${course._id}` : '/api/instructor/courses';
 
-            if (!courseInfo.title) {
-                alert('Please provide a title.');
+            if (!courseInfo.title?.trim()) {
+                alert('Please provide a course title.');
+                return;
+            }
+            if (!courseInfo.description?.trim()) {
+                alert('Please provide a course description.');
+                return;
+            }
+            if (!courseInfo.isFree && (!courseInfo.price || courseInfo.price <= 0)) {
+                alert('Please set a price or mark the course as free.');
                 return;
             }
 
             const payload = {
-                title: courseInfo.title,
+                title: courseInfo.title.trim(),
+                shortDescription: courseInfo.description.slice(0, 200) || courseInfo.title,
                 description: courseInfo.description,
-                previewVideoUrl: courseInfo.previewVideoUrl,
+                category: 'Programming',
+                previewVideoUrl: processPreviewVideoUrl(courseInfo.previewVideoUrl),
                 level: courseInfo.level,
-                thumbnail: courseInfo.thumbnailPreview,
+                thumbnail: processThumbnailUrl(courseInfo.imageUrl || courseInfo.thumbnailPreview) ||
+                    (courseInfo.thumbnailPreview?.startsWith('blob:') ? courseInfo.thumbnailPreview : undefined),
                 price: courseInfo.isFree ? 0 : courseInfo.price,
                 isFree: courseInfo.isFree,
                 modules: modules.map(m => ({
@@ -542,7 +555,7 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                         {/* Preview Video */}
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Preview Video URL (Google Drive / YouTube)</label>
+                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Preview Video URL (Optional)</label>
                                 <div className="relative">
                                     <FiVideo className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                                     <input
@@ -557,29 +570,16 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                             {/* Live Video Preview Inside the Builder */}
                             {courseInfo.previewVideoUrl && (
                                 <div className="relative rounded-2xl overflow-hidden aspect-video bg-black/50 border border-white/10 shadow-lg">
-                                    {courseInfo.previewVideoUrl.includes('drive.google.com') ? (
+                                    {getVideoPreviewEmbedUrl(courseInfo.previewVideoUrl) ? (
                                         <iframe
-                                            src={getDriveEmbedLink(courseInfo.previewVideoUrl)}
+                                            src={getVideoPreviewEmbedUrl(courseInfo.previewVideoUrl)!}
                                             className="w-full h-full border-none"
                                             allow="autoplay; fullscreen"
                                             allowFullScreen
+                                            title="Preview video"
                                         />
-                                    ) : (courseInfo.previewVideoUrl.includes('youtube.com') || courseInfo.previewVideoUrl.includes('youtu.be')) ? (
-                                        (() => {
-                                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                                            const match = courseInfo.previewVideoUrl.match(regExp);
-                                            const embedId = (match && match[2].length === 11) ? match[2] : '';
-                                            return embedId ? (
-                                                <iframe
-                                                    src={`https://www.youtube.com/embed/${embedId}`}
-                                                    className="w-full h-full border-none"
-                                                    allow="autoplay; fullscreen"
-                                                    allowFullScreen
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">Invalid YouTube URL</div>
-                                            );
-                                        })()
+                                    ) : isYouTubeUrl(courseInfo.previewVideoUrl) ? (
+                                        <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">Invalid YouTube URL</div>
                                     ) : (
                                         <video
                                             src={courseInfo.previewVideoUrl}
@@ -594,7 +594,7 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                         {/* Thumbnail */}
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Thumbnail URL (Google Drive / Direct Link)</label>
+                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Thumbnail URL (Optional)</label>
                                 <div className="flex gap-2">
                                     <div className="relative flex-1">
                                         <FiLink className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />

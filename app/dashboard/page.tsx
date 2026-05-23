@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { FiPlayCircle, FiAward, FiClock, FiActivity, FiArrowRight, FiLoader } from 'react-icons/fi';
 import Link from 'next/link';
 import { useAuth } from '@/lib/AuthContext';
-import { getDriveDirectLink } from '@/lib/media';
+import CourseCardMedia from '@/components/CourseCardMedia';
 
 export default function StudentDashboardOverview() {
     const { t, lang } = useLanguage();
@@ -113,14 +113,11 @@ export default function StudentDashboardOverview() {
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl -z-10 group-hover:bg-primary/20 transition-all" />
 
                                 <div className="w-full sm:w-48 h-48 sm:h-full relative overflow-hidden shrink-0">
-                                    <img
-                                        src={getDriveDirectLink(course.thumbnail || 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=400&h=250&fit=crop')}
-                                        alt={course.title}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        onError={(e) => {
-                                            const img = e.target as HTMLImageElement;
-                                            img.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800';
-                                        }}
+                                    <CourseCardMedia
+                                        thumbnail={course.thumbnail}
+                                        videoUrl={course.previewVideoUrl}
+                                        title={course.title}
+                                        className="w-full h-full"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
                                     </div>

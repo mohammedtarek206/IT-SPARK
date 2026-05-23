@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
         await connectDB();
         const items = await CartItem.find({ user: user.userId, status: 'active' })
-            .populate('course', 'title thumbnail price discountPrice isFree')
+            .populate('course', 'title thumbnail previewVideoUrl price discountPrice isFree shortDescription')
             .sort({ updatedAt: -1 });
 
         return NextResponse.json(items, { status: 200 });

@@ -4,19 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FiSave, FiX, FiPlus, FiTrash2, FiImage, FiVideo, FiCheckCircle } from 'react-icons/fi';
-
-const extractDriveId = (url: string) => {
-    const match = url.match(/\/d\/(.+?)\//);
-    return match ? match[1] : null;
-};
-
-const getDriveDirectUrl = (url: string, type: 'image' | 'video') => {
-    const id = extractDriveId(url);
-    if (!id) return url;
-    if (type === 'image') return `https://drive.google.com/thumbnail?id=${id}&sz=w1536-h1024`;
-    if (type === 'video') return `https://drive.google.com/file/d/${id}/preview`;
-    return url;
-};
+import {
+    processThumbnailUrl,
+    processPreviewVideoUrl,
+    getThumbnailPreviewUrl,
+    getVideoPreviewEmbedUrl,
+} from '@/lib/courseMedia';
+import { isMediaVideo } from '@/lib/media';
 
 export default function AddCoursePage() {
     const router = useRouter();
@@ -73,8 +67,8 @@ export default function AddCoursePage() {
                 whatYouWillLearn: formData.whatYouWillLearn.filter(i => i.trim() !== ''),
                 requirements: formData.requirements.filter(i => i.trim() !== ''),
                 targetAudience: formData.targetAudience.filter(i => i.trim() !== ''),
-                thumbnail: formData.thumbnailLink ? getDriveDirectUrl(formData.thumbnailLink, 'image') : '',
-                previewVideoUrl: formData.videoLink ? getDriveDirectUrl(formData.videoLink, 'video') : '',
+                thumbnail: processThumbnailUrl(formData.thumbnailLink),
+                previewVideoUrl: processPreviewVideoUrl(formData.videoLink),
             };
 
             const res = await fetch('/api/instructor/courses', {
@@ -227,28 +221,35 @@ export default function AddCoursePage() {
                     )}
                 </div>
 
-                {/* Media (Google Drive) */}
+                {/* Media — all optional */}
                 <div className="bg-surface border border-border rounded-3xl p-6 md:p-8 space-y-6">
-                    <h2 className="text-xl font-black text-white border-b border-white/5 pb-4">4. Media (Google Drive Links)</h2>
-                    <p className="text-xs text-gray-400 font-medium">Please provide links to files uploaded on Google Drive. Make sure the link sharing is set to "Anyone with the link can view".</p>
+                    <h2 className="text-xl font-black text-white border-b border-white/5 pb-4">4. Media (Optional)</h2>
+                    <p className="text-xs text-gray-400 font-medium leading-relaxed">
+                        أضف صورة أو فيديو أو كلاهما — أو أنشئ الكورس بدون ميديا مؤقتًا. يدعم Google Drive و YouTube وروابط JPG/PNG/WEBP/MP4.
+                    </p>
 
                     <div className="space-y-6">
                         <div>
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 flex items-center gap-2"><FiImage /> Course Thumbnail Link *</label>
-                            <input type="text" required value={formData.thumbnailLink} onChange={e => setFormData({...formData, thumbnailLink: e.target.value})} className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 text-white font-bold focus:border-primary/50 outline-none mt-1" placeholder="https://drive.google.com/file/d/..." />
-                            {formData.thumbnailLink && extractDriveId(formData.thumbnailLink) && (
-                                <div className="mt-4 relative w-full max-w-sm h-48 rounded-xl overflow-hidden border border-white/10">
-                                    <img src={getDriveDirectUrl(formData.thumbnailLink, 'image')} alt="Preview" className="w-full h-full object-cover" />
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 flex items-center gap-2"><FiImage /> Course Thumbnail (Optional)</label>
+                            <input type="url" value={formData.thumbnailLink} onChange={e => setFormData({...formData, thumbnailLink: e.target.value})} className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 text-white font-bold focus:border-primary/50 outline-none mt-1" placeholder="Drive image link or direct JPG/PNG/WEBP URL" />
+                            {getThumbnailPreviewUrl(formData.thumbnailLink) && (
+                                <div className="mt-4 relative w-full max-w-sm aspect-video rounded-xl overflow-hidden border border-white/10">
+                                    <img src={getThumbnailPreviewUrl(formData.thumbnailLink)!} alt="Preview" className="w-full h-full object-cover" />
                                 </div>
                             )}
                         </div>
 
                         <div>
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 flex items-center gap-2"><FiVideo /> Intro Video Link (Optional)</label>
-                            <input type="text" value={formData.videoLink} onChange={e => setFormData({...formData, videoLink: e.target.value})} className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 text-white font-bold focus:border-primary/50 outline-none mt-1" placeholder="https://drive.google.com/file/d/..." />
-                            {formData.videoLink && extractDriveId(formData.videoLink) && (
-                                <div className="mt-4 relative w-full max-w-lg h-64 rounded-xl overflow-hidden border border-white/10">
-                                    <iframe src={getDriveDirectUrl(formData.videoLink, 'video')} className="w-full h-full" allow="autoplay"></iframe>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 flex items-center gap-2"><FiVideo /> Intro Video (Optional)</label>
+                            <input type="url" value={formData.videoLink} onChange={e => setFormData({...formData, videoLink: e.target.value})} className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 text-white font-bold focus:border-primary/50 outline-none mt-1" placeholder="YouTube, Google Drive, or MP4 link" />
+                            {getVideoPreviewEmbedUrl(formData.videoLink) && (
+                                <div className="mt-4 relative w-full max-w-lg aspect-video rounded-xl overflow-hidden border border-white/10">
+                                    <iframe src={getVideoPreviewEmbedUrl(formData.videoLink)!} className="w-full h-full border-0" allow="autoplay; fullscreen" allowFullScreen title="Video preview" />
+                                </div>
+                            )}
+                            {formData.videoLink?.trim() && isMediaVideo(formData.videoLink) && !getVideoPreviewEmbedUrl(formData.videoLink) && (
+                                <div className="mt-4 relative w-full max-w-lg aspect-video rounded-xl overflow-hidden border border-white/10 bg-black">
+                                    <video src={formData.videoLink} controls className="w-full h-full object-cover" />
                                 </div>
                             )}
                         </div>

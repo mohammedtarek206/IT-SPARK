@@ -44,3 +44,31 @@ export const getDriveStreamLink = (url: string): string => {
 
 export const isDriveUrl = (url: string): boolean =>
     !!url && url.includes('drive.google.com');
+
+/** Fixed local placeholder — only when instructor provided no image and no video */
+export const COURSE_PLACEHOLDER_PATH = '/course-placeholder.svg';
+
+export const DEFAULT_COURSE_COVER = COURSE_PLACEHOLDER_PATH;
+
+export const hasInstructorMedia = (thumbnail?: string, videoUrl?: string): boolean => {
+    const thumb = thumbnail?.trim();
+    const video = videoUrl?.trim();
+    return !!(thumb || video);
+};
+
+export const normalizeOptionalMediaUrl = (url?: string): string | undefined => {
+    const trimmed = url?.trim();
+    return trimmed || undefined;
+};
+
+export const isMediaVideo = (url: string): boolean => {
+    if (!url) return false;
+    const urlClean = url.split('?')[0].split('#')[0].toLowerCase();
+    const videoExtensions = /\.(mp4|webm|ogg|mov|avi|mkv|3gp|flv)$/;
+    if (urlClean.match(videoExtensions)) return true;
+    const lowerUrl = url.toLowerCase();
+    if (lowerUrl.includes('#video') || lowerUrl.includes('type=video') || lowerUrl.includes('&video=true')) {
+        return true;
+    }
+    return false;
+};

@@ -34,7 +34,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-2 bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent inline-block pr-2 pb-2 tracking-wide font-inter"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-2 inline-block pr-2 pb-2 tracking-tight max-w-full break-words brand-title-gradient"
               dir="ltr"
             >
               IT-SPARK
@@ -44,7 +44,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-accent/90 tracking-widest font-inter block"
+              className="text-base sm:text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary/90 to-accent bg-clip-text text-transparent tracking-[0.12em] sm:tracking-[0.15em] block"
               dir="ltr"
             >
               THERE IS MUCH MORE TO LEARN

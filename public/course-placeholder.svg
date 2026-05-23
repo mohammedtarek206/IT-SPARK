@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none" role="img" aria-label="Course cover">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1628"/>
+      <stop offset="50%" stop-color="#0d3d34"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#006a5a"/>
+      <stop offset="100%" stop-color="#f9bb5f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <circle cx="400" cy="200" r="72" stroke="url(#accent)" stroke-width="3" fill="none" opacity="0.35"/>
+  <path d="M360 175h80v100h-80z" stroke="url(#accent)" stroke-width="3" fill="none" opacity="0.5"/>
+  <path d="M380 195h40v12H380zm0 24h40v12H380zm0 24h28v12h-28z" fill="#f9bb5f" opacity="0.4"/>
+  <text x="400" y="320" text-anchor="middle" font-family="system-ui,sans-serif" font-size="22" font-weight="700" fill="#f9bb5f" opacity="0.9">IT-SPARK</text>
+  <text x="400" y="352" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#94a3b8">Course</text>
+</svg>

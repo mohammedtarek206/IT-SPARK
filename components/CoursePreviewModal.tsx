@@ -5,13 +5,14 @@ import { FiX } from 'react-icons/fi';
 import YouTubePlayer from '@/components/YouTubePlayer';
 import { getDriveEmbedLink, isDriveUrl } from '@/lib/media';
 import { isYouTubeUrl } from '@/lib/youtube';
-import { isMediaVideo } from '@/components/CourseCardMedia';
+import { isMediaVideo } from '@/lib/media';
 
 interface CoursePreviewModalProps {
     open: boolean;
     onClose: () => void;
     previewVideoUrl?: string;
     title: string;
+    posterUrl?: string;
 }
 
 export default function CoursePreviewModal({
@@ -19,12 +20,20 @@ export default function CoursePreviewModal({
     onClose,
     previewVideoUrl,
     title,
+    posterUrl,
 }: CoursePreviewModalProps) {
     if (!previewVideoUrl) return null;
 
     const renderPlayer = () => {
         if (isYouTubeUrl(previewVideoUrl)) {
-            return <YouTubePlayer videoUrl={previewVideoUrl} title={title} autoplay />;
+            return (
+                <YouTubePlayer
+                    videoUrl={previewVideoUrl}
+                    title={title}
+                    autoplay
+                    posterUrl={posterUrl}
+                />
+            );
         }
         if (isDriveUrl(previewVideoUrl)) {
             return (

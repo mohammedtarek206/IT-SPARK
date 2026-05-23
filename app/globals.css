@@ -133,3 +133,33 @@ html[dir="rtl"] body {
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* Brand title — same gradient as Navbar logo (from-primary → to-accent) */
+.brand-title-gradient {
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 0 24px rgba(0, 106, 90, 0.4))
+    drop-shadow(0 0 10px rgba(249, 187, 95, 0.3));
+  animation: brand-shimmer 7s ease-in-out infinite;
+}
+
+@keyframes brand-shimmer {
+  0%,
+  100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-title-gradient {
+    animation: none;
+    background-position: center;
+  }
+}

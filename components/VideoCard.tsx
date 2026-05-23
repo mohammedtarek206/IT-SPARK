@@ -47,7 +47,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video }) => {
             {/* Video Thumbnail with Play Button */}
             <div className="relative aspect-video w-full overflow-hidden bg-slate-200 dark:bg-slate-800">
                 <Image
-                    src={getDriveDirectLink(video.courseImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop')}
+                    src={getDriveDirectLink(video.courseImage || '/course-placeholder.svg')}
                     alt={video.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"

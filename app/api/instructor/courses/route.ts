@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import { authenticateRequest } from '@/lib/auth';
+import { normalizeOptionalMediaUrl } from '@/lib/media';
 
 export async function POST(request: NextRequest) {
     try {
@@ -25,8 +26,8 @@ export async function POST(request: NextRequest) {
             whatYouWillLearn: data.whatYouWillLearn || [],
             requirements: data.requirements || [],
             targetAudience: data.targetAudience || [],
-            thumbnail: data.thumbnail,
-            previewVideoUrl: data.previewVideoUrl,
+            thumbnail: normalizeOptionalMediaUrl(data.thumbnail),
+            previewVideoUrl: normalizeOptionalMediaUrl(data.previewVideoUrl),
             instructor: user.userId,
             level: data.level || 'Beginner',
             language: data.language || 'Arabic',

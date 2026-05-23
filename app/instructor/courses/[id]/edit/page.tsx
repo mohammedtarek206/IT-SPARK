@@ -3,32 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { FiSave, FiX, FiPlus, FiTrash2, FiImage, FiVideo, FiCheckCircle, FiArrowLeft, FiLoader } from 'react-icons/fi';
-
-const extractDriveId = (url: string) => {
-    if (!url) return null;
-    const patterns = [
-        /\/file\/d\/([a-zA-Z0-9_-]+)/,
-        /[?&]id=([a-zA-Z0-9_-]+)/,
-        /\/d\/([a-zA-Z0-9_-]+)/,
-    ];
-    for (const p of patterns) {
-        const m = url.match(p);
-        if (m && m[1]) return m[1];
-    }
-    return null;
-};
-
-const getDriveImagePreview = (url: string) => {
-    const id = extractDriveId(url);
-    return id ? `https://lh3.googleusercontent.com/d/${id}` : url;
-};
-
-const getDriveVideoEmbed = (url: string) => {
-    if (!url) return '';
-    if (url.includes('/preview')) return url;
-    const id = extractDriveId(url);
-    return id ? `https://drive.google.com/file/d/${id}/preview` : url;
-};
+import {
+    processThumbnailUrl,
+    processPreviewVideoUrl,
+    getThumbnailPreviewUrl,
+    getVideoPreviewEmbedUrl,
+} from '@/lib/courseMedia';
+import { isMediaVideo } from '@/lib/media';
 
 export default function EditCoursePage() {
     const router = useRouter();
@@ -127,12 +108,8 @@ export default function EditCoursePage() {
                 requirements: formData.requirements.filter(i => i.trim()),
                 targetAudience: formData.targetAudience.filter(i => i.trim()),
                 // If the user pasted a raw Drive link, convert it; otherwise keep stored URL
-                thumbnail: formData.thumbnailLink
-                    ? getDriveImagePreview(formData.thumbnailLink)
-                    : '',
-                previewVideoUrl: formData.videoLink
-                    ? getDriveVideoEmbed(formData.videoLink)
-                    : '',
+                thumbnail: processThumbnailUrl(formData.thumbnailLink) ?? null,
+                previewVideoUrl: processPreviewVideoUrl(formData.videoLink) ?? null,
             };
             const res = await fetch(`/api/instructor/courses/${courseId}`, {
                 method: 'PATCH',
@@ -281,26 +258,33 @@ export default function EditCoursePage() {
                     )}
                 </div>
 
-                {/* 4. Media */}
+                {/* 4. Media — all optional */}
                 <div className="bg-surface border border-border rounded-3xl p-6 md:p-8 space-y-6">
-                    <h2 className="text-xl font-black text-white border-b border-white/5 pb-4">4. Media (Google Drive Links)</h2>
-                    <p className="text-xs text-gray-400 font-medium">Paste Google Drive links. Make sure sharing is set to "Anyone with the link can view".</p>
+                    <h2 className="text-xl font-black text-white border-b border-white/5 pb-4">4. Media (Optional)</h2>
+                    <p className="text-xs text-gray-400 font-medium leading-relaxed">
+                        صورة أو فيديو أو كلاهما — أو بدون ميديا. يدعم Google Drive و YouTube و JPG/PNG/WEBP/MP4.
+                    </p>
                     <div className="space-y-6">
                         <div>
-                            <label className={labelCls + ' flex items-center gap-2'}><FiImage /> Course Thumbnail Link *</label>
-                            <input type="text" required value={formData.thumbnailLink} onChange={e => setFormData({ ...formData, thumbnailLink: e.target.value })} className={inputCls + ' mt-1'} placeholder="https://drive.google.com/file/d/..." />
-                            {formData.thumbnailLink && extractDriveId(formData.thumbnailLink) && (
-                                <div className="mt-4 relative w-full max-w-sm h-48 rounded-xl overflow-hidden border border-white/10">
-                                    <img src={getDriveImagePreview(formData.thumbnailLink)} alt="Preview" className="w-full h-full object-cover" />
+                            <label className={labelCls + ' flex items-center gap-2'}><FiImage /> Course Thumbnail (Optional)</label>
+                            <input type="url" value={formData.thumbnailLink} onChange={e => setFormData({ ...formData, thumbnailLink: e.target.value })} className={inputCls + ' mt-1'} placeholder="Drive image or direct image URL" />
+                            {getThumbnailPreviewUrl(formData.thumbnailLink) && (
+                                <div className="mt-4 relative w-full max-w-sm aspect-video rounded-xl overflow-hidden border border-white/10">
+                                    <img src={getThumbnailPreviewUrl(formData.thumbnailLink)!} alt="Preview" className="w-full h-full object-cover" />
                                 </div>
                             )}
                         </div>
                         <div>
-                            <label className={labelCls + ' flex items-center gap-2'}><FiVideo /> Intro Video Link (Optional)</label>
-                            <input type="text" value={formData.videoLink} onChange={e => setFormData({ ...formData, videoLink: e.target.value })} className={inputCls + ' mt-1'} placeholder="https://drive.google.com/file/d/..." />
-                            {formData.videoLink && extractDriveId(formData.videoLink) && (
-                                <div className="mt-4 relative w-full max-w-lg h-64 rounded-xl overflow-hidden border border-white/10">
-                                    <iframe src={getDriveVideoEmbed(formData.videoLink)} className="w-full h-full border-0" allow="autoplay" allowFullScreen />
+                            <label className={labelCls + ' flex items-center gap-2'}><FiVideo /> Intro Video (Optional)</label>
+                            <input type="url" value={formData.videoLink} onChange={e => setFormData({ ...formData, videoLink: e.target.value })} className={inputCls + ' mt-1'} placeholder="YouTube, Drive, or MP4" />
+                            {getVideoPreviewEmbedUrl(formData.videoLink) && (
+                                <div className="mt-4 relative w-full max-w-lg aspect-video rounded-xl overflow-hidden border border-white/10">
+                                    <iframe src={getVideoPreviewEmbedUrl(formData.videoLink)!} className="w-full h-full border-0" allow="autoplay; fullscreen" allowFullScreen title="Video preview" />
+                                </div>
+                            )}
+                            {formData.videoLink?.trim() && isMediaVideo(formData.videoLink) && !getVideoPreviewEmbedUrl(formData.videoLink) && (
+                                <div className="mt-4 relative w-full max-w-lg aspect-video rounded-xl overflow-hidden border border-white/10 bg-black">
+                                    <video src={formData.videoLink} controls className="w-full h-full object-cover" />
                                 </div>
                             )}
                         </div>

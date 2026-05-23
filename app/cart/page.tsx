@@ -9,12 +9,13 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { useAuth } from '@/lib/AuthContext';
 import { getCartIds, removeFromCart, syncCartWithServer, clearCart } from '@/lib/cart';
 import { showToast } from '@/lib/toast';
-import { getDriveDirectLink } from '@/lib/media';
+import CourseCardMedia from '@/components/CourseCardMedia';
 
 interface CartCourse {
     _id: string;
     title: string;
     thumbnail?: string;
+    previewVideoUrl?: string;
     price: number;
     discountPrice?: number;
     isFree: boolean;
@@ -174,15 +175,13 @@ export default function CartPage() {
                                 >
                                     <Link
                                         href={`/courses/${course._id}`}
-                                        className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-slate-900"
+                                        className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-slate-900 block"
                                     >
-                                        <img
-                                            src={getDriveDirectLink(
-                                                course.thumbnail ||
-                                                    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400'
-                                            )}
-                                            alt={course.title}
-                                            className="w-full h-full object-cover"
+                                        <CourseCardMedia
+                                            thumbnail={course.thumbnail}
+                                            videoUrl={course.previewVideoUrl}
+                                            title={course.title}
+                                            className="w-full h-full"
                                         />
                                     </Link>
                                     <div className="flex-1 min-w-0 flex flex-col justify-between">
