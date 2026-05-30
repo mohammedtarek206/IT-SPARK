@@ -324,14 +324,25 @@ export default function InstructorsManagementPage() {
                                         <div>
                                             <label className="text-[10px] font-black text-foreground/40 uppercase tracking-widest block mb-1">CV / Portfolio</label>
                                             {selectedInstructor.details?.cvUrl ? (
-                                                <a
-                                                    href={selectedInstructor.details.cvUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-primary hover:underline font-black text-sm"
-                                                >
-                                                    <FiFileText /> VIEW RESUME / CV
-                                                </a>
+                                                <div className="flex flex-col gap-3">
+                                                    <a
+                                                        href={selectedInstructor.details.cvUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-primary hover:underline font-black text-sm"
+                                                    >
+                                                        <FiEye /> VIEW RESUME / CV
+                                                    </a>
+                                                    <a
+                                                        href={selectedInstructor.details.cvUrl}
+                                                        download
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-accent hover:underline font-black text-sm"
+                                                    >
+                                                        <FiDownload /> DOWNLOAD CV
+                                                    </a>
+                                                </div>
                                             ) : (
                                                 <p className="text-foreground/40 font-bold italic text-sm">No CV uploaded</p>
                                             )}

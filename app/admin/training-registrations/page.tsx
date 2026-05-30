@@ -115,7 +115,7 @@ export default function AdminTrainingRegistrationsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-white uppercase tracking-tight">Training Applications</h1>
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">طلبات التدريبات والورش</p>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">طلبات الكورسات الأوفلاين</p>
                 </div>
                 
                 <div className="flex items-center gap-3">

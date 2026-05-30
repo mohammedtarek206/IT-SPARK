@@ -125,7 +125,7 @@ export default function SearchBox({ mobile = false }: { mobile?: boolean }) {
                                         {results.courses?.length > 0 && (
                                             <div className="p-2 border-b border-border">
                                                 <div className="px-3 py-2 text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
-                                                    <FiBook /> {isRtl ? 'الكورسات' : 'Courses'}
+                                                    <FiBook /> {isRtl ? 'الكورسات الأونلاين' : 'Courses'}
                                                 </div>
                                                 {results.courses.map((course: any) => (
                                                     <Link href={`/courses/${course.slug || course._id}`} key={course._id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-primary/10 transition-colors group">
@@ -150,7 +150,7 @@ export default function SearchBox({ mobile = false }: { mobile?: boolean }) {
                                         {results.trainings?.length > 0 && (
                                             <div className="p-2 border-b border-border">
                                                 <div className="px-3 py-2 text-[10px] font-black text-accent uppercase tracking-widest flex items-center gap-2">
-                                                    <FiAward /> {isRtl ? 'التدريبات والورش' : 'Trainings'}
+                                                    <FiAward /> {isRtl ? 'الكورسات الأوفلاين' : 'Trainings'}
                                                 </div>
                                                 {results.trainings.map((training: any) => (
                                                     <Link href={`/training-courses/${training._id}`} key={training._id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-accent/10 transition-colors group">

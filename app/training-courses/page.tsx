@@ -153,7 +153,7 @@ export default function TrainingCoursesPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground mb-4"
           >
-            {isRtl ? 'التدريبات والورش' : 'Trainings & Workshops'}
+            {isRtl ? 'الكورسات الأوفلاين' : 'Trainings & Workshops'}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 12 }}

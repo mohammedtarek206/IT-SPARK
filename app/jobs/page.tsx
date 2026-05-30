@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/LanguageContext';
 import { useAuth } from '@/lib/AuthContext';
 import Link from 'next/link';
+import FileUploader from '@/components/FileUploader';
 
 export default function JobsPage() {
     const { t, lang } = useLanguage();
@@ -60,14 +61,7 @@ export default function JobsPage() {
     const handleApply = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.resumeUrl) {
-            alert(isRtl ? 'يرجى إدخال رابط السيرة الذاتية (Google Drive) الخاص بك' : 'Please provide your Google Drive CV link');
-            return;
-        }
-        if (!formData.resumeUrl.includes('drive.google.com')) {
-            alert(isRtl ? 'يجب أن يكون رابط السيرة الذاتية من Google Drive' : 'Resume link must be a valid Google Drive link');
-            return;
-        }
+        // Form validation is minimal now (only name and phone required)
 
         setApplying(true);
         try {
@@ -290,7 +284,7 @@ export default function JobsPage() {
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'البريد الإلكتروني' : 'Email'}</label>
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'البريد الإلكتروني (اختياري)' : 'Email (Optional)'}</label>
                                                         <input
                                                             type="email"
                                                             value={formData.email}
@@ -301,9 +295,8 @@ export default function JobsPage() {
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'الكلية / المعهد' : 'University / Institute'} *</label>
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'الكلية / المعهد (اختياري)' : 'University / Institute (Optional)'}</label>
                                                         <input
-                                                            required
                                                             value={formData.university}
                                                             onChange={e => setFormData({ ...formData, university: e.target.value })}
                                                             className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
@@ -314,9 +307,8 @@ export default function JobsPage() {
                                                 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'السنة الدراسية' : 'Academic Year'} *</label>
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'السنة الدراسية (اختياري)' : 'Academic Year (Optional)'}</label>
                                                         <input
-                                                            required
                                                             value={formData.academicYear}
                                                             onChange={e => setFormData({ ...formData, academicYear: e.target.value })}
                                                             className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
@@ -325,9 +317,8 @@ export default function JobsPage() {
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'التخصص' : 'Major'} *</label>
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'التخصص (اختياري)' : 'Major (Optional)'}</label>
                                                         <input
-                                                            required
                                                             value={formData.major}
                                                             onChange={e => setFormData({ ...formData, major: e.target.value })}
                                                             className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
@@ -337,9 +328,8 @@ export default function JobsPage() {
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'المحافظة' : 'Governorate'} *</label>
+                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">{isRtl ? 'المحافظة (اختياري)' : 'Governorate (Optional)'}</label>
                                                     <input
-                                                        required
                                                         value={formData.governorate}
                                                         onChange={e => setFormData({ ...formData, governorate: e.target.value })}
                                                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all"
@@ -348,15 +338,10 @@ export default function JobsPage() {
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">
-                                                        {isRtl ? 'رابط السيرة الذاتية (Google Drive) *' : 'Resume Link (Google Drive) *'}
-                                                    </label>
-                                                    <input
-                                                        required
-                                                        value={formData.resumeUrl}
-                                                        onChange={e => setFormData({ ...formData, resumeUrl: e.target.value })}
-                                                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white font-bold focus:outline-none focus:border-primary/50 transition-all border-red-500/20 focus:border-primary"
-                                                        placeholder="https://drive.google.com/..."
+                                                    <FileUploader
+                                                        onUploadSuccess={(url) => setFormData({ ...formData, resumeUrl: url })}
+                                                        currentFileUrl={formData.resumeUrl}
+                                                        label={isRtl ? 'السيرة الذاتية PDF, DOC, ZIP (اختياري)' : 'Upload CV (Optional)'}
                                                     />
                                                 </div>
 

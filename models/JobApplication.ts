@@ -5,11 +5,11 @@ export interface IJobApplication extends Document {
     fullName: string;
     phone: string;
     email?: string;
-    university: string;
-    academicYear: string;
-    major: string;
-    governorate: string;
-    resumeUrl: string;
+    university?: string;
+    academicYear?: string;
+    major?: string;
+    governorate?: string;
+    resumeUrl?: string;
     notes?: string;
     status: 'New' | 'Reviewed' | 'Interview' | 'Accepted' | 'Rejected';
     appliedAt: Date;
@@ -21,11 +21,11 @@ const JobApplicationSchema: Schema = new Schema(
         fullName: { type: String, required: true },
         phone: { type: String, required: true },
         email: { type: String },
-        university: { type: String, required: true },
-        academicYear: { type: String, required: true },
-        major: { type: String, required: true },
-        governorate: { type: String, required: true },
-        resumeUrl: { type: String, required: true },
+        university: { type: String },
+        academicYear: { type: String },
+        major: { type: String },
+        governorate: { type: String },
+        resumeUrl: { type: String },
         notes: { type: String },
         status: {
             type: String,

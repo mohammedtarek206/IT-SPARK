@@ -201,7 +201,7 @@ export default function AdminTrainingsPage() {
             Trainings Management
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            إضافة وتعديل التدريبات والورش — تظهر مباشرة في الموقع
+            إضافة وتعديل الكورسات الأوفلاين — تظهر مباشرة في الموقع
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

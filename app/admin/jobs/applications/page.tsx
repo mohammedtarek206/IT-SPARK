@@ -187,14 +187,25 @@ export default function AdminJobApplicationsPage() {
                                         </td>
                                         <td className="px-8 py-6">
                                             {app.resumeUrl ? (
-                                                <a
-                                                    href={app.resumeUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors"
-                                                >
-                                                    <FiExternalLink /> View Resume
-                                                </a>
+                                                <div className="flex items-center gap-3">
+                                                    <a
+                                                        href={app.resumeUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors"
+                                                    >
+                                                        <FiExternalLink /> View
+                                                    </a>
+                                                    <a
+                                                        href={app.resumeUrl}
+                                                        download
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-1.5 text-[10px] font-black text-accent uppercase tracking-widest hover:text-white transition-colors"
+                                                    >
+                                                        <FiDownload /> Download
+                                                    </a>
+                                                </div>
                                             ) : (
                                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">No Resume</span>
                                             )}

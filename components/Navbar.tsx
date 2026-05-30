@@ -72,8 +72,8 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: t('home'), icon: FiHome },
-    { href: '/training-courses', label: isRtl ? 'التدريبات والورش' : 'Offline Courses', icon: FiAward },
-    { href: '/courses', label: isRtl ? 'الكورسات' : 'Online Courses', icon: FiBook },
+    { href: '/training-courses', label: isRtl ? 'الكورسات الأوفلاين' : 'Offline Courses', icon: FiAward },
+    { href: '/courses', label: isRtl ? 'الكورسات الأونلاين' : 'Online Courses', icon: FiBook },
     { href: '/apply', label: isRtl ? 'تقديم شهادة' : 'Certificate Application', icon: FiAward },
     { href: '/jobs', label: isRtl ? 'الوظائف' : 'Jobs', icon: FiBriefcase },
     { href: '/about', label: t('about'), icon: FiInfo },
@@ -82,8 +82,8 @@ export default function Navbar() {
 
   const mobilePrimaryLinks = [
     { href: '/', label: t('home'), icon: FiHome },
-    { href: '/training-courses', label: isRtl ? 'التدريبات والورش' : 'Offline Courses', icon: FiAward },
-    { href: '/courses', label: isRtl ? 'الكورسات' : 'Online Courses', icon: FiBook },
+    { href: '/training-courses', label: isRtl ? 'الكورسات الأوفلاين' : 'Offline Courses', icon: FiAward },
+    { href: '/courses', label: isRtl ? 'الكورسات الأونلاين' : 'Online Courses', icon: FiBook },
     { href: '/apply', label: isRtl ? 'تقديم شهادة' : 'Certificate Application', icon: FiAward },
     { href: '/jobs', label: isRtl ? 'الوظائف' : 'Jobs', icon: FiBriefcase },
     { href: '/about', label: t('about'), icon: FiInfo },

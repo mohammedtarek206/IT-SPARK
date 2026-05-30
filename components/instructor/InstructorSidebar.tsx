@@ -62,7 +62,7 @@ export default function InstructorSidebar({ isOpen, onClose }: { isOpen?: boolea
                         <div>
                             <span className="text-lg font-black text-foreground uppercase tracking-tighter block leading-none" dir="ltr">IT-SPARK</span>
                             <span className="inline-block mt-2 px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest rounded-full border border-primary/20">
-                                Instructor
+                                Trainer
                             </span>
                         </div>
                     </Link>
@@ -75,8 +75,8 @@ export default function InstructorSidebar({ isOpen, onClose }: { isOpen?: boolea
                             {user?.name?.charAt(0) || 'I'}
                         </div>
                         <div className="overflow-hidden">
-                            <p className="text-sm font-black text-foreground truncate">{user?.name || 'Instructor'}</p>
-                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Instructor</p>
+                            <p className="text-sm font-black text-foreground truncate">{user?.name || 'Trainer'}</p>
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Trainer</p>
                         </div>
                     </div>
                 </div>

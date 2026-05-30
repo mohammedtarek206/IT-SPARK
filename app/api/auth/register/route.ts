@@ -26,13 +26,7 @@ export async function POST(request: NextRequest) {
     if (role === 'instructor') {
       if (!cvUrl) {
         return NextResponse.json(
-          { error: 'CV link is required for instructors' },
-          { status: 400 }
-        );
-      }
-      if (!cvUrl.includes('drive.google.com')) {
-        return NextResponse.json(
-          { error: 'CV link must be a valid Google Drive link' },
+          { error: 'CV upload is required for trainers' },
           { status: 400 }
         );
       }
