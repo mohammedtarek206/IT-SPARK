@@ -13,7 +13,6 @@ import {
   FiX,
   FiUser,
   FiLogOut,
-  FiSearch,
   FiBell,
   FiChevronDown,
   FiBook,
@@ -32,6 +31,7 @@ import {
   FiInstagram,
 } from 'react-icons/fi';
 import { getCartCount, CART_UPDATE_EVENT } from '@/lib/cart';
+import SearchBox from './SearchBox';
 
 const MOBILE_MENU_ID = 'mobile-nav-drawer';
 
@@ -46,7 +46,6 @@ export default function Navbar() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const { user, token, logout } = useAuth();
   const pathname = usePathname();
-  const [searchOpen, setSearchOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { lang, setLang, t } = useLanguage();
   const navRef = useRef<HTMLElement>(null);
@@ -268,6 +267,11 @@ export default function Navbar() {
 
             {/* Scrollable links */}
             <nav className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-5 space-y-1">
+              
+              <div className="mb-4">
+                <SearchBox mobile={true} />
+              </div>
+
               {mobilePrimaryLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -476,20 +480,7 @@ export default function Navbar() {
             <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
               {/* Search — desktop only */}
               <div className="hidden lg:flex items-center relative">
-                <motion.div
-                  animate={{ width: searchOpen ? 200 : 40 }}
-                  className="relative h-10 bg-foreground/5 border border-border rounded-full overflow-hidden flex items-center"
-                >
-                  <FiSearch
-                    className="absolute start-3 text-foreground/40 cursor-pointer shrink-0"
-                    onClick={() => setSearchOpen(!searchOpen)}
-                  />
-                  <input
-                    type="text"
-                    placeholder={t('search')}
-                    className="w-full bg-transparent border-none outline-none text-foreground font-bold text-sm ps-10 pe-3 placeholder:text-foreground/25"
-                  />
-                </motion.div>
+                <SearchBox />
               </div>
 
               {/* Cart — always visible */}

@@ -158,24 +158,46 @@ export default function EditCoursePage() {
 
     if (loading) {
         return (
-            <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">Loading course...</p>
+            <div className="max-w-5xl mx-auto space-y-8 pb-12 animate-pulse px-4 pt-8">
+                <div className="h-8 bg-white/10 rounded w-1/4 mb-2"></div>
+                <div className="h-4 bg-white/10 rounded w-1/3 mb-8"></div>
+                
+                <div className="bg-surface border border-border rounded-3xl p-6 md:p-8 space-y-6">
+                    <div className="h-6 bg-white/10 rounded w-1/4 mb-4"></div>
+                    <div className="space-y-4">
+                        <div className="h-12 bg-white/5 rounded-2xl w-full"></div>
+                        <div className="h-12 bg-white/5 rounded-2xl w-full"></div>
+                        <div className="h-32 bg-white/5 rounded-2xl w-full"></div>
+                    </div>
+                </div>
             </div>
         );
     }
 
     if (error && !notFound) {
         return (
-            <div className="max-w-lg mx-auto py-24 text-center space-y-4">
-                <p className="text-red-400 font-black text-lg">{error}</p>
-                <button
-                    type="button"
-                    onClick={() => router.push('/instructor/courses')}
-                    className="text-primary font-bold hover:underline flex items-center gap-2 mx-auto"
-                >
-                    <FiArrowLeft /> Back to Courses
-                </button>
+            <div className="max-w-lg mx-auto py-24 text-center space-y-6">
+                <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FiX className="text-3xl" />
+                </div>
+                <h2 className="text-2xl font-black text-white">Something went wrong</h2>
+                <p className="text-red-400 font-bold text-sm bg-red-500/10 p-4 rounded-2xl border border-red-500/20">{error}</p>
+                <div className="flex items-center justify-center gap-4 pt-4">
+                    <button
+                        type="button"
+                        onClick={() => window.location.reload()}
+                        className="px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors"
+                    >
+                        Retry
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => router.push('/instructor/courses')}
+                        className="px-6 py-3 border border-white/10 text-white rounded-xl font-bold hover:bg-white/5 transition-colors flex items-center gap-2"
+                    >
+                        <FiArrowLeft /> Back to Courses
+                    </button>
+                </div>
             </div>
         );
     }
