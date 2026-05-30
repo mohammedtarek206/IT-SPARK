@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import Module from '@/models/Module';
 import Lesson from '@/models/Lesson';
+import User from '@/models/User';
 import { authenticateRequest } from '@/lib/auth';
 import { courseAccessQuery, canManageCourses, isValidObjectId } from '@/lib/courseQuery';
 
@@ -85,7 +86,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         }
 
         const data = await request.json();
-        const { modules, ...courseData } = data;
+        // Separate modules from rest, and strip unknown/extra keys the form may send
+        const { modules, thumbnailLink, videoLink, _id, __v, createdAt, updatedAt, ...courseData } = data;
 
         await connectDB();
         const course = await Course.findOne(accessQuery);
@@ -94,7 +96,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         }
 
         Object.assign(course, courseData);
-        course.isActive = true;
+        // Only activate if explicitly passed; don't silently override admin-set status
+        if (typeof courseData.isActive !== 'undefined') {
+            course.isActive = courseData.isActive;
+        }
 
         if (modules && Array.isArray(modules)) {
             const existingModules = await Module.find({ course: course._id });
@@ -153,7 +158,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
             );
         }
 
-        await course.save();
+        await course.save({ validateBeforeSave: false });
 
         return NextResponse.json(
             { message: 'Course updated successfully', course },
@@ -162,7 +167,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Failed to update course';
         console.error('Instructor Courses API PATCH error:', error);
-        return NextResponse.json({ message }, { status: 500 });
+        return NextResponse.json({ message, error: message }, { status: 500 });
     }
 }
 

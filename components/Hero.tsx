@@ -119,17 +119,15 @@ export default function Hero() {
                 <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Link>
 
-              {videoUrl && (
-                <button
-                  onClick={() => setShowVideo(true)}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-primary/40 rounded-full text-foreground font-bold text-lg hover:border-primary hover:bg-primary/10 transition-all duration-300 backdrop-blur-sm"
-                >
-                  <span className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <FiPlay className="text-primary ml-0.5" size={14} />
-                  </span>
-                  {t('video_btn')}
-                </button>
-              )}
+              <button
+                onClick={() => setShowVideo(true)}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-primary/40 rounded-full text-foreground font-bold text-lg hover:border-primary hover:bg-primary/10 transition-all duration-300 backdrop-blur-sm"
+              >
+                <span className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <FiPlay className="text-primary ml-0.5" size={14} />
+                </span>
+                {t('video_btn')}
+              </button>
             </motion.div>
 
             {/* Mini Stats */}
@@ -169,26 +167,14 @@ export default function Hero() {
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-2xl" />
 
               <div className="relative rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-background/80 backdrop-blur-sm aspect-video">
-                {youtubeId ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&rel=0&modestbranding=1&showinfo=0`}
-                    className="w-full h-full"
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    frameBorder="0"
-                    title="IT-SPARK Intro"
-                  />
-                ) : (
-                  /* Placeholder when no video URL is set */
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-                    <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-4 animate-pulse">
-                      <FiPlay className="text-primary" size={32} />
-                    </div>
-                    <p className="text-foreground/50 font-medium text-sm">
-                      {isRtl ? 'فيديو تعريفي قريباً' : 'Intro video coming soon'}
-                    </p>
-                  </div>
-                )}
+                <video
+                  src="/intro.mp4"
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
               </div>
 
               {/* Feature Cards overlapping the video */}
@@ -246,22 +232,21 @@ export default function Hero() {
       </div>
 
       {/* Video Modal */}
-      {showVideo && youtubeId && (
+      {showVideo && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
           onClick={() => setShowVideo(false)}
         >
           <div
-            className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-2xl"
+            className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black"
             onClick={e => e.stopPropagation()}
           >
-            <iframe
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+            <video
+              src="/intro.mp4"
               className="w-full h-full"
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-              frameBorder="0"
-              title="IT-SPARK Video"
+              autoPlay
+              controls
+              playsInline
             />
           </div>
           <button

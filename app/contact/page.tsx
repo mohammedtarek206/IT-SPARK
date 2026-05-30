@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import { FiMail, FiPhone, FiMapPin, FiSend } from 'react-icons/fi';
+import { FiMail, FiPhone, FiMapPin, FiSend, FiFacebook, FiYoutube, FiInstagram } from 'react-icons/fi';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -85,6 +85,18 @@ export default function ContactPage() {
                   <p className="text-foreground/60" dir="rtl">أسيوط/ شارع المكتبات أعلي صيدلية منال الريفي أبراج الزراعيين - برج أ الدور الثاني علوي</p>
                 </div>
               </div>
+            </div>
+
+            <div className="flex items-center gap-4 mt-8 pt-8 border-t border-border/50">
+              <a href="https://www.facebook.com/itsparkk" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center text-foreground/60 hover:text-[#1877F2] hover:bg-[#1877F2]/10 transition-all hover:scale-110 shadow-sm border border-border/50">
+                <FiFacebook className="w-5 h-5" />
+              </a>
+              <a href="http://www.youtube.com/@itspark2129" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center text-foreground/60 hover:text-[#FF0000] hover:bg-[#FF0000]/10 transition-all hover:scale-110 shadow-sm border border-border/50">
+                <FiYoutube className="w-5 h-5" />
+              </a>
+              <a href="https://www.instagram.com/itspark.training" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center text-foreground/60 hover:text-[#E4405F] hover:bg-[#E4405F]/10 transition-all hover:scale-110 shadow-sm border border-border/50">
+                <FiInstagram className="w-5 h-5" />
+              </a>
             </div>
           </motion.div>
 

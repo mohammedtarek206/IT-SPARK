@@ -87,7 +87,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             items: [
                 { title: 'Payments', icon: FiCreditCard, href: '/admin/payments' },
                 { title: 'Cart Orders', icon: FiShoppingCart, href: '/admin/cart-orders' },
-                { title: 'Subscriptions', icon: FiPackage, href: '/admin/subscriptions' },
             ]
         },
         {

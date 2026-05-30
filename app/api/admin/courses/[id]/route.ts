@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import Module from '@/models/Module';
 import Lesson from '@/models/Lesson';
+import User from '@/models/User'; // required so Mongoose can resolve populate('instructor')
 import { authenticateRequest } from '@/lib/auth';
 import { isValidObjectId } from '@/lib/courseQuery';
 
@@ -51,10 +52,17 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        if (!isValidObjectId(params.id)) {
+            return NextResponse.json({ error: 'Invalid course id' }, { status: 400 });
+        }
+
         const data = await request.json();
         await connectDB();
 
-        const course = await Course.findByIdAndUpdate(params.id, data, { new: true });
+        // Strip _id and other immutable fields to avoid cast errors
+        const { _id, __v, instructor, createdAt, updatedAt, ...updateData } = data;
+
+        const course = await Course.findByIdAndUpdate(params.id, { $set: updateData }, { new: true, runValidators: false });
         if (!course) {
             return NextResponse.json({ error: 'Course not found' }, { status: 404 });
         }

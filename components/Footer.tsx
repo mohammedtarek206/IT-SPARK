@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiMail, FiPhone, FiMapPin, FiGithub, FiTwitter, FiLinkedin } from 'react-icons/fi';
+import { FiMail, FiPhone, FiMapPin, FiFacebook, FiYoutube, FiInstagram } from 'react-icons/fi';
 
 export default function Footer() {
   return (
@@ -66,14 +66,14 @@ export default function Footer() {
               </li>
             </ul>
             <div className="flex space-x-4 mt-6">
-              <a href="#" className="text-gray-400 hover:text-accent transition-colors">
-                <FiGithub className="w-5 h-5" />
+              <a href="https://www.facebook.com/itsparkk" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2] transition-colors">
+                <FiFacebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-accent transition-colors">
-                <FiTwitter className="w-5 h-5" />
+              <a href="http://www.youtube.com/@itspark2129" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#FF0000] transition-colors">
+                <FiYoutube className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-accent transition-colors">
-                <FiLinkedin className="w-5 h-5" />
+              <a href="https://www.instagram.com/itspark.training" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#E4405F] transition-colors">
+                <FiInstagram className="w-5 h-5" />
               </a>
             </div>
           </div>

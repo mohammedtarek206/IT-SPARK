@@ -27,6 +27,9 @@ import {
   FiTag,
   FiBriefcase,
   FiShoppingCart,
+  FiFacebook,
+  FiYoutube,
+  FiInstagram,
 } from 'react-icons/fi';
 import { getCartCount, CART_UPDATE_EVENT } from '@/lib/cart';
 
@@ -70,36 +73,21 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: t('home'), icon: FiHome },
-    { href: '/courses', label: t('courses'), icon: FiBook },
-    {
-      href: '/training-courses',
-      label: isRtl ? 'التدريبات والورش' : 'Trainings',
-      icon: FiAward,
-    },
-    { href: '/jobs', label: t('jobs') || (isRtl ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
-    { href: '/apply', label: isRtl ? 'تقديم شهادة' : 'Apply', icon: FiBriefcase },
-    {
-      label: t('about'),
-      icon: FiInfo,
-      dropdown: [
-        { href: '/about#vision', label: t('vision') },
-        { href: '/about#mission', label: t('mission') },
-        { href: '/about#goals', label: t('goals') },
-      ],
-    },
+    { href: '/training-courses', label: isRtl ? 'التدريبات والورش' : 'Offline Courses', icon: FiAward },
+    { href: '/courses', label: isRtl ? 'الكورسات' : 'Online Courses', icon: FiBook },
+    { href: '/apply', label: isRtl ? 'تقديم شهادة' : 'Certificate Application', icon: FiAward },
+    { href: '/jobs', label: isRtl ? 'الوظائف' : 'Jobs', icon: FiBriefcase },
+    { href: '/about', label: t('about'), icon: FiInfo },
     { href: '/contact', label: t('contact'), icon: FiMail },
   ];
 
   const mobilePrimaryLinks = [
     { href: '/', label: t('home'), icon: FiHome },
-    { href: '/courses', label: t('courses'), icon: FiBook },
-    {
-      href: '/training-courses',
-      label: isRtl ? 'التدريبات والورش' : 'Trainings',
-      icon: FiAward,
-    },
-    { href: '/jobs', label: t('jobs') || (isRtl ? 'الوظائف' : 'Jobs'), icon: FiBriefcase },
-    { href: '/apply', label: isRtl ? 'تقديم' : 'Apply', icon: FiBriefcase },
+    { href: '/training-courses', label: isRtl ? 'التدريبات والورش' : 'Offline Courses', icon: FiAward },
+    { href: '/courses', label: isRtl ? 'الكورسات' : 'Online Courses', icon: FiBook },
+    { href: '/apply', label: isRtl ? 'تقديم شهادة' : 'Certificate Application', icon: FiAward },
+    { href: '/jobs', label: isRtl ? 'الوظائف' : 'Jobs', icon: FiBriefcase },
+    { href: '/about', label: t('about'), icon: FiInfo },
     { href: '/contact', label: t('contact'), icon: FiMail },
   ];
 
@@ -292,52 +280,6 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              {/* About accordion */}
-              <div>
-                <button
-                  type="button"
-                  onClick={() => setAboutOpen((o) => !o)}
-                  className={cn(
-                    linkClass('/about', true),
-                    'w-full justify-between'
-                  )}
-                >
-                  <span className="flex items-center gap-4">
-                    <FiInfo className="w-5 h-5 shrink-0 text-primary/70" />
-                    {t('about')}
-                  </span>
-                  <FiChevronDown
-                    className={cn(
-                      'w-4 h-4 transition-transform shrink-0',
-                      aboutOpen && 'rotate-180'
-                    )}
-                  />
-                </button>
-                <AnimatePresence>
-                  {aboutOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden ps-4"
-                    >
-                      {navLinks
-                        .find((l) => l.dropdown)
-                        ?.dropdown?.map((item) => (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={closeMenu}
-                            className="flex items-center px-4 py-3 text-sm font-medium text-foreground/60 hover:text-primary rounded-xl touch-manipulation min-h-[44px]"
-                          >
-                            {item.label}
-                          </Link>
-                        ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
               <Link
                 href="/cart"
                 onClick={closeMenu}
@@ -351,6 +293,19 @@ export default function Navbar() {
                   </span>
                 )}
               </Link>
+
+              {/* Mobile Social Links */}
+              <div className="flex items-center justify-center gap-6 py-4">
+                <a href="https://www.facebook.com/itsparkk" target="_blank" rel="noopener noreferrer" className="text-foreground/50 hover:text-[#1877F2] transition-colors">
+                  <FiFacebook className="w-6 h-6" />
+                </a>
+                <a href="http://www.youtube.com/@itspark2129" target="_blank" rel="noopener noreferrer" className="text-foreground/50 hover:text-[#FF0000] transition-colors">
+                  <FiYoutube className="w-6 h-6" />
+                </a>
+                <a href="https://www.instagram.com/itspark.training" target="_blank" rel="noopener noreferrer" className="text-foreground/50 hover:text-[#E4405F] transition-colors">
+                  <FiInstagram className="w-6 h-6" />
+                </a>
+              </div>
 
               {/* Lang toggle mobile */}
               <button
@@ -515,9 +470,6 @@ export default function Navbar() {
                   )}
                 </div>
               ))}
-              <Link href="/pricing" className={linkClass('/pricing')}>
-                {t('pricing')}
-              </Link>
             </div>
 
             {/* Actions */}
@@ -618,6 +570,19 @@ export default function Navbar() {
                   </AnimatePresence>
                 </div>
               )}
+
+              {/* Desktop Social Links */}
+              <div className="hidden lg:flex items-center gap-3 px-2 border-s border-border mx-1">
+                <a href="https://www.facebook.com/itsparkk" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-[#1877F2] transition-colors">
+                  <FiFacebook className="w-[18px] h-[18px]" />
+                </a>
+                <a href="http://www.youtube.com/@itspark2129" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-[#FF0000] transition-colors">
+                  <FiYoutube className="w-[18px] h-[18px]" />
+                </a>
+                <a href="https://www.instagram.com/itspark.training" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-[#E4405F] transition-colors">
+                  <FiInstagram className="w-[18px] h-[18px]" />
+                </a>
+              </div>
 
               {/* Language — sm+ */}
               <button
