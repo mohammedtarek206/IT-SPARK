@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import Settings from '@/models/Settings';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);

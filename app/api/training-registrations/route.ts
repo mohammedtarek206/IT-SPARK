@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import CourseRegistration from '@/models/CourseRegistration';
 import Training from '@/models/Training';
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
     try {
         await connectDB();

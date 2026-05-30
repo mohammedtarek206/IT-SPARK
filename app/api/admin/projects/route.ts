@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import Project from '@/models/Project';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
     try {
         await connectDB();

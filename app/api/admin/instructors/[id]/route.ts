@@ -5,6 +5,8 @@ import Notification from '@/models/Notification';
 import { authenticateRequest } from '@/lib/auth';
 import InstructorDetail from '@/models/InstructorDetail';
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(
     request: NextRequest,
     { params }: { params: { id: string } }

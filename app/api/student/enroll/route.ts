@@ -4,6 +4,8 @@ import User from '@/models/User';
 import Course from '@/models/Course';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
     try {
         const payload = await authenticateRequest(request);

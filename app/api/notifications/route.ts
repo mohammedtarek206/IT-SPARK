@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import Notification from '@/models/Notification';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 // Get user notifications
 export async function GET(request: NextRequest) {
     try {

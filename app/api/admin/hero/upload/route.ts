@@ -3,6 +3,8 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);

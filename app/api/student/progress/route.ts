@@ -5,6 +5,8 @@ import Progress from '@/models/Progress';
 import Course from '@/models/Course';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 // GET: Return user's enrolled courses, tracks and progress per course
 export async function GET(request: NextRequest) {
     try {

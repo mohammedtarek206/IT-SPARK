@@ -5,6 +5,8 @@ import { authenticateRequest } from '@/lib/auth';
 import { buildSeatFieldsForSave } from '@/lib/trainingSeats';
 import { processTrainingMediaForSave } from '@/lib/trainingMedia';
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(
     request: NextRequest,
     { params }: { params: { id: string } }

@@ -6,6 +6,8 @@ import Certificate from '@/models/Certificate';
 import { authenticateRequest } from '@/lib/auth';
 import crypto from 'crypto';
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);

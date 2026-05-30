@@ -5,6 +5,8 @@ import Lesson from '@/models/Lesson';
 import User from '@/models/User';
 import Project from '@/models/Project';
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
     try {
         await connectDB();

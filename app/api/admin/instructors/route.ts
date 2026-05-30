@@ -4,6 +4,8 @@ import User from '@/models/User';
 import { authenticateRequest } from '@/lib/auth';
 import InstructorDetail from '@/models/InstructorDetail';
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);

@@ -6,6 +6,8 @@ import { normalizeOptionalMediaUrl } from '@/lib/media';
 import { ensureCourseSlug } from '@/lib/seo/courseServer';
 import { slugify } from '@/lib/seo/slug';
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);

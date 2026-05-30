@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import Exam from '@/models/Exam';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }

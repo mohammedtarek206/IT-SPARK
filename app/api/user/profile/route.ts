@@ -4,6 +4,8 @@ import User from '@/models/User';
 import { authenticateRequest } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);

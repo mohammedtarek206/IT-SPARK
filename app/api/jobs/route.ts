@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import Job from '@/models/Job';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
     try {
         await connectDB();

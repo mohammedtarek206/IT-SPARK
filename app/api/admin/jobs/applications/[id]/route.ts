@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import JobApplication from '@/models/JobApplication';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(
     request: NextRequest,
     { params }: { params: { id: string } }

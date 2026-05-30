@@ -4,6 +4,8 @@ import Notification from '@/models/Notification';
 import User from '@/models/User';
 import { authenticateRequest } from '@/lib/auth';
 
+export const dynamic = "force-dynamic";
+
 // Send mass announcements or direct messages
 export async function POST(request: NextRequest) {
     try {

@@ -6,6 +6,8 @@ import Lesson from '@/models/Lesson';
 import { authenticateRequest } from '@/lib/auth';
 import { courseAccessQuery, canManageCourses, isValidObjectId } from '@/lib/courseQuery';
 
+export const dynamic = "force-dynamic";
+
 // GET /api/instructor/courses/[id]/modules — get all modules for a course
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
     try {
