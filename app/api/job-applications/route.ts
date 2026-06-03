@@ -44,9 +44,9 @@ export async function POST(request: NextRequest) {
             { message: 'Application submitted successfully', id: application._id },
             { status: 201 }
         );
-    } catch (error: unknown) {
-        console.error('Job application POST error:', error);
-        return NextResponse.json({ message: 'Failed to submit application' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -96,8 +96,8 @@ export async function GET(request: NextRequest) {
                 totalPages: Math.ceil(total / limit) || 1,
             },
         });
-    } catch (error: unknown) {
-        console.error('Job applications GET error:', error);
-        return NextResponse.json({ message: 'Failed to fetch applications' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

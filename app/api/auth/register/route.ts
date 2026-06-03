@@ -90,11 +90,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {
-    console.error('Registration Error:', error);
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    );
-  }
+  } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }

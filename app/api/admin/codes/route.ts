@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
             .sort({ createdAt: -1 });
         return NextResponse.json(codes, { status: 200 });
     } catch (error: any) {
-        return NextResponse.json({ error: 'Failed to fetch codes' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
             { status: 201 }
         );
     } catch (error: any) {
-        console.error('Code generation error:', error);
-        return NextResponse.json({ error: 'Failed to generate codes' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

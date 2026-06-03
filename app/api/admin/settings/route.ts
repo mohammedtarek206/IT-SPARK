@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(setting, { status: 200 });
     } catch (error: any) {
-        console.error('[Admin Settings] Error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to update settings' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 

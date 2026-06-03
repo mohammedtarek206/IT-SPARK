@@ -115,7 +115,7 @@ export async function GET() {
         }, { status: 200 });
 
     } catch (error: any) {
-        console.error('Error fetching home content:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

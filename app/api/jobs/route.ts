@@ -11,8 +11,8 @@ export async function GET(request: NextRequest) {
         const jobs = await Job.find({ isActive: true }).sort({ createdAt: -1 });
         return NextResponse.json(jobs, { status: 200 });
     } catch (error: any) {
-        console.error('Jobs API GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ message: 'Job created successfully', job }, { status: 201 });
     } catch (error: any) {
-        console.error('Jobs API POST error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to create job' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

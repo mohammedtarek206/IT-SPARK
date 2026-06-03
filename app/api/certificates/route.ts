@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ certificates }, { status: 200 });
     } catch (error: any) {
-        console.error('Error fetching certificates:', error);
-        return NextResponse.json({ error: 'Failed to fetch certificates' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

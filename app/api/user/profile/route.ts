@@ -40,11 +40,8 @@ export async function PATCH(request: NextRequest) {
 
         return NextResponse.json(updatedUser, { status: 200 });
 
-    } catch (error: unknown) {
-        console.error('Update profile error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update profile' },
-            { status: 500 }
-        );
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

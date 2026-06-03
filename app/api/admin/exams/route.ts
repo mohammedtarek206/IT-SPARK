@@ -10,8 +10,9 @@ export async function GET() {
         await connectDB();
         const exams = await Exam.find().populate('trackId', 'title').sort({ createdAt: -1 });
         return NextResponse.json(exams);
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch exams' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -29,8 +30,9 @@ export async function POST(request: NextRequest) {
             instructorId: user.userId
         });
         return NextResponse.json(exam, { status: 201 });
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to create exam' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -48,8 +50,9 @@ export async function DELETE(request: NextRequest) {
         await connectDB();
         await Exam.findByIdAndDelete(id);
         return NextResponse.json({ message: 'Deleted successfully' });
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -71,8 +74,8 @@ export async function PUT(request: NextRequest) {
         if (!exam) return NextResponse.json({ error: 'Exam not found' }, { status: 404 });
 
         return NextResponse.json(exam);
-    } catch (error) {
-        console.error('Failed to update exam:', error);
-        return NextResponse.json({ error: 'Failed to update exam' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

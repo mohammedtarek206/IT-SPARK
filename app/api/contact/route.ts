@@ -36,12 +36,9 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.error('Contact form error:', error);
-    return NextResponse.json(
-      { error: 'Failed to submit contact form', details: error.message },
-      { status: 500 }
-    );
-  }
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }
 
 export async function GET(request: NextRequest) {
@@ -50,9 +47,7 @@ export async function GET(request: NextRequest) {
     const contacts = await Contact.find().sort({ createdAt: -1 });
     return NextResponse.json(contacts, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: 'Failed to fetch contacts' },
-      { status: 500 }
-    );
-  }
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }

@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(result, { status: 201 });
     } catch (error: any) {
-        console.error('Submission error:', error);
-        return NextResponse.json({ error: 'Submission failed' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

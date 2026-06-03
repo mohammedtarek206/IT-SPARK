@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(normalizeTrainingsList(trainings as Record<string, unknown>[]), {
             status: 200,
         });
-    } catch (error) {
-        console.error('Admin trainings GET:', error);
-        return NextResponse.json({ error: 'Failed to fetch trainings' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json(training, { status: 201 });
-    } catch (error) {
-        console.error('Admin trainings POST:', error);
-        return NextResponse.json({ error: 'Failed to create training' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

@@ -10,8 +10,9 @@ export async function GET() {
         await connectDB();
         const partners = await Partner.find().sort({ createdAt: -1 });
         return NextResponse.json(partners);
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch partners' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -26,8 +27,9 @@ export async function POST(request: NextRequest) {
         await connectDB();
         const partner = await Partner.create(data);
         return NextResponse.json(partner, { status: 201 });
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to create partner' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -45,8 +47,9 @@ export async function DELETE(request: NextRequest) {
         await connectDB();
         await Partner.findByIdAndDelete(id);
         return NextResponse.json({ message: 'Deleted successfully' });
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -70,7 +73,8 @@ export async function PATCH(request: NextRequest) {
         }
 
         return NextResponse.json(partner, { status: 200 });
-    } catch (error) {
-        return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

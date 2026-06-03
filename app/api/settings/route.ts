@@ -17,7 +17,7 @@ export async function GET() {
 
         return NextResponse.json(settingsObj, { status: 200 });
     } catch (error: any) {
-        console.error('Fetch settings error:', error);
-        return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

@@ -34,11 +34,8 @@ export async function GET(
         }
 
         return NextResponse.json(course, { status: 200 });
-    } catch (error: unknown) {
-        console.error('Single Course API error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch course details' },
-            { status: 500 }
-        );
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

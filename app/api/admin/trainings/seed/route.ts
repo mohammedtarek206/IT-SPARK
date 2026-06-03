@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
             },
             { status: 200 }
         );
-    } catch (error) {
-        console.error('Training seed error:', error);
-        return NextResponse.json({ error: 'Failed to seed trainings' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

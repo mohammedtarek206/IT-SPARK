@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
             .sort({ createdAt: -1 });
 
         return NextResponse.json(exams);
-    } catch (error) {
-        console.error('Failed to fetch instructor exams:', error);
-        return NextResponse.json({ error: 'Failed to fetch exams' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json(exam, { status: 201 });
-    } catch (error) {
-        console.error('Failed to create exam:', error);
-        return NextResponse.json({ error: 'Failed to create exam' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

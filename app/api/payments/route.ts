@@ -55,17 +55,9 @@ export async function POST(request: NextRequest) {
             { message: 'Payment submitted successfully. Waiting for admin approval.', id: payment._id },
             { status: 201 }
         );
-    } catch (error: unknown) {
-        const err = error as Error;
-        console.error('Payment API error details:', {
-            message: err.message,
-            stack: err.stack,
-            name: err.name
-        });
-        return NextResponse.json(
-            { error: `Failed to submit payment: ${err.message || 'Unknown error'}` },
-            { status: 500 }
-        );
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -82,11 +74,8 @@ export async function GET(request: NextRequest) {
             .populate('course', 'title')
             .sort({ createdAt: -1 });
         return NextResponse.json(payments, { status: 200 });
-    } catch (error: unknown) {
-        console.error('Fetch payments error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch payments' },
-            { status: 500 }
-        );
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

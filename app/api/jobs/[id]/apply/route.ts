@@ -46,7 +46,7 @@ export async function POST(
 
         return NextResponse.json({ message: 'Application submitted successfully', application }, { status: 201 });
     } catch (error: any) {
-        console.error('Job Apply error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to submit application' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

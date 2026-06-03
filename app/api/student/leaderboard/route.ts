@@ -16,10 +16,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ success: true, leaderboard: topStudents });
     } catch (error: any) {
-        console.error('Leaderboard fetch error:', error);
-        return NextResponse.json(
-            { success: false, message: 'Internal Server Error' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

@@ -63,9 +63,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         }
 
         return NextResponse.json(payload, { status: 200 });
-    } catch (error: unknown) {
-        console.error('Instructor Course GET error:', error);
-        return NextResponse.json({ message: 'Failed to fetch course data' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -164,10 +164,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
             { message: 'Course updated successfully', course },
             { status: 200 }
         );
-    } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to update course';
-        console.error('Instructor Courses API PATCH error:', error);
-        return NextResponse.json({ message, error: message }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -200,9 +199,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         await Module.deleteMany({ course: course._id });
 
         return NextResponse.json({ message: 'Course deleted successfully' }, { status: 200 });
-    } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to delete course';
-        console.error('Instructor Courses API DELETE error:', error);
-        return NextResponse.json({ message }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

@@ -98,12 +98,8 @@ export async function POST(request: NextRequest) {
             },
             { status: 201 }
         );
-    } catch (error: unknown) {
-        const err = error as Error;
-        console.error('Checkout payment error:', err);
-        return NextResponse.json(
-            { error: err.message || 'Failed to process checkout' },
-            { status: 500 }
-        );
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

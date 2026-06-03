@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
             .sort({ updatedAt: -1 });
 
         return NextResponse.json(items, { status: 200 });
-    } catch (error) {
-        console.error('Cart GET error:', error);
-        return NextResponse.json({ error: 'Failed to fetch cart' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -61,9 +61,9 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json({ success: true }, { status: 200 });
-    } catch (error) {
-        console.error('Cart POST error:', error);
-        return NextResponse.json({ error: 'Failed to update cart' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -106,9 +106,9 @@ export async function PUT(request: NextRequest) {
         );
 
         return NextResponse.json({ success: true }, { status: 200 });
-    } catch (error) {
-        console.error('Cart PUT error:', error);
-        return NextResponse.json({ error: 'Failed to sync cart' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -127,8 +127,8 @@ export async function DELETE(request: NextRequest) {
         );
 
         return NextResponse.json({ success: true }, { status: 200 });
-    } catch (error) {
-        console.error('Cart DELETE error:', error);
-        return NextResponse.json({ error: 'Failed to clear cart' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

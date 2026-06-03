@@ -55,9 +55,9 @@ export async function PATCH(
             return NextResponse.json({ error: 'Not found' }, { status: 404 });
         }
         return NextResponse.json(training, { status: 200 });
-    } catch (error) {
-        console.error('Admin training PATCH:', error);
-        return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -77,8 +77,8 @@ export async function DELETE(
             return NextResponse.json({ error: 'Not found' }, { status: 404 });
         }
         return NextResponse.json({ success: true }, { status: 200 });
-    } catch (error) {
-        console.error('Admin training DELETE:', error);
-        return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

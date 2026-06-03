@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: 'Course created successfully', course: newCourse }, { status: 201 });
 
     } catch (error: any) {
-        console.error('Add course error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to create course' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ courses }, { status: 200 });
 
     } catch (error: any) {
-        console.error('Fetch instructor courses error:', error);
-        return NextResponse.json({ error: 'Failed to fetch courses' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

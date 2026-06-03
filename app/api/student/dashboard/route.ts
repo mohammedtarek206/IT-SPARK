@@ -40,10 +40,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(dashboardData, { status: 200 });
     } catch (error: any) {
-        console.error('Student Dashboard API error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch dashboard data' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

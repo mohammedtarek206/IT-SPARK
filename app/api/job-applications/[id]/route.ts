@@ -36,9 +36,9 @@ export async function PATCH(
         }
 
         return NextResponse.json({ message: 'Updated', application });
-    } catch (error: unknown) {
-        console.error('Job application PATCH error:', error);
-        return NextResponse.json({ message: 'Failed to update' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -62,8 +62,8 @@ export async function DELETE(
         }
 
         return NextResponse.json({ message: 'Deleted' });
-    } catch (error: unknown) {
-        console.error('Job application DELETE error:', error);
-        return NextResponse.json({ message: 'Failed to delete' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

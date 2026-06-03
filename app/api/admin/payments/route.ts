@@ -21,10 +21,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(payments, { status: 200 });
     } catch (error: any) {
-        console.error('Admin Payments API error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch payments' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

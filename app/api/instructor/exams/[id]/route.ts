@@ -23,9 +23,9 @@ export async function GET(
         }
 
         return NextResponse.json(exam);
-    } catch (error) {
-        console.error('Failed to fetch exam detail:', error);
-        return NextResponse.json({ error: 'Failed to fetch exam' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -53,9 +53,9 @@ export async function PUT(
         }
 
         return NextResponse.json(exam);
-    } catch (error) {
-        console.error('Failed to update exam:', error);
-        return NextResponse.json({ error: 'Failed to update exam' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -77,8 +77,8 @@ export async function DELETE(
         }
 
         return NextResponse.json({ message: 'Exam deleted successfully' });
-    } catch (error) {
-        console.error('Failed to delete exam:', error);
-        return NextResponse.json({ error: 'Failed to delete exam' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

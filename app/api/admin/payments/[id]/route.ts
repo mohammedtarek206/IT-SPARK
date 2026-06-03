@@ -60,10 +60,7 @@ export async function PATCH(
             { status: 200 }
         );
     } catch (error: any) {
-        console.error('Admin Payment update error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update payment status' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

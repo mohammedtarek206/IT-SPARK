@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ courses, jobs, trainings });
     } catch (error: any) {
-        console.error('Search API error:', error);
-        return NextResponse.json({ error: 'Search failed' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

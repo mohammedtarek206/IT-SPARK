@@ -27,8 +27,8 @@ export async function GET(
         }
 
         return NextResponse.json(result);
-    } catch (error) {
-        console.error('Failed to fetch individual result:', error);
-        return NextResponse.json({ error: 'Failed to fetch result' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

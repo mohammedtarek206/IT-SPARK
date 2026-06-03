@@ -39,9 +39,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         }
 
         return NextResponse.json({ ...course.toObject(), modules: modulesWithLessons });
-    } catch (error: unknown) {
-        console.error('Admin Course GET error:', error);
-        return NextResponse.json({ message: 'Failed to fetch course' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -72,11 +72,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
             { status: 200 }
         );
     } catch (error: any) {
-        console.error('Admin Courses API PATCH error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update course' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -109,10 +106,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
             { status: 200 }
         );
     } catch (error: any) {
-        console.error('Admin Courses API DELETE error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete course' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

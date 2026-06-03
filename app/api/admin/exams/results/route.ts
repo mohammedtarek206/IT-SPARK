@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
                 pages: Math.ceil(total / limit)
             }
         });
-    } catch (error) {
-        console.error('Failed to fetch admin exam results:', error);
-        return NextResponse.json({ error: 'Failed to fetch results' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

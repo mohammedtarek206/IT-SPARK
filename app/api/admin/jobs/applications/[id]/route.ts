@@ -30,8 +30,8 @@ export async function PATCH(
 
         return NextResponse.json({ message: 'Status updated successfully', application }, { status: 200 });
     } catch (error: any) {
-        console.error('Update application status error:', error);
-        return NextResponse.json({ error: 'Failed to update application status' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -54,7 +54,7 @@ export async function DELETE(
 
         return NextResponse.json({ message: 'Application deleted successfully' }, { status: 200 });
     } catch (error: any) {
-        console.error('Delete application error:', error);
-        return NextResponse.json({ error: 'Failed to delete application' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

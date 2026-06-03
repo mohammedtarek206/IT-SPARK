@@ -28,8 +28,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(normalizeTrainingsList(trainings as Record<string, unknown>[]), {
             status: 200,
         });
-    } catch (error) {
-        console.error('Trainings API error:', error);
-        return NextResponse.json({ error: 'Failed to fetch trainings' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

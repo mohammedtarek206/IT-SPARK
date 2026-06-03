@@ -31,11 +31,8 @@ export async function PATCH(
 
         return NextResponse.json(updatedUser, { status: 200 });
     } catch (error: any) {
-        console.error('Admin Student PATCH error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update student' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -60,10 +57,7 @@ export async function DELETE(
 
         return NextResponse.json({ message: 'Student deleted successfully' }, { status: 200 });
     } catch (error: any) {
-        console.error('Admin Student DELETE error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete student' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

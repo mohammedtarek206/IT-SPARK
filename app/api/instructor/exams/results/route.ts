@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
             .sort({ completedAt: -1 });
 
         return NextResponse.json(results);
-    } catch (error) {
-        console.error('Failed to fetch instructor exam results:', error);
-        return NextResponse.json({ error: 'Failed to fetch results' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

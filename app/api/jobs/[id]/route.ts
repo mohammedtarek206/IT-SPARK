@@ -17,7 +17,8 @@ export async function GET(
         }
         return NextResponse.json(job, { status: 200 });
     } catch (error: any) {
-        return NextResponse.json({ error: 'Failed to fetch job' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -41,7 +42,8 @@ export async function PATCH(
 
         return NextResponse.json({ message: 'Job updated successfully', job }, { status: 200 });
     } catch (error: any) {
-        return NextResponse.json({ error: error.message || 'Failed to update job' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -63,6 +65,7 @@ export async function DELETE(
 
         return NextResponse.json({ message: 'Job deleted successfully' }, { status: 200 });
     } catch (error: any) {
-        return NextResponse.json({ error: 'Failed to delete job' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

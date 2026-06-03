@@ -12,12 +12,9 @@ export async function GET(request: NextRequest) {
       .sort({ featured: -1, createdAt: -1 });
     return NextResponse.json(projects, { status: 200 });
   } catch (error: any) {
-    console.error('Projects API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch projects' },
-      { status: 500 }
-    );
-  }
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }
 
 export async function POST(request: NextRequest) {
@@ -38,9 +35,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
-    return NextResponse.json(
-      { error: 'Failed to add project' },
-      { status: 500 }
-    );
-  }
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }

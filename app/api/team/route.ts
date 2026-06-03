@@ -11,12 +11,9 @@ export async function GET(request: NextRequest) {
     const team = await Team.find().sort({ createdAt: -1 });
     return NextResponse.json(team, { status: 200 });
   } catch (error: any) {
-    console.error('Team API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch team members' },
-      { status: 500 }
-    );
-  }
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }
 
 export async function POST(request: NextRequest) {
@@ -37,11 +34,9 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
-    return NextResponse.json(
-      { error: 'Failed to add team member' },
-      { status: 500 }
-    );
-  }
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }
 
 export async function PATCH(request: NextRequest) {
@@ -65,8 +60,9 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json(teamMember, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
-  }
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }
 
 export async function DELETE(request: NextRequest) {
@@ -88,6 +84,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: 'Deleted successfully' });
   } catch (error: any) {
-    return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
-  }
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    }
 }

@@ -48,7 +48,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
         return NextResponse.json({ modules: modulesWithLessons });
     } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        console.error("API ERROR:", err);
+        return NextResponse.json({ error: err?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         return NextResponse.json({ message: 'Modules saved successfully', modules: course.modules });
     } catch (err: any) {
-        console.error('Modules save API error:', err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        console.error("API ERROR:", err);
+        return NextResponse.json({ error: err?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

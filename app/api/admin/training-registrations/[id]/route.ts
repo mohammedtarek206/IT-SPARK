@@ -33,11 +33,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         return NextResponse.json({ success: true, data: updatedRegistration }, { status: 200 });
 
     } catch (error: any) {
-        console.error('Admin Update Registration API error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update registration' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -61,10 +58,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         return NextResponse.json({ success: true, message: 'Registration deleted successfully' }, { status: 200 });
 
     } catch (error: any) {
-        console.error('Admin Delete Registration API error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete registration' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

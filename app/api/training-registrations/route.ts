@@ -82,8 +82,8 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ success: true, data: registration }, { status: 201 });
-    } catch (error) {
-        console.error('Error creating registration:', error);
-        return NextResponse.json({ error: 'Failed to create registration' }, { status: 500 });
+    } catch (error: any) {
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

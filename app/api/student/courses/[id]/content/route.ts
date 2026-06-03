@@ -82,10 +82,7 @@ export async function GET(
         return NextResponse.json({ title: course.title, modules: modulesWithLessons }, { status: 200 });
 
     } catch (error: any) {
-        console.error('Course Content API error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch course content' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

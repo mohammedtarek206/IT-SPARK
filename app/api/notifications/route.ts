@@ -22,11 +22,8 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(notifications, { status: 200 });
     } catch (error: any) {
-        console.error('Fetch notifications error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch notifications' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -59,10 +56,7 @@ export async function PATCH(request: NextRequest) {
 
         return NextResponse.json({ message: 'Notifications marked as read' }, { status: 200 });
     } catch (error: any) {
-        console.error('Update notifications error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update notifications' },
-            { status: 500 }
-        );
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

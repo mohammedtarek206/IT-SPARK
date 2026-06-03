@@ -17,6 +17,7 @@ export async function GET(
 
         return NextResponse.json(exam, { status: 200 });
     } catch (error: any) {
-        return NextResponse.json({ error: 'Failed to fetch exam' }, { status: 500 });
+        console.error("API ERROR:", error);
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
