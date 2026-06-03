@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import crypto from 'crypto';
+import { v2 as cloudinary } from 'cloudinary';
 
 export const dynamic = 'force-dynamic';
 
 // Disable Next.js body parser size limit for this route
 export const runtime = 'nodejs';
+
+// Initialize Cloudinary with user's credentials
+cloudinary.config({
+  cloud_name: 'dcyyo6tas',
+  api_key: '247213962127359',
+  api_secret: 'b-WZ-KVreSQ6ADsIwt4EDelV8L8'
+});
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'zip', 'rar'];
@@ -36,7 +41,7 @@ export async function POST(request: NextRequest) {
         const file = formData.get('file') as File | null;
 
         if (!file) {
-            console.error('[UPLOAD] No file found in form data. Keys:', [...formData.keys()]);
+            console.error('[UPLOAD] No file found in form data');
             return NextResponse.json({ error: 'No file provided' }, { status: 400 });
         }
 
@@ -44,7 +49,6 @@ export async function POST(request: NextRequest) {
 
         // Check file size
         if (file.size > MAX_FILE_SIZE) {
-            console.error(`[UPLOAD] File too large: ${formatFileSize(file.size)} (max: ${formatFileSize(MAX_FILE_SIZE)})`);
             return NextResponse.json(
                 { error: `File size (${formatFileSize(file.size)}) exceeds the 20MB limit.` },
                 { status: 400 }
@@ -52,7 +56,6 @@ export async function POST(request: NextRequest) {
         }
 
         if (file.size === 0) {
-            console.error('[UPLOAD] Empty file received');
             return NextResponse.json({ error: 'File is empty.' }, { status: 400 });
         }
 
@@ -61,7 +64,6 @@ export async function POST(request: NextRequest) {
         const extension = fileName.split('.').pop()?.toLowerCase() || '';
 
         if (BLOCKED_EXTENSIONS.includes(extension)) {
-            console.error(`[UPLOAD] Blocked extension: .${extension}`);
             return NextResponse.json(
                 { error: `File type .${extension} is not allowed for security reasons.` },
                 { status: 400 }
@@ -69,18 +71,18 @@ export async function POST(request: NextRequest) {
         }
 
         if (!ALLOWED_EXTENSIONS.includes(extension)) {
-            console.error(`[UPLOAD] Invalid extension: .${extension}`);
             return NextResponse.json(
                 { error: `Invalid file type (.${extension}). Only PDF, DOC, DOCX, ZIP, and RAR files are allowed.` },
                 { status: 400 }
             );
         }
 
-        // Read file buffer
-        let buffer: Buffer;
+        // Convert file to Base64 for Cloudinary Upload
+        let base64String: string;
         try {
-            const bytes = await file.arrayBuffer();
-            buffer = Buffer.from(bytes);
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            base64String = buffer.toString('base64');
         } catch (readError: any) {
             console.error('[UPLOAD] Failed to read file buffer:', readError.message);
             return NextResponse.json(
@@ -89,36 +91,32 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Generate unique filename
-        const uniqueFileName = `${crypto.randomUUID()}_${Date.now()}.${extension}`;
+        const mimeType = file.type || 'application/octet-stream';
+        const fileUri = `data:${mimeType};base64,${base64String}`;
 
-        // Ensure upload directory exists
-        const uploadDir = join(process.cwd(), 'public', 'uploads', 'cvs');
+        let uploadResult;
         try {
-            await mkdir(uploadDir, { recursive: true });
-        } catch (mkdirError: any) {
-            console.error('[UPLOAD] Failed to create upload directory:', mkdirError.message);
+            uploadResult = await new Promise((resolve, reject) => {
+                cloudinary.uploader.upload(fileUri, {
+                    resource_type: 'auto',
+                    folder: 'itspark_cvs',
+                    use_filename: true,
+                    unique_filename: true,
+                }, (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                });
+            });
+        } catch (cloudinaryError: any) {
+            console.error('[UPLOAD] Cloudinary Error:', cloudinaryError);
             return NextResponse.json(
-                { error: 'Server storage error. Please contact support.' },
+                { error: 'Failed to upload to Cloud Storage. Please try again.' },
                 { status: 500 }
             );
         }
 
-        // Write file to disk
-        const filePath = join(uploadDir, uniqueFileName);
-        try {
-            await writeFile(filePath, buffer);
-        } catch (writeError: any) {
-            console.error('[UPLOAD] Failed to write file:', writeError.message);
-            return NextResponse.json(
-                { error: 'Failed to save file. Please try again.' },
-                { status: 500 }
-            );
-        }
-
-        const fileUrl = `/uploads/cvs/${uniqueFileName}`;
-
-        console.log(`[UPLOAD] ✅ File saved successfully: ${fileUrl}`);
+        const fileUrl = (uploadResult as any).secure_url;
+        console.log(`[UPLOAD] ✅ File saved successfully to Cloudinary: ${fileUrl}`);
 
         return NextResponse.json({
             url: fileUrl,
@@ -128,14 +126,13 @@ export async function POST(request: NextRequest) {
                 size: file.size,
                 sizeFormatted: formatFileSize(file.size),
                 type: extension.toUpperCase(),
-                mimeType: file.type || 'unknown',
+                mimeType: mimeType,
                 uploadedAt: new Date().toISOString(),
             }
         }, { status: 200 });
 
     } catch (error: any) {
         console.error('[UPLOAD] ❌ Unexpected error:', error);
-        console.error('[UPLOAD] Error stack:', error.stack);
         return NextResponse.json(
             { error: `Upload failed: ${error.message || 'Unknown error occurred'}` },
             { status: 500 }
