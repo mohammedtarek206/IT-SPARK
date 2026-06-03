@@ -7,6 +7,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { useAuth } from '@/lib/AuthContext';
 import Link from 'next/link';
 import FileUploader from '@/components/FileUploader';
+import { showToast } from '@/lib/toast';
 
 export default function JobsPage() {
     const { t, lang } = useLanguage();
@@ -92,7 +93,7 @@ export default function JobsPage() {
                 }, 3000);
             } else {
                 const data = await res.json();
-                alert(data.error || 'Failed to apply');
+                showToast(data.error || 'Failed to apply', 'error');
             }
         } catch (err) {
             console.error('Apply error:', err);

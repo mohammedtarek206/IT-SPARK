@@ -187,24 +187,41 @@ export default function AdminJobApplicationsPage() {
                                         </td>
                                         <td className="px-8 py-6">
                                             {app.resumeUrl ? (
-                                                <div className="flex items-center gap-3">
-                                                    <a
-                                                        href={app.resumeUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors"
-                                                    >
-                                                        <FiExternalLink /> View
-                                                    </a>
-                                                    <a
-                                                        href={app.resumeUrl}
-                                                        download
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center gap-1.5 text-[10px] font-black text-accent uppercase tracking-widest hover:text-white transition-colors"
-                                                    >
-                                                        <FiDownload /> Download
-                                                    </a>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-lg">{app.resumeUrl.endsWith('.pdf') ? '📄' : app.resumeUrl.match(/\.docx?$/) ? '📝' : '📦'}</span>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-white truncate max-w-[120px]" title={app.resumeUrl.split('/').pop()}>
+                                                                {app.resumeUrl.split('/').pop()?.substring(0, 20)}...
+                                                            </p>
+                                                            <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                                                                app.resumeUrl.endsWith('.pdf') ? 'bg-red-500/20 text-red-400' :
+                                                                app.resumeUrl.match(/\.docx?$/) ? 'bg-blue-500/20 text-blue-400' :
+                                                                'bg-yellow-500/20 text-yellow-400'
+                                                            }`}>
+                                                                {app.resumeUrl.split('.').pop()?.toUpperCase()}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <a
+                                                            href={app.resumeUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-1 text-[10px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-primary/10"
+                                                        >
+                                                            <FiExternalLink /> View
+                                                        </a>
+                                                        <a
+                                                            href={app.resumeUrl}
+                                                            download
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-1 text-[10px] font-black text-accent uppercase tracking-widest hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-accent/10"
+                                                        >
+                                                            <FiDownload /> Download
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             ) : (
                                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">No Resume</span>
