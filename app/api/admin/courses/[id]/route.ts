@@ -62,6 +62,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         // Strip _id and other immutable fields to avoid cast errors
         const { _id, __v, instructor, createdAt, updatedAt, ...updateData } = data;
 
+        // Cast price fields to correct types
+        if (updateData.price !== undefined) updateData.price = Number(updateData.price);
+        if (updateData.discountPrice !== undefined) updateData.discountPrice = updateData.discountPrice ? Number(updateData.discountPrice) : undefined;
+        if (updateData.isFree !== undefined) { updateData.isFree = Boolean(updateData.isFree); if (updateData.isFree) updateData.price = 0; }
+
         const course = await Course.findByIdAndUpdate(params.id, { $set: updateData }, { new: true, runValidators: false });
         if (!course) {
             return NextResponse.json({ error: 'Course not found' }, { status: 404 });

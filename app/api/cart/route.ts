@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Course not found' }, { status: 404 });
         }
 
-        const amount = course.discountPrice ?? course.price ?? 0;
+        const amount = course.discountPrice || course.price || 0;
 
         if (action === 'add') {
             await CartItem.findOneAndUpdate(
@@ -88,7 +88,7 @@ export async function PUT(request: NextRequest) {
         for (const id of validIds) {
             const course = courseMap.get(id);
             if (!course) continue;
-            const amount = course.discountPrice ?? course.price ?? 0;
+            const amount = course.discountPrice || course.price || 0;
             await CartItem.findOneAndUpdate(
                 { user: user.userId, course: id },
                 { $set: { status: 'active', amount } },

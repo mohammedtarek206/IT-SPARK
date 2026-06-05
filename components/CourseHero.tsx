@@ -102,7 +102,7 @@ export default function CourseHero({
     };
 
     const isFree = course.isFree;
-    const currentPrice = course.discountPrice ?? course.price;
+    const currentPrice = course.discountPrice || course.price;
     const oldPrice = course.discountPrice ? course.price : Math.round(course.price * 1.25);
     const hasDiscount = !isFree && course.price > 0;
     const discountPercent = hasDiscount

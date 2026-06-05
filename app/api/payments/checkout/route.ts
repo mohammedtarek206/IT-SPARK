@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
             }
 
             const paymentAmount =
-                amount ?? course.discountPrice ?? course.price ?? 0;
+                amount || course.discountPrice || course.price || 0;
 
             const payment = await Payment.create({
                 user: user.userId,
@@ -70,6 +70,12 @@ export async function POST(request: NextRequest) {
                 proofImage,
                 status: 'pending',
             });
+
+            const CartItem = (await import('@/models/CartItem')).default;
+            await CartItem.findOneAndUpdate(
+                { user: user.userId, course: courseId, status: 'active' },
+                { $set: { status: 'checked_out' } }
+            );
 
             created.push({
                 courseId,

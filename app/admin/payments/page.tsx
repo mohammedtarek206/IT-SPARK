@@ -24,14 +24,11 @@ export default function PaymentsPage() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-    useEffect(() => {
-        fetchPayments();
-    }, []);
-
     const fetchPayments = async () => {
         try {
             const res = await fetch('/api/admin/payments', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                cache: 'no-store'
             });
             if (res.ok) {
                 const data = await res.json();
@@ -43,6 +40,12 @@ export default function PaymentsPage() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchPayments();
+        const intervalId = setInterval(fetchPayments, 15000);
+        return () => clearInterval(intervalId);
+    }, []);
 
     const handleAction = async (id: string, status: 'approved' | 'rejected') => {
         if (!confirm(`Are you sure you want to ${status} this payment?`)) return;
@@ -123,20 +126,29 @@ export default function PaymentsPage() {
                     <h1 className="text-3xl font-black text-foreground uppercase tracking-tighter">Payments System</h1>
                     <p className="text-foreground/40 font-medium text-sm mt-1">Track all financial transactions and manage refunds.</p>
                 </div>
-                <button
-                    onClick={handleExport}
-                    className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-xl text-xs font-black text-foreground/40 hover:text-foreground transition-colors uppercase tracking-widest self-start"
-                >
-                    <FiDownload /> Export Excel
-                </button>
+                <div className="flex items-center gap-2 self-start">
+                    <button
+                        onClick={fetchPayments}
+                        className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-xl text-xs font-black text-foreground/40 hover:text-primary transition-colors uppercase tracking-widest"
+                    >
+                        <FiRefreshCw className={loading ? 'animate-spin' : ''} /> Refresh
+                    </button>
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-xl text-xs font-black text-foreground/40 hover:text-foreground transition-colors uppercase tracking-widest"
+                    >
+                        <FiDownload /> Export CSV
+                    </button>
+                </div>
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 {[
-                    { label: 'Total Revenue', value: `$${totalRevenue}`, color: 'text-green-600', bg: 'bg-green-500/10' },
-                    { label: 'Pending', value: `$${pending}`, color: 'text-yellow-600', bg: 'bg-yellow-500/10' },
-                    { label: 'Refunded', value: `$${refunded}`, color: 'text-red-600', bg: 'bg-red-500/10' },
+                    { label: 'Total Revenue', value: `${totalRevenue} EGP`, color: 'text-green-600', bg: 'bg-green-500/10' },
+                    { label: 'Total Payments', value: payments.length, color: 'text-blue-600', bg: 'bg-blue-500/10' },
+                    { label: 'Paid Payments', value: payments.filter(p => p.status === 'paid' || p.status === 'approved').length, color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
+                    { label: 'Pending', value: payments.filter(p => p.status === 'pending').length, color: 'text-yellow-600', bg: 'bg-yellow-500/10' },
                 ].map(card => (
                     <div key={card.label} className={`glass rounded-2xl p-6 border border-border ${card.bg}`}>
                         <p className={`text-xs font-black uppercase tracking-widest mb-2 ${card.color}`}>{card.label}</p>
@@ -158,7 +170,7 @@ export default function PaymentsPage() {
                     />
                 </div>
                 <div className="flex items-center gap-2">
-                    {['all', 'approved', 'pending', 'rejected', 'refunded'].map(s => (
+                    {['all', 'paid', 'approved', 'pending', 'rejected'].map(s => (
                         <button
                             key={s}
                             onClick={() => setStatusFilter(s)}
@@ -212,12 +224,14 @@ export default function PaymentsPage() {
                                     </td>
                                     <td className="p-4">
                                         <div className="flex gap-2">
-                                            <button
-                                                onClick={() => setSelectedImage(p.proofImage)}
-                                                className="text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 border border-primary/20 px-2 py-1 rounded-lg transition-colors"
-                                            >
-                                                View Proof
-                                            </button>
+                                            {p.proofImage && p.proofImage !== 'none' && (
+                                                <button
+                                                    onClick={() => setSelectedImage(p.proofImage)}
+                                                    className="text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 border border-primary/20 px-2 py-1 rounded-lg transition-colors"
+                                                >
+                                                    View Proof
+                                                </button>
+                                            )}
                                             {p.status === 'pending' && (
                                                 <>
                                                     <button

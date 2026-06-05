@@ -4,9 +4,9 @@ export interface ICourseRegistration extends Document {
     full_name: string;
     phone: string;
     email?: string;
-    university: string;
-    academic_year: string;
-    governorate: string;
+    university?: string;
+    academic_year?: string;
+    governorate?: string;
     notes?: string;
     course_name: string;
     training?: mongoose.Types.ObjectId;
@@ -20,9 +20,9 @@ const CourseRegistrationSchema: Schema = new Schema(
         full_name: { type: String, required: true },
         phone: { type: String, required: true },
         email: { type: String },
-        university: { type: String, required: true },
-        academic_year: { type: String, required: true },
-        governorate: { type: String, required: true },
+        university: { type: String },
+        academic_year: { type: String },
+        governorate: { type: String },
         notes: { type: String },
         course_name: { type: String, required: true },
         training: { type: Schema.Types.ObjectId, ref: 'Training' },

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Payment from '@/models/Payment';
+import User from '@/models/User';
+import Course from '@/models/Course';
 import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = "force-dynamic";
@@ -13,9 +15,13 @@ export async function GET(request: NextRequest) {
         }
 
         await connectDB();
+        
+        // Explicitly touch User and Course to ensure they are registered
+        User.countDocuments();
+        Course.countDocuments();
+
         const payments = await Payment.find({})
             .populate('user', 'name email')
-            .populate('track', 'title')
             .populate('course', 'title')
             .sort({ createdAt: -1 });
 

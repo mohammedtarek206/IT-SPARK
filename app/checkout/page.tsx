@@ -44,7 +44,7 @@ function CheckoutContent() {
     const [success, setSuccess] = useState(false);
 
     const getPrice = (c: CartCourse) =>
-        c.isFree ? 0 : (c.discountPrice ?? c.price ?? 0);
+        c.isFree ? 0 : (c.discountPrice || c.price || 0);
 
     const paidCourses = courses.filter((c) => getPrice(c) > 0);
     const freeCourses = courses.filter((c) => getPrice(c) === 0);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Project from '@/models/Project';
+import Exhibition from '@/models/Exhibition';
 import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = "force-dynamic";
@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 export async function GET() {
     try {
         await connectDB();
-        const projects = await Project.find().sort({ createdAt: -1 });
-        return NextResponse.json(projects);
+        const exhibitions = await Exhibition.find().sort({ createdAt: -1 });
+        return NextResponse.json(exhibitions);
     } catch (error: any) {
         console.error("API ERROR:", error);
         return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
@@ -24,11 +24,15 @@ export async function POST(request: NextRequest) {
         }
 
         const data = await request.json();
+        
+        // Large base64 string handling
+        // (NextJS handles payload limits but setting a good response if it fails)
+        
         await connectDB();
-        const project = await Project.create(data);
-        return NextResponse.json(project, { status: 201 });
+        const exhibition = await Exhibition.create(data);
+        return NextResponse.json(exhibition, { status: 201 });
     } catch (error: any) {
-        console.error("API ERROR:", error);
+        console.error("API ERROR POST:", error);
         return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
@@ -45,7 +49,7 @@ export async function DELETE(request: NextRequest) {
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
         await connectDB();
-        await Project.findByIdAndDelete(id);
+        await Exhibition.findByIdAndDelete(id);
         return NextResponse.json({ message: 'Deleted successfully' });
     } catch (error: any) {
         console.error("API ERROR:", error);
@@ -67,14 +71,14 @@ export async function PATCH(request: NextRequest) {
         const data = await request.json();
         await connectDB();
 
-        const project = await Project.findByIdAndUpdate(id, data, { new: true });
-        if (!project) {
-            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+        const exhibition = await Exhibition.findByIdAndUpdate(id, data, { new: true });
+        if (!exhibition) {
+            return NextResponse.json({ error: 'Exhibition not found' }, { status: 404 });
         }
 
-        return NextResponse.json(project, { status: 200 });
+        return NextResponse.json(exhibition, { status: 200 });
     } catch (error: any) {
-        console.error("API ERROR:", error);
+        console.error("API ERROR PATCH:", error);
         return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

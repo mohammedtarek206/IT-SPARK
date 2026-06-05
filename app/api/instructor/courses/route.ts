@@ -18,10 +18,15 @@ export async function POST(request: NextRequest) {
         await connectDB();
         const data = await request.json();
 
+        console.log("Course Create Data - price:", data.price, "isFree:", data.isFree);
+
         // Validate required fields
         if (!data.title || !data.shortDescription || !data.description || !data.category) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
+
+        const priceValue = Number(data.price);
+        const isFreeValue = Boolean(data.isFree);
 
         const newCourse = await Course.create({
             title: data.title,
@@ -37,14 +42,14 @@ export async function POST(request: NextRequest) {
             level: data.level || 'Beginner',
             language: data.language || 'Arabic',
             category: data.category,
-            hours: data.hours || 0,
-            lecturesCount: data.lecturesCount || 0,
+            hours: Number(data.hours) || 0,
+            lecturesCount: Number(data.lecturesCount) || 0,
             durationText: data.durationText || '',
             type: data.type || 'Online',
-            price: data.price || 0,
-            isFree: data.isFree || false,
-            discountPrice: data.discountPrice,
-            isActive: true, // Visible automatically as requested
+            price: isFreeValue ? 0 : priceValue,
+            isFree: isFreeValue,
+            discountPrice: data.discountPrice ? Number(data.discountPrice) : undefined,
+            isActive: true,
             status: 'published'
         });
 

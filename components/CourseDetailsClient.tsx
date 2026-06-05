@@ -60,7 +60,7 @@ export default function CourseDetailsClient({ initialCourse, courseId }: { initi
                 if (paymentsRes.ok) {
                     const payments = await paymentsRes.json();
                     const coursePayment = payments.find(
-                        (p: any) => p.course?._id === courseId
+                        (p: any) => p.course?._id === course._id
                     );
                     if (coursePayment) {
                         if (coursePayment.status === 'approved')
@@ -77,24 +77,39 @@ export default function CourseDetailsClient({ initialCourse, courseId }: { initi
         fetchPaymentStatus();
     }, [courseId, user]);
 
-    const handleEnroll = () => {
+    const handleEnroll = async () => {
         if (!user) {
             router.push('/login');
             return;
         }
         if (course.price && course.price > 0 && !course.isFree) {
-            router.push(`/checkout?courseId=${courseId}`);
+            router.push(`/checkout?courseId=${course._id}`);
         } else {
-            router.push('/dashboard');
+            try {
+                const res = await fetch('/api/student/enroll', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ courseId: course._id })
+                });
+                if (res.ok) {
+                    showToast(lang === 'ar' ? 'تم التسجيل في الكورس بنجاح' : 'Enrolled successfully', 'success');
+                    router.push('/dashboard/courses');
+                } else {
+                    showToast(lang === 'ar' ? 'حدث خطأ أثناء التسجيل' : 'Failed to enroll', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
     };
 
     const handleMobileAddToCart = () => {
-        if (isInCart(courseId)) {
+        const actualCourseId = course._id;
+        if (isInCart(actualCourseId)) {
             showToast(lang === 'ar' ? 'الكورس موجود في السلة' : 'Already in cart', 'info');
             return;
         }
-        addToCart(courseId);
+        addToCart(actualCourseId);
         showToast(lang === 'ar' ? 'تمت الإضافة للسلة' : 'Added to cart', 'success');
     };
 
@@ -104,7 +119,7 @@ export default function CourseDetailsClient({ initialCourse, courseId }: { initi
 
     const isRtl = lang === 'ar';
     const isFree = course.isFree;
-    const currentPrice = course.discountPrice ?? course.price;
+    const currentPrice = course.discountPrice || course.price;
 
     return (
         <div className="min-h-screen bg-background pb-24 lg:pb-20 -mt-20">
@@ -112,7 +127,7 @@ export default function CourseDetailsClient({ initialCourse, courseId }: { initi
                 course={course}
                 enrollmentStatus={enrollmentStatus}
                 onEnroll={handleEnroll}
-                onStartLearning={() => router.push(`/learn/${courseId}`)}
+                onStartLearning={() => router.push(`/learn/${course._id}`)}
             />
 
             {/* Content Section */}
@@ -229,7 +244,7 @@ export default function CourseDetailsClient({ initialCourse, courseId }: { initi
                     {enrollmentStatus === 'enrolled' ? (
                         <button
                             type="button"
-                            onClick={() => router.push(`/learn/${courseId}`)}
+                            onClick={() => router.push(`/learn/${course._id}`)}
                             className="flex-1 py-3 bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl"
                         >
                             {isRtl ? 'ابدأ' : 'Start'}

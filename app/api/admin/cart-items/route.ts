@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import CartItem from '@/models/CartItem';
+import User from '@/models/User';
+import Course from '@/models/Course';
 import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -13,6 +15,11 @@ export async function GET(request: NextRequest) {
         }
 
         await connectDB();
+        
+        // Touch models to ensure they are loaded
+        User.countDocuments();
+        Course.countDocuments();
+
         const items = await CartItem.find({ status: 'active' })
             .populate('user', 'name email phone')
             .populate('course', 'title price discountPrice isFree thumbnail')

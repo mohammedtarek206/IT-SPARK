@@ -66,9 +66,7 @@ export default function CoursesClient({ initialCourses }: { initialCourses: any[
                         </div>
                     ) : (
                         filteredCourses.map((course: any) => (
-                            <Link href={`/courses/${course._id || course.id}`} key={course._id || course.id}>
-                                <CourseCard course={course} />
-                            </Link>
+                            <CourseCard key={course._id || course.id} course={course} />
                         ))
                     )}
                 </div>

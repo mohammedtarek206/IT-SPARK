@@ -320,8 +320,8 @@ export default function CourseBuilder({ course, onCancel }: { course?: any; onCa
                 level: courseInfo.level,
                 thumbnail: processThumbnailUrl(courseInfo.imageUrl || courseInfo.thumbnailPreview) ||
                     (courseInfo.thumbnailPreview?.startsWith('blob:') ? courseInfo.thumbnailPreview : undefined),
-                price: courseInfo.isFree ? 0 : courseInfo.price,
-                isFree: courseInfo.isFree,
+                price: courseInfo.isFree ? 0 : Number(courseInfo.price),
+                isFree: Boolean(courseInfo.isFree),
                 modules: modules.map(m => ({
                     title: m.title,
                     lessons: m.lessons.map(l => ({

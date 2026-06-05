@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Training from '@/models/Training';
 import { authenticateRequest } from '@/lib/auth';
-import { buildSeatFieldsForSave } from '@/lib/trainingSeats';
 import { processTrainingMediaForSave } from '@/lib/trainingMedia';
 
 export const dynamic = "force-dynamic";
@@ -31,19 +30,10 @@ export async function PATCH(
             if (body.previewVideoUrl !== undefined) update.previewVideoUrl = media.previewVideoUrl;
         }
 
-        if (body.seats_total !== undefined || body.seats !== undefined) {
-            const total = Number(body.seats_total ?? body.seats) || 0;
-            const existing = await Training.findById(params.id);
-            const prevAvailable =
-                existing?.seats_available ?? existing?.seats ?? total;
-            const prevTotal = existing?.seats_total ?? existing?.seats ?? total;
-            const enrolled = Math.max(0, prevTotal - prevAvailable);
-            const seatFields = buildSeatFieldsForSave(total);
-            update.seats_total = seatFields.seats_total;
-            update.seats = seatFields.seats;
-            update.seats_available = Math.max(0, total - enrolled);
-        }
         delete update._id;
+        delete update.seats;
+        delete update.seats_total;
+        delete update.seats_available;
 
         const training = await Training.findByIdAndUpdate(
             params.id,

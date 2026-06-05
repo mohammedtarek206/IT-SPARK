@@ -9,9 +9,6 @@ export interface ITraining extends Document {
     type: 'Online' | 'Offline' | 'Hybrid';
     price: number;
     isFree: boolean;
-    seats: number;
-    seats_total: number;
-    seats_available: number;
     startDate?: Date;
     endDate?: Date;
     location?: string;
@@ -37,9 +34,6 @@ const TrainingSchema: Schema = new Schema(
         },
         price: { type: Number, default: 0 },
         isFree: { type: Boolean, default: false },
-        seats: { type: Number, default: 0 },
-        seats_total: { type: Number, default: 0 },
-        seats_available: { type: Number, default: 0 },
         startDate: { type: Date },
         endDate: { type: Date },
         location: { type: String },

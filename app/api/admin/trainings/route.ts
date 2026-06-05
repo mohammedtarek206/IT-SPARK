@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Training from '@/models/Training';
 import { authenticateRequest } from '@/lib/auth';
-import { buildSeatFieldsForSave } from '@/lib/trainingSeats';
 import { processTrainingMediaForSave, normalizeTrainingsList } from '@/lib/trainingMedia';
 
 export const dynamic = 'force-dynamic';
@@ -37,9 +36,6 @@ export async function POST(request: NextRequest) {
         }
 
         await connectDB();
-        const seatFields = buildSeatFieldsForSave(
-            body.seats_total ?? body.seats ?? 0
-        );
         const media = processTrainingMediaForSave({
             thumbnail: body.thumbnail,
             previewVideoUrl: body.previewVideoUrl,
@@ -53,7 +49,6 @@ export async function POST(request: NextRequest) {
             type: body.type || 'Offline',
             price: Number(body.price) || 0,
             isFree: !!body.isFree,
-            ...seatFields,
             startDate: body.startDate || undefined,
             endDate: body.endDate || undefined,
             location: body.location || '',

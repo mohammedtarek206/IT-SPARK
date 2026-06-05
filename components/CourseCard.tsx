@@ -35,7 +35,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
 
     const handleCardClick = () => {
         const slugId = (course as any).slug || course._id;
-        router.push(`/courses/${slugId}`);
+        if (slugId) {
+            router.push(`/courses/${slugId}`);
+        }
     };
 
     // Load initial wishlist and cart state from localStorage

@@ -10,12 +10,13 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const q = searchParams.get('q')?.trim();
         const category = searchParams.get('category')?.trim();
-        const type = searchParams.get('type')?.trim(); // 'Online' | 'Offline'
+        const type = searchParams.get('type')?.trim(); // 'Online' | 'Offline' | 'Hybrid'
 
         await connectDB();
+        // Ensure User model is registered for populate
+        if (!User) console.warn("User model not loaded");
 
-        // Build filter — isActive:true is the only gate; status filter removed
-        // so courses created by admin without explicit status still appear
+        // isActive:true is the only visibility gate
         const filter: Record<string, unknown> = { isActive: true };
 
         if (q) {
@@ -32,12 +33,13 @@ export async function GET(request: NextRequest) {
 
         const courses = await Course.find(filter)
             .populate('instructor', 'name')
-            .sort({ createdAt: -1 });
+            .select('_id title slug shortDescription thumbnail previewVideoUrl price isFree discountPrice rating reviewsCount level category type instructor createdAt')
+            .sort({ createdAt: -1 })
+            .lean();
 
         return NextResponse.json(courses, { status: 200 });
     } catch (error: any) {
-        console.error("API ERROR:", error);
+        console.error("API ERROR [courses]:", error);
         return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
-

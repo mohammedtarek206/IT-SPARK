@@ -96,6 +96,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         }
 
         Object.assign(course, courseData);
+        // Cast price fields to correct numeric types
+        if (courseData.price !== undefined) course.price = Number(courseData.price);
+        if (courseData.isFree !== undefined) { course.isFree = Boolean(courseData.isFree); if (course.isFree) course.price = 0; }
+        if (courseData.discountPrice !== undefined) course.discountPrice = courseData.discountPrice ? Number(courseData.discountPrice) : undefined;
+        console.log('Course Update price:', course.price, 'isFree:', course.isFree);
         // Only activate if explicitly passed; don't silently override admin-set status
         if (typeof courseData.isActive !== 'undefined') {
             course.isActive = courseData.isActive;

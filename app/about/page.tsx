@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FiTarget, FiEye, FiTrendingUp, FiCheckCircle, FiAward, FiUsers, FiStar, FiGlobe, FiBriefcase } from 'react-icons/fi';
-import Image from 'next/image';
+import { FiTarget, FiEye, FiAward, FiUsers, FiStar, FiGlobe, FiPhone } from 'react-icons/fi';
+import { FiFacebook, FiYoutube, FiInstagram } from 'react-icons/fi';
 
 export default function AboutPage() {
     return (
@@ -101,23 +101,71 @@ export default function AboutPage() {
                 </div>
             </section>
 
-            {/* Previous Collaborations */}
+            {/* Social Media & Contact */}
             <section className="px-4 md:px-8 max-w-7xl mx-auto mb-32">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-4">Previous Collaborations</h2>
-                    <p className="text-gray-400 font-medium text-lg" dir="rtl">شركاء النجاح والتعاونات السابقة</p>
+                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-4">تواصل معنا</h2>
+                    <p className="text-gray-400 font-medium text-lg" dir="rtl">نحن هنا لمساعدتك — تواصل معنا على أي منصة</p>
                 </div>
-                
-                <div className="glass p-12 rounded-[3rem] border border-white/5">
-                    <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-                        {/* Placeholders for logos */}
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="flex items-center gap-3 grayscale hover:grayscale-0 transition-all duration-300">
-                                <FiBriefcase className="text-3xl text-white" />
-                                <span className="text-2xl font-black tracking-widest uppercase text-white">Partner {i}</span>
-                            </div>
-                        ))}
-                    </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Facebook */}
+                    <motion.a
+                        href="https://www.facebook.com/itsparkk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03 }}
+                        className="glass p-8 rounded-3xl border border-white/5 hover:border-[#1877F2]/30 transition-all flex flex-col items-center text-center group"
+                    >
+                        <div className="w-16 h-16 rounded-2xl bg-[#1877F2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1877F2]/20 transition-colors">
+                            <FiFacebook className="text-3xl text-[#1877F2]" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-1">Facebook</h3>
+                        <p className="text-sm text-gray-400 font-medium">@itsparkk</p>
+                    </motion.a>
+
+                    {/* YouTube */}
+                    <motion.a
+                        href="http://www.youtube.com/@itspark2129"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03 }}
+                        className="glass p-8 rounded-3xl border border-white/5 hover:border-[#FF0000]/30 transition-all flex flex-col items-center text-center group"
+                    >
+                        <div className="w-16 h-16 rounded-2xl bg-[#FF0000]/10 flex items-center justify-center mb-4 group-hover:bg-[#FF0000]/20 transition-colors">
+                            <FiYoutube className="text-3xl text-[#FF0000]" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-1">YouTube</h3>
+                        <p className="text-sm text-gray-400 font-medium">@itspark2129</p>
+                    </motion.a>
+
+                    {/* Instagram */}
+                    <motion.a
+                        href="https://www.instagram.com/itspark.training"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03 }}
+                        className="glass p-8 rounded-3xl border border-white/5 hover:border-[#E4405F]/30 transition-all flex flex-col items-center text-center group"
+                    >
+                        <div className="w-16 h-16 rounded-2xl bg-[#E4405F]/10 flex items-center justify-center mb-4 group-hover:bg-[#E4405F]/20 transition-colors">
+                            <FiInstagram className="text-3xl text-[#E4405F]" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-1">Instagram</h3>
+                        <p className="text-sm text-gray-400 font-medium">@itspark.training</p>
+                    </motion.a>
+
+                    {/* Vodafone Cash */}
+                    <motion.div
+                        whileHover={{ scale: 1.03 }}
+                        className="glass p-8 rounded-3xl border border-white/5 hover:border-red-500/30 transition-all flex flex-col items-center text-center group cursor-default"
+                    >
+                        <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4 group-hover:bg-red-500/20 transition-colors">
+                            <FiPhone className="text-3xl text-red-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-1">Vodafone Cash</h3>
+                        <p className="text-base font-black text-red-400 tracking-widest" dir="ltr">01010710656</p>
+                        <p className="text-xs text-gray-500 font-medium mt-1" dir="rtl">للدفع والاستفسار</p>
+                    </motion.div>
                 </div>
             </section>
 

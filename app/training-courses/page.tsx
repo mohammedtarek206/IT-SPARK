@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 import {
   FiSearch,
   FiX,
@@ -31,7 +32,9 @@ const DEFAULT_CATEGORIES = [
   'General',
 ];
 
-export default function TrainingCoursesPage() {
+import { Suspense } from 'react';
+
+function TrainingCoursesContent() {
   const { lang } = useLanguage();
   const isRtl = lang === 'ar';
 
@@ -40,6 +43,9 @@ export default function TrainingCoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedTraining, setSelectedTraining] = useState<TrainingItem | null>(null);
+
+  const searchParams = useSearchParams();
+  const applyId = searchParams.get('apply');
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -75,6 +81,18 @@ export default function TrainingCoursesPage() {
     return () => clearTimeout(t);
   }, [fetchTrainings, searchQuery]);
 
+  // Auto-open apply modal if apply param is present
+  useEffect(() => {
+    if (applyId && trainings.length > 0 && !selectedTraining) {
+      const trainingToApply = trainings.find((t) => t._id === applyId);
+      if (trainingToApply) {
+        setSelectedTraining(trainingToApply);
+        // Optional: clear the param from URL without refreshing
+        window.history.replaceState({}, '', '/training-courses');
+      }
+    }
+  }, [applyId, trainings, selectedTraining]);
+
   const categories = useMemo(() => {
     const fromData = trainings.map((t) => t.category).filter(Boolean) as string[];
     return Array.from(new Set([...DEFAULT_CATEGORIES, ...fromData]));
@@ -96,10 +114,14 @@ export default function TrainingCoursesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          courseId: selectedTraining._id,
+          courseTitle: selectedTraining.title,
           training_id: selectedTraining._id,
           course_name: selectedTraining.title,
         }),
       });
+
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         setSubmitSuccess(true);
@@ -122,12 +144,12 @@ export default function TrainingCoursesPage() {
         }, 2500);
       } else {
         showToast(
-          isRtl ? 'حدث خطأ أثناء الإرسال' : 'Error submitting application',
+          data.error || (isRtl ? 'حدث خطأ أثناء الإرسال' : 'Error submitting application'),
           'error'
         );
       }
-    } catch {
-      showToast(isRtl ? 'خطأ في الاتصال' : 'Network error', 'error');
+    } catch (err: any) {
+      showToast(err?.message || (isRtl ? 'خطأ في الاتصال' : 'Network error'), 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -213,11 +235,17 @@ export default function TrainingCoursesPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
             {trainings.map((training) => (
-              <TrainingCard
-                key={training._id}
-                training={training}
-                onApply={setSelectedTraining}
-              />
+              <div key={training._id}>
+                <TrainingCard
+                  training={training}
+                  onApply={setSelectedTraining}
+                />
+                <div className="mt-2 flex gap-2">
+                  <a href={`/training-courses/${training._id}`} className="flex-1 text-center bg-surface border border-border text-foreground/70 py-2 rounded-xl text-xs font-bold hover:border-primary/50 transition-colors">
+                    التفاصيل / Details
+                  </a>
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -317,12 +345,10 @@ export default function TrainingCoursesPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField
                           label={isRtl ? 'الكلية' : 'University'}
-                          required
                           icon={FiBookOpen}
                         >
                           <input
                             name="university"
-                            required
                             value={formData.university}
                             onChange={handleInputChange}
                             className="form-input"
@@ -330,12 +356,10 @@ export default function TrainingCoursesPage() {
                         </FormField>
                         <FormField
                           label={isRtl ? 'السنة الدراسية' : 'Academic Year'}
-                          required
                           icon={FiCalendar}
                         >
                           <input
                             name="academic_year"
-                            required
                             value={formData.academic_year}
                             onChange={handleInputChange}
                             className="form-input"
@@ -344,12 +368,10 @@ export default function TrainingCoursesPage() {
                       </div>
                       <FormField
                         label={isRtl ? 'المحافظة' : 'Governorate'}
-                        required
                         icon={FiMapPin}
                       >
                         <input
                           name="governorate"
-                          required
                           value={formData.governorate}
                           onChange={handleInputChange}
                           className="form-input"
@@ -403,6 +425,14 @@ export default function TrainingCoursesPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function TrainingCoursesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background pt-32 text-center text-primary font-bold animate-pulse">جاري التحميل / Loading...</div>}>
+      <TrainingCoursesContent />
+    </Suspense>
   );
 }
 

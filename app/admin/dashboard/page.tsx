@@ -40,36 +40,48 @@ export default function AdminDashboard() {
         activeSubscriptions: 0, monthRevenue: 0
     });
     const [charts, setCharts] = useState<any>(null);
-    const [topStudents, setTopStudents] = useState<any[]>([]);
+    const [topCourses, setTopCourses] = useState<any[]>([]);
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
     const [recentApplications, setRecentApplications] = useState<any[]>([]);
     const [recentCourseRegistrations, setRecentCourseRegistrations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     useEffect(() => {
+        let isMounted = true;
         const fetchStats = async () => {
             try {
                 const token = localStorage.getItem('token');
                 const res = await fetch('/api/admin/stats', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    cache: 'no-store'
                 });
                 const data = await res.json();
 
-                if (data.stats) {
+                if (data.stats && isMounted) {
                     setStats(data.stats);
                     setCharts(data.charts);
-                    setTopStudents(data.topStudents);
+                    setTopCourses(data.topCourses || []);
                     setRecentActivity(data.recentActivity);
                     setRecentApplications(data.recentApplications || []);
                     setRecentCourseRegistrations(data.recentCourseRegistrations || []);
+                    setLastUpdated(new Date());
                 }
             } catch (err) {
                 console.error('Failed to fetch stats:', err);
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
         };
+
         fetchStats();
+        // Live sync every 15 seconds
+        const intervalId = setInterval(fetchStats, 15000);
+
+        return () => {
+            isMounted = false;
+            clearInterval(intervalId);
+        };
     }, []);
 
 
@@ -91,9 +103,9 @@ export default function AdminDashboard() {
                     <h1 className="text-3xl font-black text-foreground uppercase tracking-tighter">Dashboard Overview</h1>
                     <p className="text-foreground/40 font-medium text-sm mt-1">Welcome back, Admin. Here's what's happening today.</p>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-foreground/40 bg-surface border border-border px-4 py-2 rounded-xl">
-                    <FiClock className="text-sm" />
-                    Last updated: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                <div className="flex items-center gap-2 text-xs font-bold text-foreground/40 bg-surface border border-border px-4 py-2 rounded-xl shadow-sm">
+                    <FiClock className="text-sm text-primary" />
+                    Last updated: {lastUpdated ? lastUpdated.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Syncing...'}
                 </div>
             </div>
 
@@ -168,18 +180,22 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
                     <div className="divide-y divide-border">
-                        {topStudents.map((student, i) => (
+                        {topCourses.length === 0 ? (
+                            <div className="p-10 text-center text-foreground/30 text-xs font-black uppercase tracking-widest">
+                                No course purchases yet
+                            </div>
+                        ) : topCourses.map((course, i) => (
                             <div key={i} className="flex items-center gap-4 p-5 hover:bg-foreground/[0.02] transition-colors">
                                 <div className="w-10 h-10 rounded-2xl bg-background border border-border flex items-center justify-center font-black text-foreground/20 text-xs shrink-0 shadow-sm">
                                     #{i + 1}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-foreground font-black uppercase tracking-tighter truncate">{student.name}</p>
+                                    <p className="text-sm text-foreground font-black uppercase tracking-tighter truncate">{course.name}</p>
                                     <div className="flex items-center gap-3 mt-1">
-                                        <span className="text-[10px] text-foreground/40 font-black uppercase tracking-widest">{student.courses} courses</span>
+                                        <span className="text-[10px] text-foreground/40 font-black uppercase tracking-widest">{course.courses} purchases</span>
                                     </div>
                                 </div>
-                                <span className="text-md font-black text-primary bg-primary/10 px-3 py-1.5 rounded-2xl border border-primary/20 whitespace-nowrap">{student.points} PTS</span>
+                                <span className="text-sm font-black text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-2xl border border-emerald-500/20 whitespace-nowrap">{course.points} EGP</span>
                             </div>
                         ))}
                     </div>
@@ -213,7 +229,7 @@ export default function AdminDashboard() {
                                                 <FiPhone className="text-[8px]" /> {app.phone}
                                             </span>
                                             <span className="text-[9px] font-black text-gray-500 flex items-center gap-1">
-                                                <FiId className="text-[8px]" /> {app.nationalId}
+                                                <FiBriefcase className="text-[8px]" /> {app.university || 'N/A'}
                                             </span>
                                         </div>
                                     </div>

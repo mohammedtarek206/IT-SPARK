@@ -260,7 +260,7 @@ export default function AdminTeam() {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 opacity-0 group-hover:opacity-100 transition-all rounded-3xl cursor-pointer gap-2 px-4 text-center">
+                                        <label className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 opacity-0 group-hover:opacity-100 transition-all rounded-3xl cursor-pointer gap-2 px-4 text-center">
                                             <div className="flex gap-4">
                                                 <div className="flex flex-col items-center">
                                                     <FiUpload className="text-foreground text-xl mb-1" />
@@ -273,7 +273,7 @@ export default function AdminTeam() {
                                                 </div>
                                             </div>
                                             <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-                                        </div>
+                                        </label>
                                     </div>
                                     <div className="mt-4 w-full max-w-xs">
                                         <input

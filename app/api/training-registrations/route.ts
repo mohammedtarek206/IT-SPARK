@@ -10,37 +10,20 @@ export async function POST(req: Request) {
         await connectDB();
         const data = await req.json();
 
-        if (
-            !data.full_name ||
-            !data.phone ||
-            !data.university ||
-            !data.academic_year ||
-            !data.governorate
-        ) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        console.log("Registration Data:", data);
+        console.log("Course ID:", data.training_id || data.trainingId);
+
+        if (!data.full_name || !data.phone) {
+            return NextResponse.json({ error: 'الاسم الكامل ورقم الهاتف مطلوبان' }, { status: 400 });
         }
 
-        let courseName = data.course_name || '';
-        let trainingId = data.training_id || data.trainingId;
+        let courseName = data.courseTitle || data.course_name || '';
+        let trainingId = data.courseId || data.training_id || data.trainingId;
 
         if (trainingId) {
             const training = await Training.findById(trainingId);
             if (!training || !training.isActive) {
                 return NextResponse.json({ error: 'Training not found' }, { status: 404 });
-            }
-            const available =
-                typeof training.seats_available === 'number'
-                    ? training.seats_available
-                    : training.seats ?? 0;
-            const total =
-                typeof training.seats_total === 'number' && training.seats_total > 0
-                    ? training.seats_total
-                    : training.seats ?? 0;
-            if (total > 0 && available <= 0) {
-                return NextResponse.json(
-                    { error: 'No seats available for this training' },
-                    { status: 400 }
-                );
             }
             courseName = training.title;
         }
@@ -53,37 +36,18 @@ export async function POST(req: Request) {
             full_name: data.full_name,
             phone: data.phone,
             email: data.email,
-            university: data.university,
-            academic_year: data.academic_year,
-            governorate: data.governorate,
-            notes: data.notes,
+            university: data.university || '',
+            academic_year: data.academic_year || '',
+            governorate: data.governorate || '',
+            notes: data.notes || '',
             course_name: courseName,
             training: trainingId || undefined,
             status: 'new',
         });
 
-        if (trainingId) {
-            const training = await Training.findById(trainingId);
-            if (training) {
-                const total =
-                    training.seats_total > 0 ? training.seats_total : training.seats ?? 0;
-                if (total > 0) {
-                    const current =
-                        typeof training.seats_available === 'number'
-                            ? training.seats_available
-                            : training.seats ?? 0;
-                    if (current > 0) {
-                        training.seats_available = current - 1;
-                        training.seats = training.seats_available;
-                        await training.save();
-                    }
-                }
-            }
-        }
-
         return NextResponse.json({ success: true, data: registration }, { status: 201 });
     } catch (error: any) {
         console.error("API ERROR:", error);
-        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({ error: error?.message || 'حدث خطأ داخلي في الخادم' }, { status: 500 });
     }
 }

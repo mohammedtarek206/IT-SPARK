@@ -33,9 +33,9 @@ function EditModal({
         title: course.title || '',
         description: course.description || '',
         instructor: (course && course.instructor && typeof course.instructor === 'object') ? course.instructor._id : (course ? course.instructor : '') || '',
-        price: course?.price || 0,
-        isFree: course?.isFree || false,
-        isActive: course?.isActive || false,
+        price: Number(course?.price ?? 0),
+        isFree: Boolean(course?.isFree),
+        isActive: Boolean(course?.isActive),
         level: course?.level || 'Beginner',
     });
     const [saving, setSaving] = useState(false);

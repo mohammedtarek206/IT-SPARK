@@ -30,6 +30,7 @@ export default function AdminCartOrdersPage() {
         try {
             const res = await fetch('/api/admin/cart-items', {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                cache: 'no-store'
             });
             if (res.ok) {
                 setItems(await res.json());
@@ -43,6 +44,8 @@ export default function AdminCartOrdersPage() {
 
     useEffect(() => {
         fetchItems();
+        const intervalId = setInterval(fetchItems, 15000);
+        return () => clearInterval(intervalId);
     }, []);
 
     const filtered = items.filter((item) => {

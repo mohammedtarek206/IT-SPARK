@@ -14,9 +14,7 @@ export interface TrainingItem {
     type?: string;
     price?: number;
     isFree?: boolean;
-    seats?: number;
-    seats_total?: number;
-    seats_available?: number;
+
     thumbnail?: string;
     previewVideoUrl?: string;
     category?: string;

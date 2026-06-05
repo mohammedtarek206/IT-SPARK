@@ -74,7 +74,7 @@ export default function CartPage() {
 
     const getPrice = (course: CartCourse) => {
         if (course.isFree) return 0;
-        return course.discountPrice ?? course.price ?? 0;
+        return course.discountPrice || course.price || 0;
     };
 
     const total = courses.reduce((sum, c) => sum + getPrice(c), 0);

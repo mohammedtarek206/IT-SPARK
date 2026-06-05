@@ -44,6 +44,27 @@ export async function POST(request: NextRequest) {
             $addToSet: { enrolledCourses: courseId }
         });
 
+        // Create a Payment record for the free enrollment so it shows in Admin Dashboard
+        try {
+            const Payment = (await import('@/models/Payment')).default;
+            await Payment.create({
+                user: payload.userId,
+                course: courseId,
+                amount: 0,
+                method: 'manual',
+                status: 'paid',
+                proofImage: 'none'
+            });
+
+            const CartItem = (await import('@/models/CartItem')).default;
+            await CartItem.findOneAndUpdate(
+                { user: payload.userId, course: courseId, status: 'active' },
+                { $set: { status: 'checked_out' } }
+            );
+        } catch (paymentErr) {
+            console.error('Failed to create free payment record:', paymentErr);
+        }
+
         return NextResponse.json({ message: 'Enrolled successfully' }, { status: 200 });
     } catch (error: any) {
         console.error("API ERROR:", error);
