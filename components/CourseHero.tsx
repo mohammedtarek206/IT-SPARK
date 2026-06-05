@@ -17,7 +17,7 @@ import { getDriveEmbedLink } from '@/lib/media';
 
 import { resolveCourseMedia } from '@/lib/courseMedia';
 import CoursePlaceholder from '@/components/CoursePlaceholder';
-import { addToCart, isInCart } from '@/lib/cart';
+import { addToCart, isInCart, toggleCart } from '@/lib/cart';
 import { showToast } from '@/lib/toast';
 import { useLanguage } from '@/lib/LanguageContext';
 import Image from 'next/image';

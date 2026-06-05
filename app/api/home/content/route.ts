@@ -49,7 +49,7 @@ export async function GET() {
             ],
         };
 
-        let featuredRaw = await Course.findOne(mediaFilter)
+        let featuredRaw: any = await Course.findOne(mediaFilter)
             .sort({ createdAt: -1 })
             .populate({ path: 'instructor', select: 'name', model: User })
             .lean();

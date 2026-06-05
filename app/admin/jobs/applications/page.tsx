@@ -1,35 +1,43 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FiUser, FiBriefcase, FiMail, FiDownload, FiClock, FiSearch, FiChevronRight, FiExternalLink, FiTrash2 } from 'react-icons/fi';
+import useSWR from 'swr';
+import { FiUser, FiBriefcase, FiMail, FiDownload, FiClock, FiSearch, FiChevronRight, FiChevronLeft, FiExternalLink, FiTrash2 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
 export default function AdminJobApplicationsPage() {
-    const [applications, setApplications] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
+    const [page, setPage] = useState(1);
+    const limit = 15;
+
+    const fetcher = async (url: string) => {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token');
+        const res = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+    };
+
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        search: search.trim(),
+        status: statusFilter
+    });
+
+    const { data, error, mutate, isLoading } = useSWR(`/api/admin/jobs/applications?${queryParams.toString()}`, fetcher, {
+        revalidateOnFocus: false
+    });
+
+    const applications = data?.applications || [];
+    const pagination = data?.pagination || { total: 0, totalPages: 1 };
 
     useEffect(() => {
-        fetchApplications();
-    }, []);
-
-    const fetchApplications = async () => {
-        try {
-            const res = await fetch('/api/admin/jobs/applications', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setApplications(Array.isArray(data) ? data : []);
-            } else {
-                setApplications([]);
-            }
-        } catch (err) {
-            console.error('Fetch applications error:', err);
-            setApplications([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+        setPage(1);
+    }, [search, statusFilter]);
 
     const handleStatusChange = async (id: string, newStatus: string) => {
         try {
@@ -42,7 +50,7 @@ export default function AdminJobApplicationsPage() {
                 body: JSON.stringify({ status: newStatus })
             });
             if (res.ok) {
-                fetchApplications();
+                mutate();
             } else {
                 alert('Failed to update status');
             }
@@ -59,7 +67,7 @@ export default function AdminJobApplicationsPage() {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             if (res.ok) {
-                fetchApplications();
+                mutate();
             } else {
                 alert('Failed to delete application');
             }
@@ -68,53 +76,121 @@ export default function AdminJobApplicationsPage() {
         }
     };
 
-    const exportToCSV = () => {
-        const headers = ['Candidate Name', 'Email', 'Phone', 'University', 'Major', 'Governorate', 'Job Applied For', 'Applied Date', 'Status', 'Resume Link', 'Notes', 'National ID', 'Cover Letter'];
-        const csvContent = [
-            headers.join(','),
-            ...applications.map(app => [
-                `"${app.fullName || ''}"`,
-                `"${app.email || ''}"`,
-                `"${app.phone || ''}"`,
-                `"${app.university || ''}"`,
-                `"${app.major || ''}"`,
-                `"${app.governorate || ''}"`,
-                `"${app.job?.title || ''}"`,
-                `"${app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : ''}"`,
-                `"${app.status || ''}"`,
-                `"${app.resumeUrl || ''}"`,
-                `"${app.notes || ''}"`,
-                `"${app.nationalId || ''}"`,
-                `"${app.coverLetter || ''}"`
-            ].join(','))
-        ].join('\n');
+    const handleViewCV = async (id: string, action: 'view' | 'download') => {
+        try {
+            const res = await fetch(`/api/admin/jobs/applications/${id}/resume`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.resumeUrl) {
+                    if (action === 'download') {
+                        const link = document.createElement('a');
+                        link.href = data.resumeUrl;
+                        link.download = `resume-${id}`;
+                        link.click();
+                    } else {
+                        window.open(data.resumeUrl, '_blank');
+                    }
+                } else {
+                    alert('No resume found for this application.');
+                }
+            } else {
+                alert('Failed to fetch resume');
+            }
+        } catch (err) {
+            console.error('Fetch resume error:', err);
+            alert('Error loading resume.');
+        }
+    };
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `job_applications_${new Date().toLocaleDateString()}.csv`;
-        link.click();
+    const exportToCSV = async () => {
+        // Fetch all data for export
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/admin/jobs/applications?page=1&limit=10000&search=${search}&status=${statusFilter}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Failed to fetch all data');
+            const allData = await res.json();
+            const exportApps = allData.applications || [];
+
+            const headers = ['Candidate Name', 'Email', 'Phone', 'University', 'Major', 'Governorate', 'Job Applied For', 'Applied Date', 'Status', 'Notes', 'National ID', 'Cover Letter'];
+            const csvContent = [
+                headers.join(','),
+                ...exportApps.map((app: any) => [
+                    `"${app.fullName || ''}"`,
+                    `"${app.email || ''}"`,
+                    `"${app.phone || ''}"`,
+                    `"${app.university || ''}"`,
+                    `"${app.major || ''}"`,
+                    `"${app.governorate || ''}"`,
+                    `"${app.job?.title || ''}"`,
+                    `"${app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : ''}"`,
+                    `"${app.status || ''}"`,
+                    `"${app.notes || ''}"`,
+                    `"${app.nationalId || ''}"`,
+                    `"${app.coverLetter || ''}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `job_applications_${new Date().toLocaleDateString()}.csv`;
+            link.click();
+        } catch (err) {
+            alert('Failed to export data');
+        }
     };
 
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-white uppercase tracking-tight">Job Applications</h1>
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">Review candidate submissions</p>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">Review candidate submissions — {pagination.total} Total</p>
                 </div>
                 <button
                     onClick={exportToCSV}
-                    className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+                    className="flex items-center justify-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
                 >
                     <FiDownload /> Export CSV
                 </button>
             </div>
 
-            {loading ? (
+            <div className="flex flex-col md:flex-row gap-3">
+                <div className="relative flex-1">
+                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                    <input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search name, phone, email, university..."
+                        className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-medium focus:outline-none focus:border-primary/50"
+                    />
+                </div>
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-bold focus:outline-none focus:border-primary/50"
+                >
+                    <option value="" className="bg-dark text-white">All Statuses</option>
+                    {['New', 'Reviewed', 'Interview', 'Accepted', 'Rejected'].map((s) => (
+                        <option key={s} value={s} className="bg-dark text-white">
+                            {s}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {isLoading ? (
                 <div className="h-64 flex items-center justify-center">
                     <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
+            ) : error ? (
+                 <div className="h-64 flex items-center justify-center text-red-500 font-bold uppercase tracking-widest text-sm">
+                    Failed to load applications.
+                 </div>
             ) : (
                 <div className="glass rounded-[2.5rem] border border-white/5 overflow-hidden">
                     <div className="overflow-x-auto">
@@ -130,7 +206,7 @@ export default function AdminJobApplicationsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {applications.map((app) => (
+                                {applications.map((app: any) => (
                                     <tr key={app._id} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
@@ -155,11 +231,6 @@ export default function AdminJobApplicationsPage() {
                                                                 National ID: {app.nationalId}
                                                             </p>
                                                         ) : null}
-                                                        {app.governorate && (
-                                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                                {app.governorate}
-                                                            </p>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -173,11 +244,6 @@ export default function AdminJobApplicationsPage() {
                                                         Note: {app.notes}
                                                     </p>
                                                 )}
-                                                {app.coverLetter && (
-                                                    <p className="text-xs text-gray-400 mt-2 max-w-[200px] truncate" title={app.coverLetter}>
-                                                        Cover Letter: {app.coverLetter}
-                                                    </p>
-                                                )}
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
@@ -186,46 +252,22 @@ export default function AdminJobApplicationsPage() {
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            {app.resumeUrl ? (
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-lg">{app.resumeUrl.endsWith('.pdf') ? '📄' : app.resumeUrl.match(/\.docx?$/) ? '📝' : '📦'}</span>
-                                                        <div>
-                                                            <p className="text-[10px] font-bold text-white truncate max-w-[120px]" title={app.resumeUrl.split('/').pop()}>
-                                                                {app.resumeUrl.split('/').pop()?.substring(0, 20)}...
-                                                            </p>
-                                                            <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
-                                                                app.resumeUrl.endsWith('.pdf') ? 'bg-red-500/20 text-red-400' :
-                                                                app.resumeUrl.match(/\.docx?$/) ? 'bg-blue-500/20 text-blue-400' :
-                                                                'bg-yellow-500/20 text-yellow-400'
-                                                            }`}>
-                                                                {app.resumeUrl.split('.').pop()?.toUpperCase()}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <a
-                                                            href={app.resumeUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="flex items-center gap-1 text-[10px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-primary/10"
-                                                        >
-                                                            <FiExternalLink /> View
-                                                        </a>
-                                                        <a
-                                                            href={app.resumeUrl}
-                                                            download
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="flex items-center gap-1 text-[10px] font-black text-accent uppercase tracking-widest hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-accent/10"
-                                                        >
-                                                            <FiDownload /> Download
-                                                        </a>
-                                                    </div>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => handleViewCV(app._id, 'view')}
+                                                        className="flex items-center gap-1 text-[10px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-primary/10"
+                                                    >
+                                                        <FiExternalLink /> View
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleViewCV(app._id, 'download')}
+                                                        className="flex items-center gap-1 text-[10px] font-black text-accent uppercase tracking-widest hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-accent/10"
+                                                    >
+                                                        <FiDownload /> Download
+                                                    </button>
                                                 </div>
-                                            ) : (
-                                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">No Resume</span>
-                                            )}
+                                            </div>
                                         </td>
                                         <td className="px-8 py-6">
                                             <select
@@ -242,11 +284,11 @@ export default function AdminJobApplicationsPage() {
                                                 {(app.status === 'Pending' || !['New', 'Reviewed', 'Interview', 'Accepted', 'Rejected'].includes(app.status)) && (
                                                     <option value={app.status || 'Pending'} className="bg-dark">{app.status || 'Pending'}</option>
                                                 )}
-                                                <option value="New" className="bg-dark">New</option>
-                                                <option value="Reviewed" className="bg-dark">Reviewed</option>
-                                                <option value="Interview" className="bg-dark">Interview</option>
-                                                <option value="Accepted" className="bg-dark">Accepted</option>
-                                                <option value="Rejected" className="bg-dark">Rejected</option>
+                                                <option value="New" className="bg-dark text-white">New</option>
+                                                <option value="Reviewed" className="bg-dark text-white">Reviewed</option>
+                                                <option value="Interview" className="bg-dark text-white">Interview</option>
+                                                <option value="Accepted" className="bg-dark text-white">Accepted</option>
+                                                <option value="Rejected" className="bg-dark text-white">Rejected</option>
                                             </select>
                                         </td>
                                         <td className="px-8 py-6">
@@ -263,13 +305,35 @@ export default function AdminJobApplicationsPage() {
                                 {applications.length === 0 && (
                                     <tr>
                                         <td colSpan={6} className="px-8 py-20 text-center text-gray-500 font-bold uppercase tracking-widest text-sm">
-                                            No applications received yet.
+                                            No applications match your search.
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
+                </div>
+            )}
+
+            {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-6">
+                    <button
+                        disabled={page === 1}
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 disabled:opacity-50 text-white transition-colors"
+                    >
+                        <FiChevronLeft />
+                    </button>
+                    <span className="text-white font-bold uppercase tracking-widest text-xs">
+                        Page {page} of {pagination.totalPages}
+                    </span>
+                    <button
+                        disabled={page === pagination.totalPages}
+                        onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                        className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 disabled:opacity-50 text-white transition-colors"
+                    >
+                        <FiChevronRight />
+                    </button>
                 </div>
             )}
         </div>

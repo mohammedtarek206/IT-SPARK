@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .select('slug title _id updatedAt')
         .lean();
 
-      courseRoutes = courses.map((course) => ({
+      courseRoutes = (courses as any[]).map((course) => ({
         url: `${baseUrl}${getCoursePath(course)}`,
         lastModified: course.updatedAt || new Date(),
         changeFrequency: 'weekly' as const,

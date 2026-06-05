@@ -2,10 +2,10 @@ import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
 import { courseParamFilter, getCourseSlug, slugify } from './slug';
 
-export async function findPublicCourse(param: string) {
+export async function findPublicCourse(param: string): Promise<any | null> {
   await connectDB();
   const filter = courseParamFilter(param);
-  let course = await Course.findOne({ ...filter, isActive: true })
+  let course: any = await Course.findOne({ ...filter, isActive: true })
     .populate('instructor', 'name bio profileImage')
     .lean();
 

@@ -77,7 +77,7 @@ export default function TrainingCoursesPage() {
 
   const categories = useMemo(() => {
     const fromData = trainings.map((t) => t.category).filter(Boolean) as string[];
-    return [...new Set([...DEFAULT_CATEGORIES, ...fromData])];
+    return Array.from(new Set([...DEFAULT_CATEGORIES, ...fromData]));
   }, [trainings]);
 
   const handleInputChange = (

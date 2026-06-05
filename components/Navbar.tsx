@@ -70,7 +70,8 @@ export default function Navbar() {
     return pathname === href || pathname?.startsWith(`${href}/`);
   };
 
-  const navLinks = [
+  type NavLink = { href?: string; label: string; icon: any; dropdown?: { href: string; label: string }[] };
+  const navLinks: NavLink[] = [
     { href: '/', label: t('home'), icon: FiHome },
     { href: '/training-courses', label: isRtl ? 'الكورسات الأوفلاين' : 'Offline Courses', icon: FiAward },
     { href: '/courses', label: isRtl ? 'الكورسات الأونلاين' : 'Online Courses', icon: FiBook },
@@ -80,7 +81,7 @@ export default function Navbar() {
     { href: '/contact', label: t('contact'), icon: FiMail },
   ];
 
-  const mobilePrimaryLinks = [
+  const mobilePrimaryLinks: NavLink[] = [
     { href: '/', label: t('home'), icon: FiHome },
     { href: '/training-courses', label: isRtl ? 'الكورسات الأوفلاين' : 'Offline Courses', icon: FiAward },
     { href: '/courses', label: isRtl ? 'الكورسات الأونلاين' : 'Online Courses', icon: FiBook },
@@ -275,9 +276,9 @@ export default function Navbar() {
               {mobilePrimaryLinks.map((link) => (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={link.href!}
                   onClick={closeMenu}
-                  className={linkClass(link.href, true)}
+                  className={linkClass(link.href!, true)}
                 >
                   <link.icon className="w-5 h-5 shrink-0 text-primary/70" />
                   {link.label}
