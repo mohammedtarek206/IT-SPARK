@@ -13,11 +13,17 @@ export default function AdminJobApplicationsPage() {
 
     const fetcher = async (url: string) => {
         const token = localStorage.getItem('token');
-        if (!token) throw new Error('No token');
+        if (!token) throw new Error('Unauthorized');
         const res = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!res.ok) throw new Error('Failed to fetch');
+        if (!res.ok) {
+            if (res.status === 401) throw new Error('Unauthorized');
+            if (res.status === 403) throw new Error('Forbidden');
+            if (res.status === 404) throw new Error('API Not Found');
+            if (res.status >= 500) throw new Error('Database Error');
+            throw new Error('Network Error');
+        }
         return res.json();
     };
 
@@ -188,8 +194,11 @@ export default function AdminJobApplicationsPage() {
                     <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : error ? (
-                 <div className="h-64 flex items-center justify-center text-red-500 font-bold uppercase tracking-widest text-sm">
-                    Failed to load applications.
+                 <div className="h-64 flex flex-col items-center justify-center text-red-500 gap-2">
+                    <FiSearch className="w-8 h-8 opacity-50" />
+                    <span className="font-bold uppercase tracking-widest text-sm">
+                        {error.message || 'FAILED TO LOAD APPLICATIONS'}
+                    </span>
                  </div>
             ) : (
                 <div className="glass rounded-[2.5rem] border border-white/5 overflow-hidden">

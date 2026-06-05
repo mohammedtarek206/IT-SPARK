@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import CourseDetailsClient from '@/components/CourseDetailsClient';
 import connectDB from '@/lib/mongodb';
 import Course from '@/models/Course';
+import User from '@/models/User'; // Required for populate
 import { courseParamFilter } from '@/lib/seo/slug';
 import { ensureCourseSlug } from '@/lib/seo/courseServer';
 
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function CourseDetailsPage({ params }: { params: { id: string } }) {
     try {
         await connectDB();
+        if (!User) console.warn("User model missing");
         const { id } = params;
 
         let filter = {};

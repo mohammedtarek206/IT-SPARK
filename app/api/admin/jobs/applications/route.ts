@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import JobApplication from '@/models/JobApplication';
+import Job from '@/models/Job'; // Required for populate
 import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,8 @@ export async function GET(request: NextRequest) {
         const status = searchParams.get('status') || '';
 
         await connectDB();
+        // Prevent Webpack from tree-shaking the Job model
+        if (!Job) console.warn("Job model not loaded");
 
         const filter: any = {};
         if (search) {

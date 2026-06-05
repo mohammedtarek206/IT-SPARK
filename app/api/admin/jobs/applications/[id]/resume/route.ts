@@ -5,10 +5,7 @@ import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = "force-dynamic";
 
-export async function GET(
-    request: NextRequest,
-    { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
     try {
         const user = await authenticateRequest(request);
         if (!user || user.role !== 'admin') {
@@ -16,8 +13,9 @@ export async function GET(
         }
 
         await connectDB();
+
         const application = await JobApplication.findById(params.id).select('resumeUrl');
-        
+
         if (!application) {
             return NextResponse.json({ error: 'Application not found' }, { status: 404 });
         }
