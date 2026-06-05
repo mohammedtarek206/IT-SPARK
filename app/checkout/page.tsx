@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FiArrowRight,
@@ -32,6 +32,7 @@ function CheckoutContent() {
     const { lang } = useLanguage();
     const { user, token, isLoading: authLoading } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const isRtl = lang === 'ar';
 
     const [courses, setCourses] = useState<CartCourse[]>([]);
@@ -57,7 +58,13 @@ function CheckoutContent() {
         }).format(value);
 
     const loadCourses = useCallback(async () => {
-        const ids = getCartIds();
+        let ids = getCartIds();
+        const courseIdQuery = searchParams.get('courseId');
+        if (courseIdQuery && !ids.includes(courseIdQuery)) {
+            // If navigating directly from Buy Now, add it to the active checkout pool
+            ids = [courseIdQuery, ...ids];
+        }
+
         if (ids.length === 0) {
             setCourses([]);
             setLoading(false);
@@ -74,7 +81,7 @@ function CheckoutContent() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [searchParams]);
 
     useEffect(() => {
         if (authLoading) return;

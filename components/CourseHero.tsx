@@ -4,27 +4,23 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
     FiClock,
-    FiBook,
     FiStar,
-    FiUsers,
     FiPlay,
-    FiShield,
     FiCheckCircle,
     FiInfo,
-    FiHeart,
     FiShoppingCart,
     FiCheck,
 } from 'react-icons/fi';
 import YouTubePlayer from '@/components/YouTubePlayer';
 import CoursePreviewModal from '@/components/CoursePreviewModal';
-import { isMediaVideo } from '@/lib/media';
-import { getDriveEmbedLink, isDriveUrl } from '@/lib/media';
-import { isYouTubeUrl } from '@/lib/youtube';
+import { getDriveEmbedLink } from '@/lib/media';
+
 import { resolveCourseMedia } from '@/lib/courseMedia';
 import CoursePlaceholder from '@/components/CoursePlaceholder';
-import { addToCart, isInCart, toggleCart } from '@/lib/cart';
+import { addToCart, isInCart } from '@/lib/cart';
 import { showToast } from '@/lib/toast';
 import { useLanguage } from '@/lib/LanguageContext';
+import Image from 'next/image';
 
 export interface CourseHeroCourse {
     _id: string;
@@ -73,7 +69,6 @@ export default function CourseHero({
     const [imageError, setImageError] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [inCart, setInCart] = useState(false);
-    const [isWishlisted, setIsWishlisted] = useState(false);
 
     const media = resolveCourseMedia(course.thumbnail, course.previewVideoUrl);
     const previewUrl = media.videoUrl || '';
@@ -85,12 +80,6 @@ export default function CourseHero({
 
     useEffect(() => {
         setInCart(isInCart(course._id));
-        try {
-            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            setIsWishlisted(wishlist.includes(course._id));
-        } catch {
-            /* ignore */
-        }
     }, [course._id]);
 
     const openPreview = useCallback(() => {
@@ -112,29 +101,6 @@ export default function CourseHero({
         }
     };
 
-    const toggleWishlist = () => {
-        try {
-            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            const next = wishlist.includes(course._id)
-                ? wishlist.filter((id: string) => id !== course._id)
-                : [...wishlist, course._id];
-            localStorage.setItem('wishlist', JSON.stringify(next));
-            setIsWishlisted(next.includes(course._id));
-            showToast(
-                next.includes(course._id)
-                    ? isRtl
-                        ? 'أُضيف إلى المفضلة'
-                        : 'Added to wishlist'
-                    : isRtl
-                      ? 'أُزيل من المفضلة'
-                      : 'Removed from wishlist',
-                'success'
-            );
-        } catch {
-            /* ignore */
-        }
-    };
-
     const isFree = course.isFree;
     const currentPrice = course.discountPrice ?? course.price;
     const oldPrice = course.discountPrice ? course.price : Math.round(course.price * 1.25);
@@ -145,9 +111,6 @@ export default function CourseHero({
 
     const displayRating =
         course.rating || 4 + ((course.title.charCodeAt(0) % 10) * 0.1);
-    const displayStudents =
-        course.studentsCount || course.reviewsCount * 12 + 120 || 1200;
-    const displayReviews = course.reviewsCount || Math.max(12, course.title.length * 3);
 
     const formatPrice = (value: number) =>
         new Intl.NumberFormat(isRtl ? 'ar-EG' : 'en-EG', {
@@ -209,14 +172,17 @@ export default function CourseHero({
             return <CoursePlaceholder title={course.title} className="absolute inset-0" />;
         }
 
-        if (media.hasThumbnail && instructorPoster) {
+        const coverImageUrl = (course as any).image || (course as any).imageUrl || course.thumbnail || (course as any).coverImage || instructorPoster;
+
+        if (coverImageUrl && !imageError) {
             return (
                 <>
                     {!imageLoaded && <HeroMediaSkeleton />}
-                    <img
-                        src={instructorPoster}
+                    <Image
+                        src={coverImageUrl}
                         alt={course.title}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                        fill
+                        className={`object-cover transition-opacity duration-500 ${
                             imageLoaded ? 'opacity-100' : 'opacity-0'
                         }`}
                         onLoad={() => setImageLoaded(true)}
@@ -224,8 +190,6 @@ export default function CourseHero({
                             setImageError(true);
                             setImageLoaded(true);
                         }}
-                        loading="eager"
-                        decoding="async"
                     />
                 </>
             );
@@ -317,33 +281,15 @@ export default function CourseHero({
                                     <span className="flex items-center gap-1.5 font-bold text-amber-400">
                                         <FiStar className="fill-amber-400" />
                                         {displayRating.toFixed(1)}
-                                        <span className="text-white/40 font-medium">
-                                            ({displayReviews.toLocaleString(isRtl ? 'ar-EG' : 'en-US')})
-                                        </span>
-                                    </span>
-                                    <span className="flex items-center gap-1.5 text-white/50 font-bold">
-                                        <FiUsers />
-                                        {displayStudents.toLocaleString(isRtl ? 'ar-EG' : 'en-US')}{' '}
-                                        {isRtl ? 'طالب' : 'students'}
                                     </span>
                                     <span className="flex items-center gap-1.5 text-white/50 font-bold">
                                         <FiClock />
                                         {course.hours || 0} {isRtl ? 'ساعة' : 'hrs'}
                                     </span>
-                                    <span className="flex items-center gap-1.5 text-white/50 font-bold">
-                                        <FiBook />
-                                        {course.lecturesCount || 0}{' '}
-                                        {isRtl ? 'محاضرة' : 'lectures'}
-                                    </span>
                                 </div>
 
                                 {/* Mobile actions — hidden on lg (card handles desktop) */}
                                 <div className="flex flex-wrap gap-3 lg:hidden pt-2">
-                                    <WishlistButton
-                                        isWishlisted={isWishlisted}
-                                        onClick={toggleWishlist}
-                                        isRtl={isRtl}
-                                    />
                                     <CartButton inCart={inCart} onClick={handleAddToCart} isRtl={isRtl} />
                                 </div>
                             </div>
@@ -398,13 +344,21 @@ export default function CourseHero({
                                                 <FiInfo />
                                                 {isRtl ? 'بانتظار الموافقة' : 'Pending Approval'}
                                             </button>
+                                        ) : isFree ? (
+                                            <button
+                                                type="button"
+                                                onClick={onEnroll}
+                                                className="w-full py-3.5 bg-gradient-to-r from-primary to-accent text-white font-black text-sm uppercase tracking-widest rounded-xl hover:opacity-95 transition-all shadow-lg shadow-primary/25"
+                                            >
+                                                {isRtl ? 'ابدأ التعلم الآن' : 'Start Learning Now'}
+                                            </button>
                                         ) : (
                                             <button
                                                 type="button"
                                                 onClick={onEnroll}
                                                 className="w-full py-3.5 bg-gradient-to-r from-primary to-accent text-white font-black text-sm uppercase tracking-widest rounded-xl hover:opacity-95 transition-all shadow-lg shadow-primary/25"
                                             >
-                                                {isRtl ? 'سجّل الآن' : 'Enroll Now'}
+                                                {isRtl ? 'شراء الآن' : 'Buy Now'}
                                             </button>
                                         )}
 
@@ -429,21 +383,7 @@ export default function CourseHero({
                                                 </>
                                             )}
                                         </button>
-
-                                        <div className="hidden lg:flex justify-center">
-                                            <WishlistButton
-                                                isWishlisted={isWishlisted}
-                                                onClick={toggleWishlist}
-                                                isRtl={isRtl}
-                                                fullWidth
-                                            />
-                                        </div>
                                     </div>
-
-                                    <p className="text-center text-[10px] font-bold text-white/35 uppercase tracking-widest flex items-center justify-center gap-1">
-                                        <FiShield />
-                                        {isRtl ? 'ضمان استرداد 30 يومًا' : '30-Day Money-Back Guarantee'}
-                                    </p>
                                 </div>
                             </motion.aside>
                         </div>
@@ -462,37 +402,6 @@ export default function CourseHero({
     );
 }
 
-function WishlistButton({
-    isWishlisted,
-    onClick,
-    isRtl,
-    fullWidth,
-}: {
-    isWishlisted: boolean;
-    onClick: () => void;
-    isRtl: boolean;
-    fullWidth?: boolean;
-}) {
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border font-bold text-sm transition-all ${
-                fullWidth ? 'w-full' : ''
-            } ${
-                isWishlisted
-                    ? 'border-rose-500/40 bg-rose-500/10 text-rose-400'
-                    : 'border-white/15 bg-white/5 text-white/80 hover:bg-white/10'
-            }`}
-        >
-            <FiHeart
-                size={16}
-                className={isWishlisted ? 'fill-current text-rose-400' : ''}
-            />
-            {isRtl ? 'المفضلة' : 'Wishlist'}
-        </button>
-    );
-}
 
 function CartButton({
     inCart,

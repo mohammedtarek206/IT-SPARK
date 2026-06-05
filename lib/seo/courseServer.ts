@@ -5,14 +5,13 @@ import { courseParamFilter, getCourseSlug, slugify } from './slug';
 export async function findPublicCourse(param: string) {
   await connectDB();
   const filter = courseParamFilter(param);
-  let course = await Course.findOne({ ...filter, isActive: true, status: 'published' })
+  let course = await Course.findOne({ ...filter, isActive: true })
     .populate('instructor', 'name bio profileImage')
     .lean();
 
   if (!course && !('_id' in filter)) {
     course = await Course.findOne({
       isActive: true,
-      status: 'published',
       title: new RegExp(`^${param.replace(/-/g, ' ')}$`, 'i'),
     })
       .populate('instructor', 'name bio profileImage')

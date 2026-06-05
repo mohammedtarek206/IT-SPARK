@@ -8,7 +8,13 @@ import { BRAND } from '@/lib/seo/config';
 type Props = { params: { id: string }; children: React.ReactNode };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const course = await findPublicCourse(params.id);
+  let course = null;
+  try {
+    course = await findPublicCourse(params.id);
+  } catch (error) {
+    console.error('Metadata: Failed to fetch course:', error);
+  }
+
   if (!course) {
     return createPageMetadata({
       title: 'Course Not Found',
@@ -41,7 +47,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CourseLayout({ params, children }: Props) {
-  const course = await findPublicCourse(params.id);
+  let course = null;
+  try {
+    course = await findPublicCourse(params.id);
+  } catch (error) {
+    console.error('CourseLayout: Failed to fetch course:', error);
+  }
+
   const schemas = course
     ? [
         courseJsonLd(course as Parameters<typeof courseJsonLd>[0]),

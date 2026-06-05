@@ -17,8 +17,7 @@ import {
 import { useLanguage } from '@/lib/LanguageContext';
 import TrainingCard, { type TrainingItem } from '@/components/TrainingCard';
 import { showToast } from '@/lib/toast';
-import { getTrainingSeatsAvailable, getTrainingSeatsTotal } from '@/lib/trainingSeats';
-import { FiUsers } from 'react-icons/fi';
+
 
 const DEFAULT_CATEGORIES = [
   'All',
@@ -90,15 +89,6 @@ export default function TrainingCoursesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTraining) return;
-    const total = getTrainingSeatsTotal(selectedTraining);
-    const available = getTrainingSeatsAvailable(selectedTraining);
-    if (total > 0 && available <= 0) {
-      showToast(
-        isRtl ? 'لا توجد مقاعد متاحة لهذا التدريب' : 'No seats available for this training',
-        'error'
-      );
-      return;
-    }
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/training-registrations', {
@@ -262,18 +252,7 @@ export default function TrainingCoursesPage() {
                     <p className="text-sm font-bold text-primary mt-1 truncate">
                       {selectedTraining.title}
                     </p>
-                    {getTrainingSeatsTotal(selectedTraining) > 0 && (
-                      <p className="text-xs font-bold text-foreground/50 mt-2 flex items-center gap-1.5">
-                        <FiUsers className="text-primary shrink-0" />
-                        {isRtl
-                          ? `${getTrainingSeatsAvailable(selectedTraining)} مقعد متاح من ${getTrainingSeatsTotal(selectedTraining)}`
-                          : `${getTrainingSeatsAvailable(selectedTraining)} of ${getTrainingSeatsTotal(selectedTraining)} seats available`}
-                        <span className="text-foreground/30">·</span>
-                        <span className="text-foreground/40 font-medium">
-                          {isRtl ? 'للعرض فقط' : 'read-only'}
-                        </span>
-                      </p>
-                    )}
+
                   </div>
                   <button
                     type="button"

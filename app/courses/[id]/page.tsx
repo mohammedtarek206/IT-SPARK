@@ -1,18 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useParams, useRouter, notFound } from 'next/navigation';
 import {
     FiClock,
-    FiBook,
     FiAward,
     FiCheck,
     FiArrowRight,
-    FiX,
-    FiInfo,
-    FiUpload,
-    FiPlayCircle,
 } from 'react-icons/fi';
 import Link from 'next/link';
 import { useAuth } from '@/lib/AuthContext';
@@ -47,11 +41,6 @@ export default function CourseDetailsPage() {
 
     const [course, setCourse] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [paymentStep, setPaymentStep] = useState<'select' | 'upload'>('select');
-    const [selectedMethod, setSelectedMethod] = useState<string>('');
-    const [proofImage, setProofImage] = useState<string>('');
-    const [uploading, setUploading] = useState(false);
     const [enrollmentStatus, setEnrollmentStatus] = useState<'none' | 'pending' | 'enrolled'>('none');
 
     useEffect(() => {
@@ -92,68 +81,13 @@ export default function CourseDetailsPage() {
         if (courseId) fetchCourse();
     }, [courseId, user]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => setProofImage(reader.result as string);
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handlePaymentSubmit = async () => {
-        if (!proofImage) return;
-        setUploading(true);
-        try {
-            const res = await fetch('/api/payments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-                body: JSON.stringify({
-                    courseId,
-                    amount: course.price,
-                    method: selectedMethod,
-                    proofImage,
-                }),
-            });
-
-            if (res.ok) {
-                setEnrollmentStatus('pending');
-                setShowPaymentModal(false);
-                setPaymentStep('select');
-                setProofImage('');
-                showToast(
-                    lang === 'ar'
-                        ? 'تم إرسال طلب الدفع. بانتظار موافقة الإدارة.'
-                        : 'Payment submitted. Waiting for admin approval.',
-                    'success'
-                );
-                const langUrl = lang === 'ar' ? '/ar' : '';
-                router.push(`${langUrl}/dashboard`);
-            } else {
-                const error = await res.json();
-                showToast(error.error || 'Failed to submit payment', 'error');
-            }
-        } catch (err) {
-            console.error(err);
-            showToast(
-                lang === 'ar' ? 'حدث خطأ أثناء إرسال الطلب' : 'Error submitting request',
-                'error'
-            );
-        } finally {
-            setUploading(false);
-        }
-    };
-
     const handleEnroll = () => {
         if (!user) {
             router.push('/login');
             return;
         }
         if (course.price && course.price > 0 && !course.isFree) {
-            setShowPaymentModal(true);
+            router.push(`/checkout?courseId=${courseId}`);
         } else {
             router.push('/dashboard');
         }
@@ -170,15 +104,8 @@ export default function CourseDetailsPage() {
 
     if (loading) return <CoursePageSkeleton />;
 
-    if (!course) {
-        return (
-            <div className="min-h-screen bg-background py-20 text-center">
-                <h1 className="text-foreground text-2xl font-black">Course not found</h1>
-                <Link href="/courses" className="text-primary mt-4 inline-block underline font-bold">
-                    Back to Courses
-                </Link>
-            </div>
-        );
+    if (!course || course.error || Object.keys(course).length === 0) {
+        notFound();
     }
 
     const isRtl = lang === 'ar';
@@ -271,11 +198,6 @@ export default function CourseDetailsPage() {
                         </h3>
                         <ul className="space-y-4">
                             <li className="flex items-center gap-3 text-foreground/50 font-medium text-sm">
-                                <FiPlayCircle className="text-lg text-primary shrink-0" />
-                                {course.lecturesCount || 0}{' '}
-                                {isRtl ? 'محاضرة' : 'Lectures'}
-                            </li>
-                            <li className="flex items-center gap-3 text-foreground/50 font-medium text-sm">
                                 <FiClock className="text-lg text-primary shrink-0" />
                                 {course.hours || 0} {isRtl ? 'ساعة' : 'Total Hours'}
                             </li>
@@ -332,183 +254,12 @@ export default function CourseDetailsPage() {
                             onClick={handleEnroll}
                             className="flex-1 py-3 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20"
                         >
-                            {isRtl ? 'سجّل' : 'Enroll'}
+                            {isFree ? (isRtl ? 'ابدأ' : 'Start') : (isRtl ? 'شراء' : 'Buy')}
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* Payment Modal */}
-            <AnimatePresence>
-                {showPaymentModal && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowPaymentModal(false)}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-xl glass border border-border rounded-[2.5rem] shadow-2xl p-8 overflow-hidden rtl:text-right"
-                        >
-                            <button
-                                type="button"
-                                onClick={() => setShowPaymentModal(false)}
-                                className="absolute top-6 right-6 p-2 text-foreground/40 hover:text-foreground transition-colors"
-                            >
-                                <FiX size={24} />
-                            </button>
-
-                            <div className="mb-8">
-                                <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-2">
-                                    {isRtl ? 'إتمام التسجيل' : 'Enrollment Checkout'}
-                                </h3>
-                                <p className="text-foreground/60 font-medium">
-                                    {isRtl
-                                        ? `أنت الآن تشترك في: ${course.title}`
-                                        : `You are enrolling in: ${course.title}`}
-                                </p>
-                            </div>
-
-                            {paymentStep === 'select' ? (
-                                <div className="grid gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setSelectedMethod('Vodafone Cash');
-                                            setPaymentStep('upload');
-                                        }}
-                                        className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500 transition-all p-4 rounded-xl flex items-center justify-between group"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-white font-black">
-                                                VC
-                                            </div>
-                                            <span className="text-white font-medium group-hover:text-red-400 transition-colors">
-                                                Vodafone Cash
-                                            </span>
-                                        </div>
-                                        <FiArrowRight className="text-gray-500 group-hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setSelectedMethod('InstaPay');
-                                            setPaymentStep('upload');
-                                        }}
-                                        className="w-full bg-[#1A1A8C]/10 hover:bg-[#1A1A8C]/20 border border-[#1A1A8C]/30 hover:border-[#1A1A8C] transition-all p-4 rounded-xl flex items-center justify-between group"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-[#1A1A8C] flex items-center justify-center text-white font-black">
-                                                IP
-                                            </div>
-                                            <span className="text-white font-medium group-hover:text-[#1A1A8C] transition-colors">
-                                                InstaPay
-                                            </span>
-                                        </div>
-                                        <FiArrowRight className="text-gray-500 group-hover:text-[#1A1A8C] opacity-0 group-hover:opacity-100 transition-all" />
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="space-y-6">
-                                    <div className="p-6 bg-primary/10 border border-primary/20 rounded-2xl space-y-4">
-                                        <h4 className="text-foreground font-black uppercase tracking-widest text-xs flex items-center gap-2">
-                                            <FiInfo className="text-primary" /> Instructions / تعليمات الدفع
-                                        </h4>
-                                        {selectedMethod === 'Vodafone Cash' && (
-                                            <div className="text-center py-4 bg-dark rounded-xl border border-border">
-                                                <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1">
-                                                    تحويل فودافون كاش إلى الرقم التالي:
-                                                </p>
-                                                <p className="text-3xl font-black text-primary tracking-tighter select-all">
-                                                    01006093939
-                                                </p>
-                                            </div>
-                                        )}
-                                        {selectedMethod === 'InstaPay' && (
-                                            <div className="text-center py-4 bg-dark rounded-xl border border-border">
-                                                <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1">
-                                                    تحويل انستا باي إلى الحساب التالي:
-                                                </p>
-                                                <p className="text-xl font-black text-primary tracking-tight select-all">
-                                                    mo.tarek@instapay
-                                                </p>
-                                            </div>
-                                        )}
-                                        <p className="text-foreground/60 text-[10px] font-bold text-center uppercase tracking-widest">
-                                            {isRtl
-                                                ? 'بعد التحويل، يرجى رفع صورة الإيصال أدناه'
-                                                : 'After transfer, please upload the receipt screenshot below'}
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="block text-foreground/60 text-xs font-bold uppercase tracking-widest">
-                                            Screenshot / Receipt
-                                        </label>
-                                        <div className="relative group">
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleFileChange}
-                                                className="hidden"
-                                                id="proof-upload"
-                                            />
-                                            <label
-                                                htmlFor="proof-upload"
-                                                className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-2xl hover:border-primary/50 hover:bg-surface transition-all cursor-pointer overflow-hidden"
-                                            >
-                                                {proofImage ? (
-                                                    <img
-                                                        src={proofImage}
-                                                        alt="Proof"
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <>
-                                                        <FiUpload className="text-3xl text-foreground/40 mb-2 group-hover:text-primary transition-colors" />
-                                                        <span className="text-xs text-foreground/40 font-bold">
-                                                            Click to upload screenshot
-                                                        </span>
-                                                    </>
-                                                )}
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => setPaymentStep('select')}
-                                            className="flex-1 py-4 bg-surface text-foreground font-bold rounded-xl border border-border hover:bg-foreground/5 transition-all uppercase text-xs"
-                                        >
-                                            {isRtl ? 'رجوع' : 'Back'}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handlePaymentSubmit}
-                                            disabled={!proofImage || uploading}
-                                            className="flex-[2] py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 disabled:opacity-50 transition-all uppercase text-xs"
-                                        >
-                                            {uploading
-                                                ? isRtl
-                                                    ? 'جاري الإرسال...'
-                                                    : 'Sending...'
-                                                : isRtl
-                                                  ? 'إرسال إثبات الدفع'
-                                                  : 'Submit Proof'}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </div>
     );
 }

@@ -14,11 +14,29 @@ export async function GET(
         await connectDB();
         const { id } = params;
 
+        let filter = {};
+        try {
+            filter = courseParamFilter(id);
+        } catch (err) {
+            console.error("Invalid param filter:", err);
+            return NextResponse.json({ error: 'Invalid Course ID' }, { status: 400 });
+        }
+
         let course = await Course.findOne({
-            ...courseParamFilter(id),
+            ...filter,
             isActive: true,
-            status: 'published',
         }).populate('instructor', 'name bio profileImage');
+
+        if (!course && !('_id' in filter)) {
+            try {
+                course = await Course.findOne({
+                    isActive: true,
+                    title: new RegExp(`^${id.replace(/-/g, ' ')}$`, 'i'),
+                }).populate('instructor', 'name bio profileImage');
+            } catch (err) {
+                console.error("Regex fallback failed:", err);
+            }
+        }
 
         if (!course) {
             return NextResponse.json({ error: 'Course not found' }, { status: 404 });

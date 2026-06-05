@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaCheck } from 'react-icons/fa';
+import { FaStar, FaShoppingCart, FaCheck } from 'react-icons/fa';
 import { useLanguage } from '@/lib/LanguageContext';
 import { toggleCart, isInCart, dispatchCartUpdate } from '@/lib/cart';
 import { showToast } from '@/lib/toast';
@@ -29,39 +30,22 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
     const { lang, t } = useLanguage();
     const isRtl = lang === 'ar';
 
-    const [isWishlisted, setIsWishlisted] = useState(false);
     const [inCart, setInCart] = useState(false);
+    const router = useRouter();
+
+    const handleCardClick = () => {
+        const slugId = (course as any).slug || course._id;
+        router.push(`/courses/${slugId}`);
+    };
 
     // Load initial wishlist and cart state from localStorage
     useEffect(() => {
         try {
-            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            setIsWishlisted(wishlist.includes(course._id));
-
             setInCart(isInCart(course._id));
         } catch (e) {
             console.error('Failed to parse localStorage:', e);
         }
     }, [course._id]);
-
-    const toggleWishlist = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        try {
-            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            let newWishlist;
-            if (wishlist.includes(course._id)) {
-                newWishlist = wishlist.filter((id: string) => id !== course._id);
-                setIsWishlisted(false);
-            } else {
-                newWishlist = [...wishlist, course._id];
-                setIsWishlisted(true);
-            }
-            localStorage.setItem('wishlist', JSON.stringify(newWishlist));
-        } catch (err) {
-            console.error(err);
-        }
-    };
 
     const handleToggleCart = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -81,9 +65,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
         );
     };
 
-    // Deterministic rating and review count based on ID if not provided, for realistic UX
-    const displayRating = course.rating || (4.0 + (course.title.charCodeAt(0) % 10) * 0.1);
-    const displayReviews = course.reviewsCount || (course.title.length * 3 + 5);
+    const displayRating = course.rating || null;
 
     // Price and simulated discount to match premium appliance e-commerce standard
     const isFree = course.isFree;
@@ -109,6 +91,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
             viewport={{ once: true, margin: '-50px' }}
             whileHover={{ y: -6, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            onClick={handleCardClick}
             className="group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-primary/20 dark:hover:border-primary/20 transition-all flex flex-col h-full cursor-pointer select-none"
         >
             {/* Top Badges and Actions */}
@@ -125,15 +108,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
                     </div>
                 )}
 
-                {/* Wishlist Button */}
-                <button
-                    type="button"
-                    onClick={toggleWishlist}
-                    className="pointer-events-auto ml-auto p-2 rounded-full relative z-20 bg-white/90 dark:bg-slate-800/90 shadow-md hover:bg-white dark:hover:bg-slate-700 transition-colors flex items-center justify-center text-rose-500 border border-slate-100 dark:border-slate-750"
-                    title={isRtl ? 'إضافة للمفضلة' : 'Add to Wishlist'}
-                >
-                    {isWishlisted ? <FaHeart size={14} /> : <FaRegHeart size={14} className="text-slate-400 dark:text-slate-300 hover:text-rose-500" />}
-                </button>
+
             </div>
 
             {/* Product Image Container */}
@@ -157,11 +132,12 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
                     </span>
                     
                     {/* Stars Rating */}
-                    <div className="flex items-center gap-0.5">
-                        <FaStar className="text-amber-400" size={10} />
-                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{displayRating.toFixed(1)}</span>
-                        <span className="text-[9px] text-slate-400">({displayReviews})</span>
-                    </div>
+                    {displayRating && (
+                        <div className="flex items-center gap-0.5">
+                            <FaStar className="text-amber-400" size={10} />
+                            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{displayRating.toFixed(1)}</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Product Title */}
