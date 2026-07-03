@@ -12,6 +12,7 @@ const initialForm = {
     phone: '',
     email: '',
     course: '',
+    preferredTime: '',
 };
 
 export default function ApplyPage() {
@@ -40,6 +41,7 @@ export default function ApplyPage() {
                     phone: form.phone.trim(),
                     email: form.email.trim() || undefined,
                     course: form.course,
+                    preferredTime: form.preferredTime || undefined,
                 }),
             });
             const data = await res.json().catch(() => ({}));
@@ -140,6 +142,24 @@ export default function ApplyPage() {
                                 {CERTIFICATE_COURSE_OPTIONS.map((c) => (
                                     <option key={c} value={c} className="bg-dark">
                                         {c}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="relative">
+                            <FiBook className="absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none z-10" />
+                            <select
+                                value={form.preferredTime}
+                                onChange={(e) => setForm((f) => ({ ...f, preferredTime: e.target.value }))}
+                                className={inputCls + ' appearance-none cursor-pointer'}
+                            >
+                                <option value="" disabled className="bg-dark">
+                                    {isRtl ? 'الوقت المفضل (اختياري)' : 'Preferred Time (Optional)'}
+                                </option>
+                                {['9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM'].map((time) => (
+                                    <option key={time} value={time} className="bg-dark">
+                                        {time}
                                     </option>
                                 ))}
                             </select>

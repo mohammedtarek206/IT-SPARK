@@ -233,18 +233,13 @@ function TrainingCoursesContent() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6 items-stretch">
             {trainings.map((training) => (
-              <div key={training._id}>
+              <div key={training._id} className="flex flex-col h-full">
                 <TrainingCard
                   training={training}
                   onApply={setSelectedTraining}
                 />
-                <div className="mt-2 flex gap-2">
-                  <a href={`/training-courses/${training._id}`} className="flex-1 text-center bg-surface border border-border text-foreground/70 py-2 rounded-xl text-xs font-bold hover:border-primary/50 transition-colors">
-                    التفاصيل / Details
-                  </a>
-                </div>
               </div>
             ))}
           </div>

@@ -24,6 +24,7 @@ interface Application {
     email?: string;
     course: string;
     status: ApplicationStatus;
+    preferredTime?: string;
     createdAt: string;
 }
 
@@ -38,11 +39,17 @@ export default function AdminJobApplicationsPage() {
     const [applications, setApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [nameSearch, setNameSearch] = useState('');
+    const [phoneSearch, setPhoneSearch] = useState('');
+    const [emailSearch, setEmailSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [courseFilter, setCourseFilter] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
+    const [sortOrder, setSortOrder] = useState('desc');
     const [selected, setSelected] = useState<Application | null>(null);
 
     const fetchApplications = useCallback(async () => {
@@ -54,8 +61,14 @@ export default function AdminJobApplicationsPage() {
                 limit: '15',
             });
             if (search.trim()) params.set('search', search.trim());
+            if (nameSearch.trim()) params.set('name', nameSearch.trim());
+            if (phoneSearch.trim()) params.set('phone', phoneSearch.trim());
+            if (emailSearch.trim()) params.set('email', emailSearch.trim());
             if (statusFilter) params.set('status', statusFilter);
             if (courseFilter) params.set('course', courseFilter);
+            if (fromDate) params.set('fromDate', fromDate);
+            if (toDate) params.set('toDate', toDate);
+            if (sortOrder) params.set('sort', sortOrder);
 
             const res = await fetch(`/api/job-applications?${params}`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -74,7 +87,7 @@ export default function AdminJobApplicationsPage() {
         } finally {
             setLoading(false);
         }
-    }, [page, search, statusFilter, courseFilter]);
+    }, [page, search, nameSearch, phoneSearch, emailSearch, statusFilter, courseFilter, fromDate, toDate, sortOrder]);
 
     useEffect(() => {
         fetchApplications();
@@ -82,7 +95,7 @@ export default function AdminJobApplicationsPage() {
 
     useEffect(() => {
         setPage(1);
-    }, [search, statusFilter, courseFilter]);
+    }, [search, nameSearch, phoneSearch, emailSearch, statusFilter, courseFilter, fromDate, toDate, sortOrder]);
 
     const handleStatusChange = async (id: string, status: ApplicationStatus) => {
         const token = localStorage.getItem('token');
@@ -119,8 +132,14 @@ export default function AdminJobApplicationsPage() {
         const token = localStorage.getItem('token');
         const params = new URLSearchParams({ page: '1', limit: '1000' });
         if (search.trim()) params.set('search', search.trim());
+        if (nameSearch.trim()) params.set('name', nameSearch.trim());
+        if (phoneSearch.trim()) params.set('phone', phoneSearch.trim());
+        if (emailSearch.trim()) params.set('email', emailSearch.trim());
         if (statusFilter) params.set('status', statusFilter);
         if (courseFilter) params.set('course', courseFilter);
+        if (fromDate) params.set('fromDate', fromDate);
+        if (toDate) params.set('toDate', toDate);
+        if (sortOrder) params.set('sort', sortOrder);
 
         const res = await fetch(`/api/job-applications?${params}`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -129,7 +148,7 @@ export default function AdminJobApplicationsPage() {
         const data = await res.json();
         const rows = data.applications || [];
 
-        const headers = ['Name', 'Phone', 'Email', 'Course', 'Status', 'Applied At'];
+        const headers = ['Name', 'Phone', 'Email', 'Course', 'Preferred Time', 'Status', 'Applied At'];
         const csv = [
             headers.join(','),
             ...rows.map((a: Application) =>
@@ -138,6 +157,7 @@ export default function AdminJobApplicationsPage() {
                     `"${a.phone || ''}"`,
                     `"${a.email || ''}"`,
                     `"${a.course || ''}"`,
+                    `"${a.preferredTime || ''}"`,
                     `"${a.status || ''}"`,
                     `"${a.createdAt ? new Date(a.createdAt).toLocaleString() : ''}"`,
                 ].join(',')
@@ -173,40 +193,94 @@ export default function AdminJobApplicationsPage() {
                 </button>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
-                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div>
+                    <label className="text-[10px] font-black uppercase text-foreground/40 ml-1 mb-1 block">Name</label>
                     <input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search name, phone, email, course..."
-                        className="w-full pl-11 pr-4 py-3 bg-surface border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-primary/50"
+                        value={nameSearch}
+                        onChange={(e) => setNameSearch(e.target.value)}
+                        placeholder="Search by name..."
+                        className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-primary/50"
                     />
                 </div>
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
-                >
-                    <option value="">All statuses</option>
-                    {APPLICATION_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                            {s}
-                        </option>
-                    ))}
-                </select>
-                <select
-                    value={courseFilter}
-                    onChange={(e) => setCourseFilter(e.target.value)}
-                    className="px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50 max-w-xs"
-                >
-                    <option value="">All courses</option>
-                    {CERTIFICATE_COURSE_OPTIONS.map((c) => (
-                        <option key={c} value={c}>
-                            {c}
-                        </option>
-                    ))}
-                </select>
+                <div>
+                    <label className="text-[10px] font-black uppercase text-foreground/40 ml-1 mb-1 block">Phone</label>
+                    <input
+                        value={phoneSearch}
+                        onChange={(e) => setPhoneSearch(e.target.value)}
+                        placeholder="Search by phone..."
+                        className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-primary/50"
+                    />
+                </div>
+                <div>
+                    <label className="text-[10px] font-black uppercase text-foreground/40 ml-1 mb-1 block">Email</label>
+                    <input
+                        value={emailSearch}
+                        onChange={(e) => setEmailSearch(e.target.value)}
+                        placeholder="Search by email..."
+                        className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-primary/50"
+                    />
+                </div>
+                <div>
+                    <label className="text-[10px] font-black uppercase text-foreground/40 ml-1 mb-1 block">Status</label>
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
+                    >
+                        <option value="">All Statuses</option>
+                        {APPLICATION_STATUSES.map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label className="text-[10px] font-black uppercase text-foreground/40 ml-1 mb-1 block">Course</label>
+                    <select
+                        value={courseFilter}
+                        onChange={(e) => setCourseFilter(e.target.value)}
+                        className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
+                    >
+                        <option value="">All Courses</option>
+                        {CERTIFICATE_COURSE_OPTIONS.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+            
+            <div className="flex flex-col md:flex-row gap-3">
+                <div className="flex-1 flex gap-3">
+                    <div className="flex-1">
+                        <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">From Date</label>
+                        <input
+                            type="date"
+                            value={fromDate}
+                            onChange={(e) => setFromDate(e.target.value)}
+                            className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
+                        />
+                    </div>
+                    <div className="flex-1">
+                        <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">To Date</label>
+                        <input
+                            type="date"
+                            value={toDate}
+                            onChange={(e) => setToDate(e.target.value)}
+                            className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
+                        />
+                    </div>
+                </div>
+                <div className="md:w-48 self-end">
+                    <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">Sort By Date</label>
+                    <select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
+                    >
+                        <option value="desc">Latest First</option>
+                        <option value="asc">Oldest First</option>
+                    </select>
+                </div>
             </div>
 
             <div className="glass rounded-2xl border border-border overflow-hidden">
@@ -221,7 +295,7 @@ export default function AdminJobApplicationsPage() {
                         <table className="w-full text-left text-sm">
                             <thead>
                                 <tr className="border-b border-border bg-white/5">
-                                    {['Name', 'Phone', 'Course', 'Status', 'Date', 'Actions'].map((h) => (
+                                    {['Name', 'Phone', 'Course', 'Time', 'Status', 'Date', 'Actions'].map((h) => (
                                         <th
                                             key={h}
                                             className="p-4 text-[10px] font-black uppercase tracking-widest text-foreground/40 whitespace-nowrap"
@@ -240,6 +314,7 @@ export default function AdminJobApplicationsPage() {
                                         <td className="p-4 font-bold text-foreground">{app.name}</td>
                                         <td className="p-4 text-foreground/70 font-mono text-xs">{app.phone}</td>
                                         <td className="p-4 text-foreground/80 max-w-[140px] truncate">{app.course}</td>
+                                        <td className="p-4 text-foreground/60 text-xs whitespace-nowrap">{app.preferredTime || '-'}</td>
                                         <td className="p-4">
                                             <select
                                                 value={app.status}
@@ -344,14 +419,42 @@ export default function AdminJobApplicationsPage() {
                                 <dt className="text-[10px] font-black uppercase text-foreground/40">Course</dt>
                                 <dd className="font-bold text-primary">{selected.course}</dd>
                             </div>
+                            {selected.preferredTime && (
+                                <div>
+                                    <dt className="text-[10px] font-black uppercase text-foreground/40">Preferred Time</dt>
+                                    <dd className="font-bold text-accent">{selected.preferredTime}</dd>
+                                </div>
+                            )}
+                            <div>
+                                <dt className="text-[10px] font-black uppercase text-foreground/40">Status</dt>
+                                <dd>
+                                    <select
+                                        value={selected.status}
+                                        onChange={(e) => handleStatusChange(selected._id, e.target.value as ApplicationStatus)}
+                                        className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border mt-1 ${STATUS_STYLES[selected.status]}`}
+                                    >
+                                        {APPLICATION_STATUSES.map((s) => (
+                                            <option key={s} value={s} className="bg-dark text-white">{s}</option>
+                                        ))}
+                                    </select>
+                                </dd>
+                            </div>
                             <div>
                                 <dt className="text-[10px] font-black uppercase text-foreground/40">Applied</dt>
                                 <dd>{new Date(selected.createdAt).toLocaleString()}</dd>
                             </div>
                         </dl>
+                        <button
+                            type="button"
+                            onClick={() => handleDelete(selected._id)}
+                            className="mt-6 w-full py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all"
+                        >
+                            Delete Application
+                        </button>
                     </motion.div>
                 </div>
             )}
         </div>
     );
 }
+

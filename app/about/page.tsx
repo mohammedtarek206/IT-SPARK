@@ -169,6 +169,37 @@ export default function AboutPage() {
                 </div>
             </section>
 
+            {/* Vocational Training */}
+            <section className="bg-black/30 py-20 border-y border-white/5 mb-32">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-4">Vocational Training</h2>
+                        <p className="text-primary font-bold text-lg" dir="rtl">التدريبات الحرفية والمهنية</p>
+                        <p className="text-gray-400 mt-4 max-w-2xl mx-auto" dir="rtl">
+                            نقدم مجموعة متميزة من التدريبات الحرفية التي تؤهلك لسوق العمل بشكل عملي ومباشر على أيدي خبراء متخصصين.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-center">
+                        {[
+                            'الكهرباء',
+                            'السباكة',
+                            'النجارة',
+                            'صيانة الأجهزة',
+                            'صيانة الموبايل',
+                            'التبريد والتكييف',
+                            'اللحام',
+                            'الخياطة',
+                            'الحرف اليدوية'
+                        ].map((craft, i) => (
+                            <div key={i} className="glass p-6 rounded-2xl border border-white/5 hover:border-primary/40 hover:bg-white/10 transition-all cursor-default">
+                                <h3 className="text-lg font-black text-white" dir="rtl">{craft}</h3>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* Success Stories */}
             <section className="px-4 md:px-8 max-w-7xl mx-auto mb-20">
                 <div className="text-center mb-16">

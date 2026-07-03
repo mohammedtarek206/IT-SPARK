@@ -10,7 +10,8 @@ import {
     FiMenu, FiX, FiFileText, FiGrid, FiAward,
     FiDollarSign, FiBarChart2, FiBell, FiSettings,
     FiShield, FiCreditCard, FiUserCheck, FiPackage,
-    FiChevronRight, FiImage, FiHeart, FiBriefcase, FiShoppingCart
+    FiChevronRight, FiImage, FiHeart, FiBriefcase, FiShoppingCart,
+    FiMessageSquare
 } from 'react-icons/fi';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -101,6 +102,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             label: 'Tools',
             items: [
                 { title: 'Notifications', icon: FiBell, href: '/admin/notifications' },
+                { title: 'Feedbacks', icon: FiMessageSquare, href: '/admin/feedbacks' },
                 { title: 'Site Settings', icon: FiSettings, href: '/admin/settings' },
             ]
         },

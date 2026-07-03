@@ -5,13 +5,13 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { FiUsers, FiBookOpen, FiBriefcase } from 'react-icons/fi';
 
 export default function Stats() {
-    const { t } = useLanguage();
+    const { t, lang } = useLanguage();
 
     const stats = [
         {
             icon: FiUsers,
-            value: '1,200+',
-            label: t('stats_students'),
+            value: '20,000+',
+            label: lang === 'ar' ? 'متدرب' : 'Trainees',
             color: 'from-primary to-blue-600',
         },
         {

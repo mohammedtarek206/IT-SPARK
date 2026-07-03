@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
         const phone = String(body.phone || '').trim();
         const email = body.email ? String(body.email).trim() : '';
         const course = String(body.course || '').trim();
+        const preferredTime = body.preferredTime ? String(body.preferredTime).trim() : undefined;
 
         if (!name || !phone || !course) {
             return NextResponse.json(
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
             phone,
             email: email || undefined,
             course,
+            preferredTime,
             status: 'new',
         });
 
@@ -65,8 +67,14 @@ export async function GET(request: NextRequest) {
             Math.max(1, parseInt(searchParams.get('limit') || String(PAGE_SIZE_DEFAULT), 10))
         );
         const search = (searchParams.get('search') || '').trim();
+        const name = (searchParams.get('name') || '').trim();
+        const phone = (searchParams.get('phone') || '').trim();
+        const email = (searchParams.get('email') || '').trim();
         const status = searchParams.get('status') || '';
         const course = searchParams.get('course') || '';
+        const fromDate = searchParams.get('fromDate') || '';
+        const toDate = searchParams.get('toDate') || '';
+        const sortOrder = searchParams.get('sort') === 'asc' ? 1 : -1;
 
         const filter: Record<string, unknown> = {};
         if (status && APPLICATION_STATUSES.includes(status as (typeof APPLICATION_STATUSES)[number])) {
@@ -75,15 +83,29 @@ export async function GET(request: NextRequest) {
         if (course) {
             filter.course = course;
         }
+        if (name) filter.name = new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        if (phone) filter.phone = new RegExp(phone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        if (email) filter.email = new RegExp(email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+
         if (search) {
             const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
             filter.$or = [{ name: regex }, { phone: regex }, { email: regex }, { course: regex }];
+        }
+        
+        if (fromDate || toDate) {
+            filter.createdAt = {};
+            if (fromDate) (filter.createdAt as any).$gte = new Date(fromDate);
+            if (toDate) {
+                const to = new Date(toDate);
+                to.setHours(23, 59, 59, 999);
+                (filter.createdAt as any).$lte = to;
+            }
         }
 
         await connectDB();
         const skip = (page - 1) * limit;
         const [applications, total] = await Promise.all([
-            PublicJobApplication.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+            PublicJobApplication.find(filter).sort({ createdAt: sortOrder }).skip(skip).limit(limit).lean(),
             PublicJobApplication.countDocuments(filter),
         ]);
 

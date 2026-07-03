@@ -6,6 +6,8 @@ export interface IExhibition extends Document {
     imageUrl: string;
     studentName: string;
     demoUrl?: string;
+    technologies?: string[];
+    executionDate?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -17,6 +19,8 @@ const ExhibitionSchema: Schema = new Schema(
         imageUrl: { type: String, required: true },
         studentName: { type: String, required: true },
         demoUrl: { type: String },
+        technologies: [{ type: String }],
+        executionDate: { type: Date },
     },
     {
         timestamps: true,
