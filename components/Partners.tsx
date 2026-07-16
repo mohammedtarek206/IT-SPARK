@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/LanguageContext';
-import { FiHexagon, FiZap, FiTarget, FiGlobe, FiRadio, FiSmile } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { getDriveDirectLink } from '@/lib/media';
 
 interface Partner {
     _id: string;
@@ -12,60 +12,91 @@ interface Partner {
 }
 
 export default function Partners() {
-    const { t } = useLanguage();
+    const { lang } = useLanguage();
     const [partners, setPartners] = useState<Partner[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch('/api/partners')
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) setPartners(data);
+                if (Array.isArray(data)) {
+                    setPartners(data);
+                }
             })
-            .catch(err => console.error('Failed to fetch partners:', err));
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
     }, []);
 
-    if (partners.length === 0) {
-        return null;
+    if (loading) {
+        return (
+            <section className="py-20 bg-background overflow-hidden relative border-y border-white/5">
+                <div className="container mx-auto px-4">
+                    <div className="flex gap-12 justify-center items-center">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <div key={i} className="w-32 h-16 bg-white/5 rounded-lg animate-pulse" />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
     }
 
-    return (
-        <section className="py-24 bg-surface/30 border-y border-border">
-            <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="text-3xl font-bold mb-4 text-foreground/60"
-                    >
-                        {t('partners_title')}
-                    </motion.h2>
-                </div>
+    if (partners.length === 0) return null;
 
-                <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
-                    {partners.map((partner, index) => (
-                        <motion.div
-                            key={partner._id}
-                            initial={{ opacity: 0 }}
-                            whileInView={{ opacity: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="flex items-center gap-2 md:gap-3 group px-4 py-2 md:px-6 md:py-3 rounded-2xl hover:bg-white/5 hover:opacity-100 transition-all cursor-default border border-transparent hover:border-white/10"
+    return (
+        <section className="py-20 bg-background overflow-hidden relative border-y border-white/5">
+            <div className="absolute left-0 top-0 w-32 h-full bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 w-32 h-full bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+
+            <div className="container mx-auto px-4 mb-12 text-center relative z-20">
+                <motion.h2 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-2xl md:text-3xl font-black uppercase tracking-widest text-foreground/40"
+                >
+                    {lang === 'ar' ? 'شركاء النجاح' : 'Our Trusted Partners'}
+                </motion.h2>
+            </div>
+
+            {/* Infinite Slider */}
+            <div className="relative w-full overflow-hidden flex flex-nowrap">
+                <div 
+                    className="flex items-center gap-16 md:gap-24 animate-marquee min-w-max hover:animation-paused"
+                >
+                    {[...partners, ...partners, ...partners].map((partner, index) => (
+                        <div 
+                            key={`${partner._id}-${index}`} 
+                            className="w-32 md:w-48 h-20 md:h-24 relative opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110 cursor-pointer flex items-center justify-center shrink-0"
+                            title={partner.name}
                         >
                             <img
-                                src={partner.logoUrl}
+                                src={getDriveDirectLink(partner.logoUrl)}
                                 alt={partner.name}
-                                className="h-6 sm:h-8 md:h-10 w-auto object-contain group-hover:scale-110 transition-transform"
-                                loading="lazy"
-                                decoding="async"
+                                className="max-w-full max-h-full object-contain drop-shadow-md"
+                                referrerPolicy="no-referrer"
                             />
-                            <span className="text-lg sm:text-xl md:text-2xl font-black text-white/50 group-hover:text-white transition-colors tracking-tighter">
-                                {partner.name}
-                            </span>
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
             </div>
+
+            <style jsx global>{`
+                @keyframes marquee {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(calc(-100% / 3)); }
+                }
+                .animate-marquee {
+                    animation: marquee 30s linear infinite;
+                }
+                .animation-paused {
+                    animation-play-state: paused;
+                }
+                [dir='rtl'] .animate-marquee {
+                    animation-direction: reverse;
+                }
+            `}</style>
         </section>
     );
 }

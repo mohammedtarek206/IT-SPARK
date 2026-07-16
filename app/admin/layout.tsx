@@ -11,7 +11,7 @@ import {
     FiDollarSign, FiBarChart2, FiBell, FiSettings,
     FiShield, FiCreditCard, FiUserCheck, FiPackage,
     FiChevronRight, FiImage, FiHeart, FiBriefcase, FiShoppingCart,
-    FiMessageSquare
+    FiMessageSquare, FiTool
 } from 'react-icons/fi';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -70,6 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             items: [
                 { title: 'Courses', icon: FiBook, href: '/admin/courses-control' },
                 { title: 'Trainings', icon: FiAward, href: '/admin/trainings' },
+                { title: 'Vocational Trainings', icon: FiTool, href: '/admin/vocational-trainings' },
                 { title: 'Exams', icon: FiFileText, href: '/admin/exams' },
                 { title: 'Results', icon: FiAward, href: '/admin/results' },
                 { title: 'Training Applications', icon: FiBook, href: '/admin/training-registrations' },

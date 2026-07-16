@@ -30,6 +30,16 @@ export default function JobsPage() {
         notes: ''
     });
 
+    const [search, setSearch] = useState('');
+    const [type, setType] = useState('');
+    const [workMode, setWorkMode] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedSearch(search), 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
     useEffect(() => {
         if (user) {
             setFormData(prev => ({
@@ -42,22 +52,28 @@ export default function JobsPage() {
     }, [user]);
 
     useEffect(() => {
-        fetchJobs();
-    }, []);
+        const fetchJobs = async () => {
+            try {
+                setLoading(true);
+                const params = new URLSearchParams();
+                if (debouncedSearch) params.append('search', debouncedSearch);
+                if (type) params.append('type', type);
+                if (workMode) params.append('workMode', workMode);
 
-    const fetchJobs = async () => {
-        try {
-            const res = await fetch('/api/jobs');
-            if (res.ok) {
-                const data = await res.json();
-                setJobs(data);
+                const res = await fetch(`/api/jobs?${params.toString()}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setJobs(data);
+                }
+            } catch (err) {
+                console.error('Fetch jobs error:', err);
+            } finally {
+                setLoading(false);
             }
-        } catch (err) {
-            console.error('Fetch jobs error:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        fetchJobs();
+    }, [debouncedSearch, type, workMode]);
 
     const handleApply = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -129,6 +145,43 @@ export default function JobsPage() {
                     >
                         {isRtl ? 'نحن نربط طلابنا بأفضل الشركات في المنطقة لتوفير فرص عمل حقيقية.' : 'We connect our students with the top companies in the region to provide real career opportunities.'}
                     </motion.p>
+                </div>
+
+                {/* Filters */}
+                <div className="max-w-5xl mx-auto mb-10 bg-white/5 border border-white/10 p-4 md:p-6 rounded-3xl flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                        <FiSearch className={`absolute top-1/2 -translate-y-1/2 ${isRtl ? 'right-4' : 'left-4'} text-gray-500`} />
+                        <input
+                            type="text"
+                            placeholder={isRtl ? 'البحث عن وظيفة، شركة، أو مكان...' : 'Search jobs, companies, or location...'}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className={`w-full bg-black/20 border border-white/5 rounded-2xl py-3 text-white focus:outline-none focus:border-primary/50 transition-all ${isRtl ? 'pr-12 pl-4' : 'pl-12 pr-4'}`}
+                        />
+                    </div>
+                    <div className="flex gap-4 md:w-1/3">
+                        <select
+                            value={type}
+                            onChange={(e) => setType(e.target.value)}
+                            className="flex-1 bg-black/20 border border-white/5 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-all appearance-none [&>option]:bg-slate-900"
+                        >
+                            <option value="">{isRtl ? 'الكل (نوع)' : 'All (Type)'}</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Internship">Internship</option>
+                        </select>
+                        <select
+                            value={workMode}
+                            onChange={(e) => setWorkMode(e.target.value)}
+                            className="flex-1 bg-black/20 border border-white/5 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-all appearance-none [&>option]:bg-slate-900"
+                        >
+                            <option value="">{isRtl ? 'الكل (مكان)' : 'All (Mode)'}</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="On-site">On-site</option>
+                        </select>
+                    </div>
                 </div>
 
                 {loading ? (

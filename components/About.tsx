@@ -1,13 +1,33 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useLanguage } from '@/lib/LanguageContext';
-import { FiTarget, FiUsers, FiAward, FiTrendingUp } from 'react-icons/fi';
+import { FiTarget, FiUsers, FiAward, FiTrendingUp, FiTool } from 'react-icons/fi';
+import { getDriveDirectLink } from '@/lib/media';
+
+interface VocationalTraining {
+  _id: string;
+  title: string;
+  description: string;
+  imageUrl?: string;
+}
 
 export default function About() {
   const { t, lang } = useLanguage();
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
+  const isRtl = lang === 'ar';
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [trainings, setTrainings] = useState<VocationalTraining[]>([]);
+
+  useEffect(() => {
+    fetch('/api/vocational-trainings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setTrainings(data);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   const stats = [
     { icon: FiUsers, value: '1,200+', label: t('stats_students') },
@@ -78,6 +98,65 @@ export default function About() {
             ))}
           </motion.div>
         </div>
+
+        {/* Vocational Trainings Section */}
+        {trainings.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mb-20"
+          >
+            <div className="text-center mb-12">
+              <h3 className="text-3xl md:text-4xl font-black mb-4 text-foreground uppercase tracking-tighter">
+                {isRtl ? 'التدريبات الحرفية' : 'Vocational Trainings'}
+              </h3>
+              <div className="w-16 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full mb-4" />
+              <p className="text-foreground/60 max-w-2xl mx-auto font-medium">
+                {isRtl
+                  ? 'نوفر تدريبات حرفية ومهنية متخصصة لتأهيلك لسوق العمل المباشر'
+                  : 'We provide specialized vocational trainings to prepare you directly for the job market'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {trainings.map((training, i) => (
+                <motion.div
+                  key={training._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="glass group rounded-3xl border border-border hover:border-primary/30 transition-all overflow-hidden flex flex-col h-full hover:shadow-xl hover:shadow-primary/5"
+                >
+                  <div className="relative aspect-video bg-surface overflow-hidden">
+                    {training.imageUrl ? (
+                      <img
+                        src={getDriveDirectLink(training.imageUrl)}
+                        alt={training.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-foreground/5">
+                        <FiTool className="text-4xl text-foreground/20" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80" />
+                  </div>
+                  <div className="p-6 md:p-8 flex-1 flex flex-col relative z-10 bg-background/50 backdrop-blur-sm -mt-6">
+                    <h4 className="text-xl font-black text-foreground mb-3 group-hover:text-primary transition-colors">
+                      {training.title}
+                    </h4>
+                    <p className="text-foreground/60 text-sm leading-relaxed mb-6 flex-1">
+                      {training.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">

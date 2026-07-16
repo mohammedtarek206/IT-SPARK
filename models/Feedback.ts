@@ -1,11 +1,12 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IFeedback extends Document {
-  name: string;
-  role: string;
-  text: string;
+  studentName: string;
+  course: string;
+  comment: string;
   rating: number;
-  isVisible: boolean;
+  imageUrl?: string;
+  published: boolean;
   order: number;
   createdAt: Date;
   updatedAt: Date;
@@ -13,11 +14,12 @@ export interface IFeedback extends Document {
 
 const FeedbackSchema: Schema = new Schema(
   {
-    name: { type: String, required: true },
-    role: { type: String, required: true },
-    text: { type: String, required: true },
+    studentName: { type: String, required: true },
+    course: { type: String, default: '' },
+    comment: { type: String, required: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
-    isVisible: { type: Boolean, default: true },
+    imageUrl: { type: String },
+    published: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
   },
   {
@@ -25,8 +27,11 @@ const FeedbackSchema: Schema = new Schema(
   }
 );
 
+FeedbackSchema.index({ published: 1, order: 1 });
+
+// Clear model cache to avoid stale schema
 if (mongoose.models.Feedback) {
   delete mongoose.models.Feedback;
 }
 
-export default mongoose.models.Feedback || mongoose.model<IFeedback>('Feedback', FeedbackSchema);
+export default mongoose.model<IFeedback>('Feedback', FeedbackSchema);
