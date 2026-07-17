@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiTrash2, FiImage, FiX, FiUser, FiUpload, FiEdit, FiCheck } from 'react-icons/fi';
 import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
 interface Project {
     _id: string;
@@ -136,7 +137,7 @@ export default function AdminProjects() {
                 {projects.map((project) => (
                     <div key={project._id} className="glass rounded-[2.5rem] border border-border overflow-hidden group hover:border-primary/50 transition-all flex flex-col bg-surface shadow-sm hover:shadow-xl hover:shadow-primary/5">
                         <div className="relative aspect-video">
-                            <img src={getDriveDirectLink(project.imageUrl)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={project.title} referrerPolicy="no-referrer" />
+                            <SafeImage src={getDriveDirectLink(project.imageUrl)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={project.title} />
                             <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent"></div>
                             <div className="absolute top-4 right-4 flex gap-2">
                                 <button
@@ -196,7 +197,7 @@ export default function AdminProjects() {
                                     <div className="flex flex-col md:flex-row gap-6 items-center">
                                         <div className="w-full md:w-60 h-40 rounded-3xl overflow-hidden bg-surface border border-border shrink-0">
                                             {previewImage ? (
-                                                <img src={getDriveDirectLink(previewImage)} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
+                                                <SafeImage src={getDriveDirectLink(previewImage)} className="w-full h-full object-cover" alt="Preview" />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-foreground/5">
                                                     <FiImage className="text-3xl text-foreground/10" />

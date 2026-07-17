@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Team from '@/models/Team';
 import { authenticateRequest } from '@/lib/auth';
+import { validateAndConvertDriveUrl } from '@/lib/media';
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,13 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
+    if (data.imageUrl) {
+      const validation = validateAndConvertDriveUrl(data.imageUrl);
+      if (!validation.isValid) {
+        return NextResponse.json({ error: validation.error }, { status: 400 });
+      }
+      data.imageUrl = validation.convertedUrl;
+    }
     await connectDB();
 
     const teamMember = new Team(data);
@@ -51,6 +59,13 @@ export async function PATCH(request: NextRequest) {
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
     const data = await request.json();
+    if (data.imageUrl) {
+      const validation = validateAndConvertDriveUrl(data.imageUrl);
+      if (!validation.isValid) {
+        return NextResponse.json({ error: validation.error }, { status: 400 });
+      }
+      data.imageUrl = validation.convertedUrl;
+    }
     await connectDB();
 
     const teamMember = await Team.findByIdAndUpdate(id, data, { new: true });

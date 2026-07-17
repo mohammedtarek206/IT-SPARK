@@ -1,41 +1,52 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiPlay, FiImage, FiFilter, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiX, FiPlay, FiImage, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import Image from 'next/image';
+import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
-const MEDIA_DATA = [
-    { id: 1, type: 'image', category: 'Events', src: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1000&auto=format&fit=crop', title: 'Tech Conference 2025' },
-    { id: 2, type: 'image', category: 'Training', src: 'https://images.unsplash.com/photo-1515161318750-781d6122e367?q=80&w=1000&auto=format&fit=crop', title: 'Web Development Bootcamp' },
-    { id: 3, type: 'video', category: 'Workshops', src: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1000&auto=format&fit=crop', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', title: 'Networking Workshop' },
-    { id: 4, type: 'image', category: 'Events', src: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=1000&auto=format&fit=crop', title: 'Annual Gathering' },
-    { id: 5, type: 'image', category: 'Training', src: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1000&auto=format&fit=crop', title: 'Mobile Dev Course' },
-    { id: 6, type: 'video', category: 'Training', src: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1000&auto=format&fit=crop', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', title: 'AI Training Session' },
-    { id: 7, type: 'image', category: 'Workshops', src: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1000&auto=format&fit=crop', title: 'Cybersecurity Workshop' },
-    { id: 8, type: 'image', category: 'Events', src: 'https://images.unsplash.com/photo-1556761175-5973dc0f32b7?q=80&w=1000&auto=format&fit=crop', title: 'Graduation Ceremony' },
-    { id: 9, type: 'image', category: 'Training', src: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1000&auto=format&fit=crop', title: 'Graphic Design Basics' },
-    { id: 10, type: 'image', category: 'Workshops', src: 'https://images.unsplash.com/photo-1503428593586-e225b39bddfe?q=80&w=1000&auto=format&fit=crop', title: 'Photography Workshop' },
-    { id: 11, type: 'image', category: 'Events', src: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1000&auto=format&fit=crop', title: 'Exhibition 2024' },
-    { id: 12, type: 'image', category: 'Training', src: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop', title: 'Advanced Coding' },
-];
+interface GalleryItem {
+    _id: string;
+    title: string;
+    category: string;
+    imageUrl: string;
+    type: string;
+    videoUrl?: string;
+}
 
 const ITEMS_PER_PAGE = 8;
 
 export default function MediaPage() {
+    const [mediaData, setMediaData] = useState<GalleryItem[]>([]);
+    const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState('All');
     const [page, setPage] = useState(1);
-    const [lightboxItem, setLightboxItem] = useState<any>(null);
+    const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
+
+    useEffect(() => {
+        fetch('/api/gallery')
+            .then(res => res.json())
+            .then(data => {
+                setMediaData(data || []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, []);
 
     const categories = ['All', 'Events', 'Training', 'Workshops'];
 
     const filteredMedia = useMemo(() => {
-        let filtered = MEDIA_DATA;
+        let filtered = mediaData;
         if (activeCategory !== 'All') {
             filtered = filtered.filter(item => item.category === activeCategory);
         }
         return filtered;
-    }, [activeCategory]);
+    }, [activeCategory, mediaData]);
 
     const totalPages = Math.ceil(filteredMedia.length / ITEMS_PER_PAGE);
     const paginatedMedia = filteredMedia.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -100,19 +111,15 @@ export default function MediaPage() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                                key={item.id}
+                                key={item._id}
                                 className="relative break-inside-avoid rounded-3xl overflow-hidden group cursor-pointer border border-white/5 hover:border-primary/50 transition-all bg-white/5"
                                 onClick={() => setLightboxItem(item)}
                             >
                                 <div className="relative aspect-auto w-full">
-                                    <Image
-                                        src={item.src}
+                                    <SafeImage
+                                        src={item.imageUrl}
                                         alt={item.title}
-                                        width={600}
-                                        height={800}
                                         className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                                        loading="lazy"
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     />
                                     {/* Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
@@ -129,7 +136,12 @@ export default function MediaPage() {
                     </AnimatePresence>
                 </motion.div>
                 
-                {paginatedMedia.length === 0 && (
+                {loading && (
+                    <div className="py-24 flex justify-center">
+                        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    </div>
+                )}
+                {!loading && paginatedMedia.length === 0 && (
                     <div className="text-center py-20 text-gray-500 font-bold uppercase tracking-widest">
                         No media found for this category.
                     </div>
@@ -191,8 +203,8 @@ export default function MediaPage() {
                                     className="w-full h-full outline-none"
                                 />
                             ) : (
-                                <img 
-                                    src={lightboxItem.src} 
+                                <SafeImage 
+                                    src={lightboxItem.imageUrl} 
                                     alt={lightboxItem.title}
                                     className="w-full h-full object-contain"
                                 />

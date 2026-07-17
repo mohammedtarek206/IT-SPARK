@@ -3,18 +3,37 @@ import { isYouTubeUrl } from '@/lib/youtube';
 export type MediaKind = 'image' | 'video' | 'youtube' | 'unknown';
 
 export const extractDriveFileId = (url: string): string => {
-    if (!url || !url.includes('drive.google.com')) return '';
+    if (!url) return '';
+    const trimmed = url.trim();
     const patterns = [
         /\/file\/d\/([a-zA-Z0-9_-]+)/,
         /[?&]id=([a-zA-Z0-9_-]+)/,
         /\/open\?id=([a-zA-Z0-9_-]+)/,
         /\/d\/([a-zA-Z0-9_-]+)/,
+        /\/uc\?id=([a-zA-Z0-9_-]+)/,
+        /lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/
     ];
     for (const pattern of patterns) {
-        const match = url.match(pattern);
+        const match = trimmed.match(pattern);
         if (match?.[1]) return match[1];
     }
+    
+    // General fallback for any 28-45 char ID if it is a google drive/docs/lh3 url
+    const generalIdPattern = /\b([a-zA-Z0-9_-]{28,45})\b/;
+    const generalMatch = trimmed.match(generalIdPattern);
+    if (generalMatch?.[1] && (trimmed.includes('drive') || trimmed.includes('google') || trimmed.includes('docs'))) {
+        return generalMatch[1];
+    }
     return '';
+};
+
+export const convertGoogleDriveUrl = (url: string): string => {
+    if (!url) return '';
+    const fileId = extractDriveFileId(url);
+    if (fileId) {
+        return `https://drive.google.com/uc?export=view&id=${fileId}`;
+    }
+    return url.trim();
 };
 
 /** Direct image view — preferred for <img> tags */
@@ -29,16 +48,7 @@ export const getDriveLh3Url = (fileId: string): string =>
     `https://lh3.googleusercontent.com/d/${fileId}`;
 
 export const getDriveDirectLink = (url: string): string => {
-    if (!url) return '';
-    if (url.includes('drive.google.com/uc?') && url.includes('export=view')) return url;
-    if (url.includes('lh3.googleusercontent.com/d/')) return url;
-    if (url.includes('drive.google.com/thumbnail?id=')) return url;
-
-    const fileId = extractDriveFileId(url);
-    if (fileId) {
-        return getDriveUcImageUrl(fileId);
-    }
-    return url;
+    return convertGoogleDriveUrl(url);
 };
 
 /** Fallback chain when primary Drive image fails to load */
@@ -62,8 +72,28 @@ export const getDriveEmbedLink = (url: string): string => {
 
 export const getDriveStreamLink = (url: string): string => getDriveEmbedLink(url);
 
-export const isDriveUrl = (url: string): boolean =>
-    !!url && url.includes('drive.google.com');
+export const isDriveUrl = (url: string): boolean => {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+    return lower.includes('drive.google.com') || 
+           lower.includes('docs.google.com') || 
+           lower.includes('lh3.googleusercontent.com');
+};
+
+export const validateAndConvertDriveUrl = (url: string): { isValid: boolean; error?: string; convertedUrl?: string } => {
+    if (!url) return { isValid: true };
+    if (isDriveUrl(url)) {
+        const fileId = extractDriveFileId(url);
+        if (!fileId) {
+            return {
+                isValid: false,
+                error: 'Invalid Google Drive URL: Could not extract file ID. Please ensure the link is a correct view or share link.'
+            };
+        }
+        return { isValid: true, convertedUrl: convertGoogleDriveUrl(url) };
+    }
+    return { isValid: true, convertedUrl: url.trim() };
+};
 
 /** Fixed local placeholder — only when no valid media */
 export const COURSE_PLACEHOLDER_PATH = '/course-placeholder.svg';

@@ -18,6 +18,8 @@ export async function GET() {
     }
 }
 
+import { validateAndConvertDriveUrl } from '@/lib/media';
+
 export async function POST(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);
@@ -28,6 +30,14 @@ export async function POST(request: NextRequest) {
         const data = await request.json();
         if (!data.name || !data.logoUrl) {
             return NextResponse.json({ error: 'name and logoUrl are required' }, { status: 400 });
+        }
+
+        if (data.logoUrl) {
+            const validation = validateAndConvertDriveUrl(data.logoUrl);
+            if (!validation.isValid) {
+                return NextResponse.json({ error: validation.error }, { status: 400 });
+            }
+            data.logoUrl = validation.convertedUrl;
         }
 
         await connectDB();
@@ -76,6 +86,15 @@ export async function PATCH(request: NextRequest) {
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
         const data = await request.json();
+        
+        if (data.logoUrl) {
+            const validation = validateAndConvertDriveUrl(data.logoUrl);
+            if (!validation.isValid) {
+                return NextResponse.json({ error: validation.error }, { status: 400 });
+            }
+            data.logoUrl = validation.convertedUrl;
+        }
+
         await connectDB();
 
         const partner = await Partner.findByIdAndUpdate(id, data, { new: true });

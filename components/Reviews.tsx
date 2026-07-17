@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/LanguageContext';
 import { FiStar, FiMessageSquare, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
 interface Feedback {
     _id: string;
@@ -117,11 +118,10 @@ export default function Reviews() {
                                 <div className="flex items-center flex-col gap-2 relative z-10">
                                     {currentReview.imageUrl ? (
                                         <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/30 shadow-lg shadow-primary/20">
-                                            <img
-                                                src={getDriveDirectLink(currentReview.imageUrl)}
+                                            <SafeImage
+                                                src={currentReview.imageUrl}
                                                 alt={currentReview.studentName}
                                                 className="w-full h-full object-cover"
-                                                referrerPolicy="no-referrer"
                                             />
                                         </div>
                                     ) : (
@@ -165,11 +165,10 @@ export default function Reviews() {
                                         key={index}
                                         onClick={() => setCurrentIndex(index)}
                                         aria-label={`Go to review ${index + 1}`}
-                                        className={`h-2 rounded-full transition-all duration-300 ${
-                                            index === currentIndex
-                                            ? 'w-8 bg-primary shadow-[0_0_10px_rgba(0,106,90,0.5)]'
-                                            : 'w-2 bg-white/20 hover:bg-white/40'
-                                        }`}
+                                        className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
+                                                ? 'w-8 bg-primary shadow-[0_0_10px_rgba(0,106,90,0.5)]'
+                                                : 'w-2 bg-white/20 hover:bg-white/40'
+                                            }`}
                                     />
                                 ))}
                             </div>

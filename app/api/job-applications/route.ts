@@ -74,6 +74,7 @@ export async function GET(request: NextRequest) {
         const course = searchParams.get('course') || '';
         const fromDate = searchParams.get('fromDate') || '';
         const toDate = searchParams.get('toDate') || '';
+        const dateFilterType = searchParams.get('dateFilterType') || '';
         const sortOrder = searchParams.get('sort') === 'asc' ? 1 : -1;
 
         const filter: Record<string, unknown> = {};
@@ -92,7 +93,21 @@ export async function GET(request: NextRequest) {
             filter.$or = [{ name: regex }, { phone: regex }, { email: regex }, { course: regex }];
         }
         
-        if (fromDate || toDate) {
+        if (dateFilterType === 'today') {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tonight = new Date(today);
+            tonight.setHours(23, 59, 59, 999);
+            filter.createdAt = { $gte: today, $lte: tonight };
+        } else if (dateFilterType === 'this_week') {
+            const lastWeek = new Date();
+            lastWeek.setDate(lastWeek.getDate() - 7);
+            filter.createdAt = { $gte: lastWeek };
+        } else if (dateFilterType === 'this_month') {
+            const lastMonth = new Date();
+            lastMonth.setMonth(lastMonth.getMonth() - 1);
+            filter.createdAt = { $gte: lastMonth };
+        } else if (fromDate || toDate) {
             filter.createdAt = {};
             if (fromDate) (filter.createdAt as any).$gte = new Date(fromDate);
             if (toDate) {

@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import { useLanguage } from '@/lib/LanguageContext';
 import { FiTarget, FiUsers, FiAward, FiTrendingUp, FiTool } from 'react-icons/fi';
 import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
 interface VocationalTraining {
   _id: string;
@@ -131,11 +132,10 @@ export default function About() {
                 >
                   <div className="relative aspect-video bg-surface overflow-hidden">
                     {training.imageUrl ? (
-                      <img
-                        src={getDriveDirectLink(training.imageUrl)}
+                      <SafeImage
+                        src={training.imageUrl}
                         alt={training.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        referrerPolicy="no-referrer"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-foreground/5">

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/LanguageContext';
 import { useState, useEffect } from 'react';
 import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
 interface Partner {
     _id: string;
@@ -71,11 +72,10 @@ export default function Partners() {
                             className="w-32 md:w-48 h-20 md:h-24 relative opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110 cursor-pointer flex items-center justify-center shrink-0"
                             title={partner.name}
                         >
-                            <img
-                                src={getDriveDirectLink(partner.logoUrl)}
+                            <SafeImage
+                                src={partner.logoUrl}
                                 alt={partner.name}
                                 className="max-w-full max-h-full object-contain drop-shadow-md"
-                                referrerPolicy="no-referrer"
                             />
                         </div>
                     ))}

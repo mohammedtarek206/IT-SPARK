@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiTrash2, FiEdit, FiX, FiUser, FiLinkedin, FiTwitter, FiGithub, FiMail, FiImage, FiUpload } from 'react-icons/fi';
 import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
 interface TeamMember {
     _id: string;
@@ -174,7 +175,7 @@ export default function AdminTeam() {
                         <div className="flex justify-between items-start mb-6">
                             <div className="relative">
                                 <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/20 bg-foreground/5">
-                                    <img src={getDriveDirectLink(member.imageUrl)} className="w-full h-full object-cover" alt={member.name} referrerPolicy="no-referrer" />
+                                    <SafeImage src={getDriveDirectLink(member.imageUrl)} className="w-full h-full object-cover" alt={member.name} />
                                 </div>
                                 <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-background rounded-lg flex items-center justify-center border border-border text-primary shadow-sm">
                                     <FiUser />
@@ -253,7 +254,7 @@ export default function AdminTeam() {
                                     <div className="relative group cursor-pointer">
                                         <div className="w-32 h-32 rounded-3xl overflow-hidden border-2 border-border group-hover:border-primary transition-all bg-surface">
                                             {previewImage ? (
-                                                <img src={getDriveDirectLink(previewImage)} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
+                                                <SafeImage src={getDriveDirectLink(previewImage)} className="w-full h-full object-cover" alt="Preview" />
                                             ) : (
                                                 <div className="w-full h-full bg-foreground/5 flex items-center justify-center">
                                                     <FiImage className="text-3xl text-foreground/10" />

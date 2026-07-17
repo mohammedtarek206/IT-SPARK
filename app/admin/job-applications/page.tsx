@@ -49,6 +49,7 @@ export default function AdminJobApplicationsPage() {
     const [total, setTotal] = useState(0);
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
+    const [dateFilterType, setDateFilterType] = useState('all');
     const [sortOrder, setSortOrder] = useState('desc');
     const [selected, setSelected] = useState<Application | null>(null);
 
@@ -66,8 +67,9 @@ export default function AdminJobApplicationsPage() {
             if (emailSearch.trim()) params.set('email', emailSearch.trim());
             if (statusFilter) params.set('status', statusFilter);
             if (courseFilter) params.set('course', courseFilter);
-            if (fromDate) params.set('fromDate', fromDate);
-            if (toDate) params.set('toDate', toDate);
+            if (dateFilterType && dateFilterType !== 'all') params.set('dateFilterType', dateFilterType);
+            if (dateFilterType === 'custom' && fromDate) params.set('fromDate', fromDate);
+            if (dateFilterType === 'custom' && toDate) params.set('toDate', toDate);
             if (sortOrder) params.set('sort', sortOrder);
 
             const res = await fetch(`/api/job-applications?${params}`, {
@@ -87,7 +89,7 @@ export default function AdminJobApplicationsPage() {
         } finally {
             setLoading(false);
         }
-    }, [page, search, nameSearch, phoneSearch, emailSearch, statusFilter, courseFilter, fromDate, toDate, sortOrder]);
+    }, [page, search, nameSearch, phoneSearch, emailSearch, statusFilter, courseFilter, fromDate, toDate, sortOrder, dateFilterType]);
 
     useEffect(() => {
         fetchApplications();
@@ -95,7 +97,7 @@ export default function AdminJobApplicationsPage() {
 
     useEffect(() => {
         setPage(1);
-    }, [search, nameSearch, phoneSearch, emailSearch, statusFilter, courseFilter, fromDate, toDate, sortOrder]);
+    }, [search, nameSearch, phoneSearch, emailSearch, statusFilter, courseFilter, fromDate, toDate, sortOrder, dateFilterType]);
 
     const handleStatusChange = async (id: string, status: ApplicationStatus) => {
         const token = localStorage.getItem('token');
@@ -137,8 +139,9 @@ export default function AdminJobApplicationsPage() {
         if (emailSearch.trim()) params.set('email', emailSearch.trim());
         if (statusFilter) params.set('status', statusFilter);
         if (courseFilter) params.set('course', courseFilter);
-        if (fromDate) params.set('fromDate', fromDate);
-        if (toDate) params.set('toDate', toDate);
+        if (dateFilterType && dateFilterType !== 'all') params.set('dateFilterType', dateFilterType);
+        if (dateFilterType === 'custom' && fromDate) params.set('fromDate', fromDate);
+        if (dateFilterType === 'custom' && toDate) params.set('toDate', toDate);
         if (sortOrder) params.set('sort', sortOrder);
 
         const res = await fetch(`/api/job-applications?${params}`, {
@@ -250,26 +253,42 @@ export default function AdminJobApplicationsPage() {
             </div>
             
             <div className="flex flex-col md:flex-row gap-3">
-                <div className="flex-1 flex gap-3">
-                    <div className="flex-1">
-                        <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">From Date</label>
-                        <input
-                            type="date"
-                            value={fromDate}
-                            onChange={(e) => setFromDate(e.target.value)}
-                            className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
-                        />
-                    </div>
-                    <div className="flex-1">
-                        <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">To Date</label>
-                        <input
-                            type="date"
-                            value={toDate}
-                            onChange={(e) => setToDate(e.target.value)}
-                            className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
-                        />
-                    </div>
+                <div className="md:w-48 self-end">
+                    <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">Date Filter</label>
+                    <select
+                        value={dateFilterType}
+                        onChange={(e) => setDateFilterType(e.target.value)}
+                        className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
+                    >
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="this_week">This Week</option>
+                        <option value="this_month">This Month</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
                 </div>
+                {dateFilterType === 'custom' && (
+                    <div className="flex-1 flex gap-3">
+                        <div className="flex-1">
+                            <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">From Date</label>
+                            <input
+                                type="date"
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                                className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">To Date</label>
+                            <input
+                                type="date"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
+                                className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-primary/50"
+                            />
+                        </div>
+                    </div>
+                )}
                 <div className="md:w-48 self-end">
                     <label className="text-[10px] font-black uppercase text-foreground/40 ml-2 mb-1 block">Sort By Date</label>
                     <select

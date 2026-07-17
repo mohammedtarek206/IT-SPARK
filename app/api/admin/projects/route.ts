@@ -16,6 +16,8 @@ export async function GET() {
     }
 }
 
+import { validateAndConvertDriveUrl } from '@/lib/media';
+
 export async function POST(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);
@@ -25,8 +27,13 @@ export async function POST(request: NextRequest) {
 
         const data = await request.json();
         
-        // Large base64 string handling
-        // (NextJS handles payload limits but setting a good response if it fails)
+        if (data.imageUrl) {
+            const validation = validateAndConvertDriveUrl(data.imageUrl);
+            if (!validation.isValid) {
+                return NextResponse.json({ error: validation.error }, { status: 400 });
+            }
+            data.imageUrl = validation.convertedUrl;
+        }
         
         await connectDB();
         const exhibition = await Exhibition.create(data);
@@ -69,6 +76,15 @@ export async function PATCH(request: NextRequest) {
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
         const data = await request.json();
+
+        if (data.imageUrl) {
+            const validation = validateAndConvertDriveUrl(data.imageUrl);
+            if (!validation.isValid) {
+                return NextResponse.json({ error: validation.error }, { status: 400 });
+            }
+            data.imageUrl = validation.convertedUrl;
+        }
+
         await connectDB();
 
         const exhibition = await Exhibition.findByIdAndUpdate(id, data, { new: true });

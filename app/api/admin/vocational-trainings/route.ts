@@ -18,6 +18,8 @@ export async function GET() {
     }
 }
 
+import { validateAndConvertDriveUrl } from '@/lib/media';
+
 export async function POST(request: NextRequest) {
     try {
         const user = await authenticateRequest(request);
@@ -29,6 +31,14 @@ export async function POST(request: NextRequest) {
 
         if (!data.title || !data.description) {
             return NextResponse.json({ error: 'title and description are required' }, { status: 400 });
+        }
+
+        if (data.imageUrl) {
+            const validation = validateAndConvertDriveUrl(data.imageUrl);
+            if (!validation.isValid) {
+                return NextResponse.json({ error: validation.error }, { status: 400 });
+            }
+            data.imageUrl = validation.convertedUrl;
         }
 
         await connectDB();
@@ -79,6 +89,15 @@ export async function PATCH(request: NextRequest) {
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
         const data = await request.json();
+        
+        if (data.imageUrl) {
+            const validation = validateAndConvertDriveUrl(data.imageUrl);
+            if (!validation.isValid) {
+                return NextResponse.json({ error: validation.error }, { status: 400 });
+            }
+            data.imageUrl = validation.convertedUrl;
+        }
+
         await connectDB();
 
         const updated = await VocationalTraining.findByIdAndUpdate(id, data, { new: true });

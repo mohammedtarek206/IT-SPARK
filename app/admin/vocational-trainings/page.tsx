@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiTrash2, FiEdit, FiX, FiCheck, FiTool, FiUpload, FiImage } from 'react-icons/fi';
 import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
 interface VocationalTraining {
     _id: string;
@@ -142,7 +143,7 @@ export default function AdminVocationalTrainings() {
                     <div key={training._id} className={`glass rounded-[2.5rem] border overflow-hidden group hover:border-primary/50 transition-all flex flex-col bg-surface shadow-sm hover:shadow-xl hover:shadow-primary/5 ${training.isActive ? 'border-border' : 'border-red-500/20 opacity-70'}`}>
                         <div className="relative aspect-video bg-background overflow-hidden">
                             {training.imageUrl ? (
-                                <img src={getDriveDirectLink(training.imageUrl)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={training.title} referrerPolicy="no-referrer" />
+                                <SafeImage src={getDriveDirectLink(training.imageUrl)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={training.title} />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-foreground/5">
                                     <FiTool className="text-4xl text-foreground/20" />
@@ -197,7 +198,7 @@ export default function AdminVocationalTrainings() {
                                     <div className="flex flex-col md:flex-row gap-6 items-center">
                                         <div className="w-full md:w-60 h-40 rounded-3xl overflow-hidden bg-surface border border-border shrink-0">
                                             {previewImage ? (
-                                                <img src={getDriveDirectLink(previewImage)} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
+                                                <SafeImage src={getDriveDirectLink(previewImage)} className="w-full h-full object-cover" alt="Preview" />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-foreground/5">
                                                     <FiImage className="text-3xl text-foreground/10" />

@@ -138,7 +138,6 @@ export default function Hero() {
               className="flex flex-wrap justify-center lg:justify-start gap-6"
             >
               {[
-                { icon: FiUsers, value: '1,200+', label: isRtl ? 'طالب مسجل' : 'Students' },
                 { icon: FiBookOpen, value: '45+', label: isRtl ? 'كورس' : 'Courses' },
                 { icon: FiCode, value: '94%', label: isRtl ? 'معدل توظيف' : 'Job Rate' },
               ].map((s, i) => (
@@ -177,58 +176,10 @@ export default function Hero() {
                 />
               </div>
 
-              {/* Feature Cards overlapping the video */}
-              <div className="absolute -bottom-6 -left-6 hidden lg:block">
-                <div className="glass rounded-2xl p-4 border border-border/20 shadow-xl flex items-center gap-3 min-w-[180px]">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shrink-0">
-                    <FiShield className="text-white" size={18} />
-                  </div>
-                  <div>
-                    <div className="font-bold text-foreground text-sm">{isRtl ? 'الأمن السيبراني' : 'Cybersecurity'}</div>
-                    <div className="text-xs text-foreground/50">{isRtl ? 'دورات متخصصة' : 'Specialized Courses'}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute -top-6 -right-6 hidden lg:block">
-                <div className="glass rounded-2xl p-4 border border-border/20 shadow-xl flex items-center gap-3 min-w-[160px]">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-orange-400 flex items-center justify-center shrink-0">
-                    <FiCpu className="text-white" size={18} />
-                  </div>
-                  <div>
-                    <div className="font-bold text-foreground text-sm">{isRtl ? 'الذكاء الاصطناعي' : 'AI & ML'}</div>
-                    <div className="text-xs text-foreground/50">{isRtl ? 'مستقبل التقنية' : 'Future of Tech'}</div>
-                  </div>
-                </div>
-              </div>
             </div>
           </motion.div>
         </div>
 
-        {/* ── Feature Pills ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-24"
-        >
-          {[
-            { icon: FiCode, title: isRtl ? 'البرمجة' : 'Programming', desc: isRtl ? 'أتقن اللغات الحديثة' : 'Master modern languages', gradient: 'from-blue-500 to-cyan-500' },
-            { icon: FiShield, title: isRtl ? 'الأمن السيبراني' : 'Cybersecurity', desc: isRtl ? 'حماية الأصول الرقمية' : 'Protect digital assets', gradient: 'from-primary to-emerald-500' },
-            { icon: FiCpu, title: isRtl ? 'الذكاء الاصطناعي' : 'AI & ML', desc: isRtl ? 'بناء أنظمة ذكية' : 'Build intelligent systems', gradient: 'from-accent to-orange-500' },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="group glass rounded-2xl p-6 border border-border/20 hover:border-primary/30 hover:scale-105 transition-all duration-300 cursor-pointer"
-            >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
-                <item.icon className="text-white" size={22} />
-              </div>
-              <h3 className="text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{item.title}</h3>
-              <p className="text-sm text-foreground/50">{item.desc}</p>
-            </div>
-          ))}
-        </motion.div>
       </div>
 
       {/* Video Modal */}

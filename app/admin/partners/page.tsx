@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiTrash2, FiImage, FiX, FiCheck, FiUpload, FiEdit } from 'react-icons/fi';
 import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
 interface Partner {
     _id: string;
@@ -138,7 +139,7 @@ export default function AdminPartners() {
                             </button>
                         </div>
                         <div className="aspect-square w-full bg-foreground/5 rounded-xl flex items-center justify-center p-4 mb-3 border border-border">
-                            <img src={getDriveDirectLink(partner.logoUrl)} alt={partner.name} className="max-h-full max-w-full object-contain filter grayscale group-hover:grayscale-0 transition-all" referrerPolicy="no-referrer" />
+                            <SafeImage src={getDriveDirectLink(partner.logoUrl)} alt={partner.name} className="max-h-full max-w-full object-contain filter grayscale group-hover:grayscale-0 transition-all" />
                         </div>
                         <p className="text-xs font-black text-foreground/40 text-center truncate w-full uppercase tracking-tighter">{partner.name}</p>
                     </div>
@@ -175,7 +176,7 @@ export default function AdminPartners() {
                                     <div className="flex gap-4 items-center">
                                         <div className="w-20 h-20 rounded-xl overflow-hidden bg-surface border border-border flex items-center justify-center p-2 shrink-0">
                                             {previewImage ? (
-                                                <img src={getDriveDirectLink(previewImage)} className="max-w-full max-h-full object-contain" alt="Preview" referrerPolicy="no-referrer" />
+                                                <SafeImage src={getDriveDirectLink(previewImage)} className="max-w-full max-h-full object-contain" alt="Preview" />
                                             ) : (
                                                 <FiImage className="text-2xl text-foreground/10" />
                                             )}

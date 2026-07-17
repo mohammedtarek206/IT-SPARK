@@ -7,9 +7,30 @@ import { motion } from 'framer-motion';
 
 export default function AdminJobApplicationsPage() {
     const [search, setSearch] = useState('');
+    const [searchName, setSearchName] = useState('');
+    const [searchPhone, setSearchPhone] = useState('');
+    const [jobIdFilter, setJobIdFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [dateFilter, setDateFilter] = useState('');
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
+    const [sort, setSort] = useState('newest');
     const [page, setPage] = useState(1);
     const limit = 15;
+
+    const [jobs, setJobs] = useState<any[]>([]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        fetch('/api/jobs', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (Array.isArray(data)) setJobs(data);
+        })
+        .catch(err => console.error('Fetch jobs error:', err));
+    }, []);
 
     const fetcher = async (url: string) => {
         const token = localStorage.getItem('token');
@@ -31,7 +52,14 @@ export default function AdminJobApplicationsPage() {
         page: page.toString(),
         limit: limit.toString(),
         search: search.trim(),
-        status: statusFilter
+        searchName: searchName.trim(),
+        searchPhone: searchPhone.trim(),
+        jobId: jobIdFilter,
+        status: statusFilter,
+        dateFilter: dateFilter,
+        fromDate: fromDate,
+        toDate: toDate,
+        sort: sort
     });
 
     const { data, error, mutate, isLoading } = useSWR(`/api/admin/jobs/applications?${queryParams.toString()}`, fetcher, {
@@ -43,7 +71,7 @@ export default function AdminJobApplicationsPage() {
 
     useEffect(() => {
         setPage(1);
-    }, [search, statusFilter]);
+    }, [search, searchName, searchPhone, jobIdFilter, statusFilter, dateFilter, fromDate, toDate, sort]);
 
     const handleStatusChange = async (id: string, newStatus: string) => {
         try {
@@ -114,7 +142,20 @@ export default function AdminJobApplicationsPage() {
         // Fetch all data for export
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/admin/jobs/applications?page=1&limit=10000&search=${search}&status=${statusFilter}`, {
+            const exportParams = new URLSearchParams({
+                page: '1',
+                limit: '10000',
+                search: search.trim(),
+                searchName: searchName.trim(),
+                searchPhone: searchPhone.trim(),
+                jobId: jobIdFilter,
+                status: statusFilter,
+                dateFilter: dateFilter,
+                fromDate: fromDate,
+                toDate: toDate,
+                sort: sort
+            });
+            const res = await fetch(`/api/admin/jobs/applications?${exportParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch all data');
@@ -163,30 +204,107 @@ export default function AdminJobApplicationsPage() {
                 >
                     <FiDownload /> Export CSV
                 </button>
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
-                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
-                    <input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search name, phone, email, university..."
-                        className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-medium focus:outline-none focus:border-primary/50"
-                    />
+            </div>            <div className="space-y-4">
+                {/* Row 1: Search Inputs */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="relative">
+                        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                        <input
+                            value={searchName}
+                            onChange={(e) => setSearchName(e.target.value)}
+                            placeholder="Search by name..."
+                            className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-medium focus:outline-none focus:border-primary/50"
+                        />
+                    </div>
+                    <div className="relative">
+                        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                        <input
+                            value={searchPhone}
+                            onChange={(e) => setSearchPhone(e.target.value)}
+                            placeholder="Search by phone..."
+                            className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-medium focus:outline-none focus:border-primary/50"
+                        />
+                    </div>
+                    <div>
+                        <select
+                            value={jobIdFilter}
+                            onChange={(e) => setJobIdFilter(e.target.value)}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-bold focus:outline-none focus:border-primary/50"
+                        >
+                            <option value="" className="bg-dark text-white">All Jobs</option>
+                            {jobs.map((job) => (
+                                <option key={job._id} value={job._id} className="bg-dark text-white">
+                                    {job.title}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-bold focus:outline-none focus:border-primary/50"
-                >
-                    <option value="" className="bg-dark text-white">All Statuses</option>
-                    {['New', 'Reviewed', 'Interview', 'Accepted', 'Rejected'].map((s) => (
-                        <option key={s} value={s} className="bg-dark text-white">
-                            {s}
-                        </option>
-                    ))}
-                </select>
+
+                {/* Row 2: Status, Date Filter, Sort */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-bold focus:outline-none focus:border-primary/50"
+                        >
+                            <option value="" className="bg-dark text-white">All Statuses</option>
+                            {['New', 'Reviewed', 'Interview', 'Accepted', 'Rejected'].map((s) => (
+                                <option key={s} value={s} className="bg-dark text-white">
+                                    {s}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <select
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-bold focus:outline-none focus:border-primary/50"
+                        >
+                            <option value="" className="bg-dark text-white">All Time</option>
+                            <option value="today" className="bg-dark text-white">Today</option>
+                            <option value="this_week" className="bg-dark text-white">This Week</option>
+                            <option value="this_month" className="bg-dark text-white">This Month</option>
+                            <option value="custom" className="bg-dark text-white">Custom Date Range</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select
+                            value={sort}
+                            onChange={(e) => setSort(e.target.value)}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-bold focus:outline-none focus:border-primary/50"
+                        >
+                            <option value="newest" className="bg-dark text-white">Newest</option>
+                            <option value="oldest" className="bg-dark text-white">Oldest</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Custom Date Range Picker */}
+                {dateFilter === 'custom' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-white/5 border border-white/10 rounded-xl">
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-gray-500 ml-1 mb-1 block">From Date</label>
+                            <input
+                                type="date"
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-primary/50"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black uppercase text-gray-500 ml-1 mb-1 block">To Date</label>
+                            <input
+                                type="date"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-primary/50"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {isLoading ? (

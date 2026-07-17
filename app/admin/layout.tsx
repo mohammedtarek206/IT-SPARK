@@ -95,6 +95,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             label: 'CMS / Marketing',
             items: [
                 { title: 'Exhibition', icon: FiImage, href: '/admin/projects' },
+                { title: 'Gallery', icon: FiImage, href: '/admin/gallery' },
                 { title: 'Our Team', icon: FiUsers, href: '/admin/team' },
                 { title: 'Partners', icon: FiHeart, href: '/admin/partners' },
             ]

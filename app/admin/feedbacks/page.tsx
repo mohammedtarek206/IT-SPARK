@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiTrash2, FiEdit, FiX, FiCheck, FiStar, FiUpload, FiImage, FiMessageSquare } from 'react-icons/fi';
 import { getDriveDirectLink } from '@/lib/media';
+import SafeImage from '@/components/SafeImage';
 
 interface Feedback {
     _id: string;
@@ -166,7 +167,7 @@ export default function AdminFeedbacks() {
                     <div key={feedback._id} className={`glass rounded-3xl border overflow-hidden flex flex-col bg-surface shadow-sm transition-all ${feedback.published ? 'border-border' : 'border-red-500/20 opacity-70'}`}>
                         <div className="p-6 border-b border-border flex items-center gap-4 relative">
                             {feedback.imageUrl ? (
-                                <img src={getDriveDirectLink(feedback.imageUrl)} alt={feedback.studentName || 'User'} className="w-14 h-14 rounded-full object-cover border border-border" referrerPolicy="no-referrer" />
+                                <SafeImage src={getDriveDirectLink(feedback.imageUrl)} alt={feedback.studentName || 'User'} className="w-14 h-14 rounded-full object-cover border border-border" />
                             ) : (
                                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xl">
                                     {(feedback.studentName || 'U').charAt(0)}
@@ -232,7 +233,7 @@ export default function AdminFeedbacks() {
                                     <div className="relative">
                                         <div className="w-24 h-24 rounded-full border-2 border-border overflow-hidden bg-surface flex items-center justify-center">
                                             {previewImage ? (
-                                                <img src={getDriveDirectLink(previewImage)} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                                <SafeImage src={getDriveDirectLink(previewImage)} alt="Preview" className="w-full h-full object-cover" />
                                             ) : (
                                                 <FiImage className="text-3xl text-foreground/20" />
                                             )}
