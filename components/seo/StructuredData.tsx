@@ -7,10 +7,12 @@ type StructuredDataProps = {
 export default function StructuredData({ data }: StructuredDataProps) {
   const graphs = [...globalSchemas(), ...(data ? (Array.isArray(data) ? data : [data]) : [])];
 
+  const jsonString = JSON.stringify(graphs).replace(/</g, '\\u003c');
+
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(graphs) }}
+      dangerouslySetInnerHTML={{ __html: jsonString }}
     />
   );
 }

@@ -9,6 +9,8 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiPhone, FiAlertCircle, FiArrowRight, FiKey } from 'react-icons/fi';
 
+import { sanitizeRedirectUrl } from '@/lib/security';
+
 function LoginForm() {
     const [identifier, setIdentifier] = useState(''); // Email or Phone
     const [password, setPassword] = useState('');
@@ -17,7 +19,8 @@ function LoginForm() {
     const { login } = useAuth();
     const { t, lang } = useLanguage();
     const searchParams = useSearchParams();
-    const redirect = searchParams.get('redirect') || undefined;
+    const rawRedirect = searchParams.get('redirect');
+    const redirect = rawRedirect ? sanitizeRedirectUrl(rawRedirect) : undefined;
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();

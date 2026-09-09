@@ -105,7 +105,7 @@ export default function RootLayout({
       <body className={`${inter.className} overflow-x-hidden`}>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema).replace(/</g, '\\u003c') }}
         />
         <ThemeProvider>
           <LanguageProvider>

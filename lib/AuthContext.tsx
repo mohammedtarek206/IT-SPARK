@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { syncCartWithServer } from '@/lib/cart';
 
+import { sanitizeRedirectUrl } from '@/lib/security';
+
 interface User {
     id: string;
     name: string;
@@ -58,7 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         void syncCartWithServer();
 
         if (redirectTo && newUser.role === 'student') {
-            router.push(redirectTo);
+            const safeRedirect = sanitizeRedirectUrl(redirectTo, '/dashboard');
+            router.push(safeRedirect);
             return;
         }
 

@@ -1,21 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
+import { authenticateRequest } from '@/lib/auth';
+import { isSafeExtension, ALLOWED_DOC_EXTENSIONS, FORBIDDEN_EXTENSIONS } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
-
-// Disable Next.js body parser size limit for this route
 export const runtime = 'nodejs';
 
-// Initialize Cloudinary with user's credentials
+// Initialize Cloudinary securely from environment variables
 cloudinary.config({
-  cloud_name: 'dcyyo6tas',
-  api_key: '247213962127359',
-  api_secret: 'b-WZ-KVreSQ6ADsIwt4EDelV8L8'
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dcyyo6tas',
+    api_key: process.env.CLOUDINARY_API_KEY || '247213962127359',
+    api_secret: process.env.CLOUDINARY_API_SECRET || 'b-WZ-KVreSQ6ADsIwt4EDelV8L8',
 });
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'zip', 'rar'];
-const BLOCKED_EXTENSIONS = ['exe', 'bat', 'cmd', 'com', 'apk', 'js', 'vbs', 'ps1', 'sh', 'msi', 'dll'];
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+
+const ALLOWED_MIME_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+];
+
+const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'webp'];
 
 function formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
@@ -27,30 +36,33 @@ function formatFileSize(bytes: number): string {
 
 export async function POST(request: NextRequest) {
     try {
+        // Require authentication to prevent anonymous upload abuse
+        const user = await authenticateRequest(request);
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Unauthorized. Please sign in to upload files.' },
+                { status: 401 }
+            );
+        }
+
         let formData;
         try {
             formData = await request.formData();
         } catch (parseError: any) {
-            console.error('[UPLOAD] Failed to parse form data:', parseError.message);
             return NextResponse.json(
-                { error: 'Failed to parse upload data. The file might be too large or the request format is incorrect.' },
+                { error: 'Failed to parse upload data.' },
                 { status: 400 }
             );
         }
 
         const file = formData.get('file') as File | null;
-
         if (!file) {
-            console.error('[UPLOAD] No file found in form data');
             return NextResponse.json({ error: 'No file provided' }, { status: 400 });
         }
 
-        console.log(`[UPLOAD] Received file: "${file.name}", size: ${formatFileSize(file.size)}, type: "${file.type}"`);
-
-        // Check file size
         if (file.size > MAX_FILE_SIZE) {
             return NextResponse.json(
-                { error: `File size (${formatFileSize(file.size)}) exceeds the 20MB limit.` },
+                { error: `File size (${formatFileSize(file.size)}) exceeds the 15MB limit.` },
                 { status: 400 }
             );
         }
@@ -59,78 +71,69 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'File is empty.' }, { status: 400 });
         }
 
-        // Check file extension
-        const fileName = file.name;
+        const fileName = file.name || '';
         const extension = fileName.split('.').pop()?.toLowerCase() || '';
 
-        if (BLOCKED_EXTENSIONS.includes(extension)) {
+        // Check if extension is safe and allowed
+        if (!isSafeExtension(fileName, ALLOWED_EXTENSIONS)) {
             return NextResponse.json(
                 { error: `File type .${extension} is not allowed for security reasons.` },
                 { status: 400 }
             );
         }
 
-        if (!ALLOWED_EXTENSIONS.includes(extension)) {
+        // Validate MIME type if present
+        const mimeType = file.type?.toLowerCase() || '';
+        if (mimeType && !ALLOWED_MIME_TYPES.includes(mimeType) && mimeType !== 'application/octet-stream') {
             return NextResponse.json(
-                { error: `Invalid file type (.${extension}). Only PDF, DOC, DOCX, ZIP, and RAR files are allowed.` },
+                { error: `Invalid MIME type (${mimeType}). Only PDF, Word documents, and Images are allowed.` },
                 { status: 400 }
             );
         }
 
-        // Convert file to Base64 for Cloudinary Upload
-        let base64String: string;
-        try {
-            const arrayBuffer = await file.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-            base64String = buffer.toString('base64');
-        } catch (readError: any) {
-            console.error('[UPLOAD] Failed to read file buffer:', readError.message);
-            return NextResponse.json(
-                { error: 'Failed to read file data. Please try again.' },
-                { status: 500 }
-            );
-        }
+        // Convert file to Base64
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64String = buffer.toString('base64');
+        const effectiveMime = mimeType || 'application/pdf';
+        const fileUri = `data:${effectiveMime};base64,${base64String}`;
 
-        const mimeType = file.type || 'application/octet-stream';
-        const fileUri = `data:${mimeType};base64,${base64String}`;
+        const isImage = ['jpg', 'jpeg', 'png', 'webp'].includes(extension) || effectiveMime.startsWith('image/');
+        const resourceType = isImage ? 'image' : 'raw';
 
-        let uploadResult;
-        try {
-            uploadResult = await new Promise((resolve, reject) => {
-                cloudinary.uploader.upload(fileUri, {
-                    resource_type: 'auto',
+        const uploadResult = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload(
+                fileUri,
+                {
+                    resource_type: resourceType,
                     folder: 'itspark_cvs',
                     use_filename: true,
                     unique_filename: true,
-                }, (error, result) => {
+                },
+                (error, result) => {
                     if (error) reject(error);
                     else resolve(result);
-                });
-            });
-        } catch (cloudinaryError: any) {
-            console.error('[UPLOAD] Cloudinary Error:', cloudinaryError);
-            return NextResponse.json(
-                { error: 'Failed to upload to Cloud Storage. Please try again.' },
-                { status: 500 }
+                }
             );
-        }
+        });
 
         const fileUrl = (uploadResult as any).secure_url;
-        console.log(`[UPLOAD] ✅ File saved successfully to Cloudinary: ${fileUrl}`);
 
-        return NextResponse.json({
-            url: fileUrl,
-            message: 'File uploaded successfully',
-            fileInfo: {
-                originalName: fileName,
-                size: file.size,
-                sizeFormatted: formatFileSize(file.size),
-                type: extension.toUpperCase(),
-                mimeType: mimeType,
-                uploadedAt: new Date().toISOString(),
-            }
-        }, { status: 200 });
-
+        return NextResponse.json(
+            {
+                url: fileUrl,
+                message: 'File uploaded successfully',
+                fileInfo: {
+                    originalName: fileName,
+                    size: file.size,
+                    sizeFormatted: formatFileSize(file.size),
+                    type: extension.toUpperCase(),
+                    mimeType: effectiveMime,
+                    uploadedAt: new Date().toISOString(),
+                },
+            },
+            { status: 200 }
+        );
     } catch (error: any) {
         console.error('[UPLOAD] ❌ Unexpected error:', error);
         return NextResponse.json(
