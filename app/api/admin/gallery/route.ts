@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Gallery from '@/models/Gallery';
 import { authenticateRequest } from '@/lib/auth';
+import { validateAndConvertDriveUrl } from '@/lib/media';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,11 +27,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(items);
     } catch (error: any) {
         console.error('Gallery Admin GET error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }
-
-import { validateAndConvertDriveUrl } from '@/lib/media';
 
 export async function POST(request: NextRequest) {
     try {
@@ -40,20 +39,28 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        
-        if (body.imageUrl) {
-            const validation = validateAndConvertDriveUrl(body.imageUrl);
+        let imageUrl = body.imageUrl;
+
+        if (imageUrl) {
+            const validation = validateAndConvertDriveUrl(imageUrl);
             if (!validation.isValid) {
                 return NextResponse.json({ message: validation.error }, { status: 400 });
             }
-            body.imageUrl = validation.convertedUrl;
+            imageUrl = validation.convertedUrl;
         }
 
         await connectDB();
-        const item = await Gallery.create(body);
+        const item = await Gallery.create({
+            title: body.title || '',
+            description: body.description || '',
+            category: body.category || 'General',
+            imageUrl: imageUrl || '',
+            order: Number(body.order) || 0,
+            isActive: body.isActive !== undefined ? Boolean(body.isActive) : true,
+        });
         return NextResponse.json(item, { status: 201 });
     } catch (error: any) {
         console.error('Gallery Admin POST error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
     }
 }

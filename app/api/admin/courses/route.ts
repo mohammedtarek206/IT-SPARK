@@ -39,8 +39,30 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const course = new Course(data);
-        await course.save();
+        const course = await Course.create({
+            title: String(data.title),
+            slug: data.slug ? String(data.slug) : undefined,
+            shortDescription: data.shortDescription ? String(data.shortDescription) : '',
+            description: data.description ? String(data.description) : '',
+            whatYouWillLearn: Array.isArray(data.whatYouWillLearn) ? data.whatYouWillLearn : [],
+            requirements: Array.isArray(data.requirements) ? data.requirements : [],
+            targetAudience: Array.isArray(data.targetAudience) ? data.targetAudience : [],
+            thumbnail: data.thumbnail ? String(data.thumbnail) : undefined,
+            previewVideoUrl: data.previewVideoUrl ? String(data.previewVideoUrl) : undefined,
+            instructor: data.instructor,
+            level: data.level || 'Beginner',
+            language: data.language || 'Arabic',
+            category: data.category || 'General',
+            hours: Number(data.hours) || 0,
+            lecturesCount: Number(data.lecturesCount) || 0,
+            durationText: data.durationText || '',
+            type: data.type || 'Online',
+            price: data.isFree ? 0 : Number(data.price || 0),
+            isFree: Boolean(data.isFree),
+            discountPrice: data.discountPrice ? Number(data.discountPrice) : undefined,
+            isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
+            status: data.status || 'published',
+        });
 
         return NextResponse.json(
             { message: 'Course created successfully', course },

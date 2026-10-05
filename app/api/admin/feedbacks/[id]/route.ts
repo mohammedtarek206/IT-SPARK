@@ -1,16 +1,22 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Feedback from '@/models/Feedback';
+import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
+    request: NextRequest,
+    { params }: { params: { id: string } }
 ) {
     try {
+        const user = await authenticateRequest(request);
+        if (!user || user.role !== 'admin') {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await connectDB();
-        const { id } = await params;
+        const { id } = params;
         const feedback = await Feedback.findById(id).lean();
         if (!feedback) return NextResponse.json({ error: 'Not found' }, { status: 404 });
         return NextResponse.json(feedback);
@@ -21,13 +27,18 @@ export async function GET(
 }
 
 export async function PUT(
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
+    request: NextRequest,
+    { params }: { params: { id: string } }
 ) {
     try {
+        const user = await authenticateRequest(request);
+        if (!user || user.role !== 'admin') {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await connectDB();
-        const { id } = await params;
-        const data = await req.json();
+        const { id } = params;
+        const data = await request.json();
 
         const updateData: Record<string, any> = {};
         if (data.studentName !== undefined) updateData.studentName = data.studentName;
@@ -49,12 +60,17 @@ export async function PUT(
 }
 
 export async function DELETE(
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
+    request: NextRequest,
+    { params }: { params: { id: string } }
 ) {
     try {
+        const user = await authenticateRequest(request);
+        if (!user || user.role !== 'admin') {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await connectDB();
-        const { id } = await params;
+        const { id } = params;
         const deleted = await Feedback.findByIdAndDelete(id);
         if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 });
         return NextResponse.json({ message: 'Feedback deleted successfully' });

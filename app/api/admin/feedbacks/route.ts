@@ -1,11 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Feedback from '@/models/Feedback';
+import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
+        const user = await authenticateRequest(request);
+        if (!user || user.role !== 'admin') {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await connectDB();
         const feedbacks = await Feedback.find()
             .sort({ order: 1, createdAt: -1 })
@@ -17,10 +23,15 @@ export async function GET() {
     }
 }
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
     try {
+        const user = await authenticateRequest(request);
+        if (!user || user.role !== 'admin') {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await connectDB();
-        const data = await req.json();
+        const data = await request.json();
 
         if (!data.studentName || !data.comment || !data.rating) {
             return NextResponse.json(

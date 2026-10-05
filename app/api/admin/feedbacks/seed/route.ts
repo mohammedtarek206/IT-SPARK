@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Feedback from '@/models/Feedback';
+import { authenticateRequest } from '@/lib/auth';
 
 const seedData = [
     {
@@ -29,10 +30,15 @@ const seedData = [
     }
 ];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
+        const user = await authenticateRequest(request);
+        if (!user || user.role !== 'admin') {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await connectDB();
-        
+
         // Check if data already exists
         const count = await Feedback.countDocuments();
         if (count > 0) {
