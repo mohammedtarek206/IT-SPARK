@@ -4,15 +4,18 @@ import Course from '@/models/Course';
 import Lesson from '@/models/Lesson';
 import User from '@/models/User';
 import Project from '@/models/Project';
+import { authenticateRequest } from '@/lib/auth';
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
     try {
-        await connectDB();
+        const user = await authenticateRequest(request);
+        if (!user || (user.role !== 'instructor' && user.role !== 'admin')) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
-        // In a real scenario, we'd get the instructor ID from the token/session
-        // For demonstration, we'll return aggregate stats placeholders
+        await connectDB();
 
         const totalCourses = await Course.countDocuments();
         const totalLessons = await Lesson.countDocuments();

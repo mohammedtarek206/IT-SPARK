@@ -30,6 +30,7 @@ export default function AdminLoginPage() {
             if (res.ok) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
+                document.cookie = `token=${data.token}; path=/; max-age=604800; samesite=lax`;
                 router.push('/admin/dashboard');
             } else {
                 setError(data.error || 'Invalid credentials. Please try again.');
@@ -100,7 +101,7 @@ export default function AdminLoginPage() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="block w-full bg-surface border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder-foreground/20 focus:outline-none focus:border-primary font-bold transition-all outline-none"
-                                    placeholder="admin@it-spark.com"
+                                    placeholder="admin@itsparkacademy.com"
                                     required
                                 />
                             </div>

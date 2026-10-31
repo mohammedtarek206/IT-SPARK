@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import { FiMail, FiPhone, FiMapPin, FiSend, FiFacebook, FiYoutube, FiInstagram } from 'react-icons/fi';
+import { FiMail, FiPhone, FiMapPin, FiSend, FiFacebook, FiYoutube, FiInstagram, FiAlertCircle } from 'react-icons/fi';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -12,16 +12,33 @@ export default function ContactPage() {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log(formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 3000);
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to send message. Please try again.');
+      }
+    } catch {
+      setError('Connection failed. Please check your internet or contact us directly via phone or WhatsApp.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -115,9 +132,22 @@ export default function ContactPage() {
                   </div>
                   <h3 className="text-2xl font-bold text-foreground mb-2">Message Sent!</h3>
                   <p className="text-foreground/60">We'll get back to you soon.</p>
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="mt-6 px-6 py-2 rounded-xl bg-surface border border-border text-foreground text-sm font-bold hover:bg-foreground/5 transition-all"
+                  >
+                    Send Another Message
+                  </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {error && (
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl flex items-center gap-3 text-sm font-bold">
+                      <FiAlertCircle className="shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-foreground/80 mb-2">Name</label>
                     <input
@@ -168,9 +198,10 @@ export default function ContactPage() {
 
                   <button
                     type="submit"
-                    className="w-full py-3 bg-gradient-to-r from-primary to-accent rounded-lg text-white font-semibold hover:shadow-lg transition-all hover:scale-105"
+                    disabled={loading}
+                    className="w-full py-3 bg-gradient-to-r from-primary to-accent rounded-lg text-white font-semibold hover:shadow-lg transition-all hover:scale-105 disabled:opacity-50"
                   >
-                    Send Message
+                    {loading ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               )}

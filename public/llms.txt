@@ -4,7 +4,7 @@
 > Professional technology learning platform in Assiut, Egypt.
 
 ## Official site
-- https://it-spark.com
+- https://www.itsparkacademy.com
 
 ## What we offer
 - Online & offline programming courses (React, Angular, Python, Full Stack)
@@ -13,13 +13,13 @@
 - Job opportunities & certificate applications
 
 ## Key pages
-- Home: https://it-spark.com/
-- Courses: https://it-spark.com/courses
-- Trainings: https://it-spark.com/training-courses
-- Jobs: https://it-spark.com/jobs
-- Apply: https://it-spark.com/apply
-- About: https://it-spark.com/about
-- Contact: https://it-spark.com/contact
+- Home: https://www.itsparkacademy.com/
+- Courses: https://www.itsparkacademy.com/courses
+- Trainings: https://www.itsparkacademy.com/training-courses
+- Jobs: https://www.itsparkacademy.com/jobs
+- Apply: https://www.itsparkacademy.com/apply
+- About: https://www.itsparkacademy.com/about
+- Contact: https://www.itsparkacademy.com/contact
 
 ## Brand names
 IT Spark, IT-SPARK, IT Spark Academy, IT Spark Courses, IT Spark Egypt
@@ -30,5 +30,5 @@ IT Spark, IT-SPARK, IT Spark Academy, IT Spark Courses, IT Spark Egypt
 - Location: Assiut, Egypt
 
 ## Crawling
-- Sitemap: https://it-spark.com/sitemap.xml
-- Robots: https://it-spark.com/robots.txt
+- Sitemap: https://www.itsparkacademy.com/sitemap.xml
+- Robots: https://www.itsparkacademy.com/robots.txt

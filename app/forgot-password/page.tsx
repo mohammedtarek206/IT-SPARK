@@ -1,156 +1,103 @@
 'use client';
 
-import { useState } from 'react';
-import { useLanguage } from '@/lib/LanguageContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FiMail, FiArrowLeft, FiLock, FiCheckCircle, FiShield } from 'react-icons/fi';
+import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { FiArrowLeft, FiMail, FiPhone, FiHelpCircle, FiCheckCircle } from 'react-icons/fi';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function ForgotPasswordPage() {
-    const [step, setStep] = useState(1);
-    const [email, setEmail] = useState('');
-    const [otp, setOtp] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    
+    const { t, lang } = useLanguage();
+    const isRtl = lang === 'ar';
 
-    const { t } = useLanguage();
-
-    const handleSendOTP = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setStep(2);
-            setLoading(false);
-        }, 1500);
-    };
-
-    const handleVerifyOTP = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setTimeout(() => {
-            setStep(3);
-            setLoading(false);
-        }, 1500);
-    };
-
-    const handleResetPassword = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setTimeout(() => {
-            setStep(4);
-            setLoading(false);
-        }, 1500);
-    };
+    const supportPhone = '01010710656';
+    const internationalPhone = '+201010710656';
+    const supportEmail = 'itspark2018@gmail.com';
+    const whatsappMessage = encodeURIComponent(
+        isRtl
+            ? 'مرحباً، أحتاج إلى مساعدة في استعادة كلمة المرور الخاصة بحسابي في أكاديمية IT-SPARK.'
+            : 'Hello, I need help recovering my IT-SPARK Academy account password.'
+    );
+    const whatsappUrl = `https://wa.me/201010710656?text=${whatsappMessage}`;
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background px-4 py-20 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -z-10" />
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] -z-10" />
 
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="glass p-8 md:p-12 rounded-[2.5rem] w-full max-w-lg border border-white/10 shadow-2xl"
+                className="glass p-8 md:p-12 rounded-[2.5rem] w-full max-w-lg border border-border shadow-2xl relative"
             >
-                <Link href="/login" className="inline-flex items-center gap-2 text-foreground/40 hover:text-primary transition-colors mb-8 font-bold">
-                    <FiArrowLeft /> {t('login')}
+                <Link
+                    href="/login"
+                    className="inline-flex items-center gap-2 text-foreground/50 hover:text-primary transition-colors mb-8 font-bold text-sm"
+                >
+                    <FiArrowLeft className="rtl:rotate-180" /> {t('login')}
                 </Link>
 
-                <AnimatePresence mode="wait">
-                    {step === 1 && (
-                        <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                            <h1 className="text-3xl font-black text-foreground mb-4 uppercase">{t('forgot_password')}</h1>
-                            <p className="text-foreground/40 mb-8">Enter your email to receive a password reset code.</p>
+                <div className="text-center mb-8">
+                    <div className="relative w-20 h-20 mx-auto mb-4">
+                        <Image
+                            src="/logo.png"
+                            alt="IT-SPARK Logo"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
+                    </div>
+                    <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <FiHelpCircle className="text-2xl" />
+                    </div>
+                    <h1 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-2">
+                        {isRtl ? 'استعادة كلمة المرور' : 'Password Recovery'}
+                    </h1>
+                    <p className="text-foreground/60 text-sm leading-relaxed">
+                        {isRtl
+                            ? 'لأسباب أمنية ولحماية حسابك وبياناتك التعليمية، يتم التحقق من هويات المستخدمين وإعادة تعيين كلمات المرور مباشرة عبر فريق الدعم الفني للأكاديمية.'
+                            : 'For security and account protection, password resets are processed securely through our verified academy student support team.'}
+                    </p>
+                </div>
 
-                            <form onSubmit={handleSendOTP} className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-primary uppercase tracking-widest">{t('email_label')}</label>
-                                    <div className="relative">
-                                        <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40" />
-                                        <input
-                                            type="email"
-                                            required
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full bg-surface border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground focus:outline-none focus:border-primary/50 transition-all font-medium placeholder:text-foreground/20"
-                                            placeholder="your@email.com"
-                                        />
-                                    </div>
-                                </div>
-                                <button disabled={loading} className="w-full py-4 bg-primary text-white font-black rounded-2xl hover:bg-primary/80 transition-all">
-                                    {loading ? 'SENDING...' : 'SEND OTP'}
-                                </button>
-                            </form>
-                        </motion.div>
-                    )}
+                <div className="space-y-4">
+                    <a
+                        href={whatsappUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98]"
+                    >
+                        <span>{isRtl ? 'التواصل عبر واتساب فوراً' : 'Contact via WhatsApp'}</span>
+                    </a>
 
-                    {step === 2 && (
-                        <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                            <h1 className="text-3xl font-black text-foreground mb-4 uppercase tracking-tighter">VERIFY CODE</h1>
-                            <p className="text-foreground/40 mb-8">We've sent a 6-digit code to {email}</p>
+                    <a
+                        href={`tel:${internationalPhone}`}
+                        className="w-full py-4 px-6 bg-surface hover:bg-foreground/5 text-foreground border border-border font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all"
+                    >
+                        <FiPhone className="text-primary" />
+                        <span dir="ltr">{supportPhone}</span>
+                    </a>
 
-                            <form onSubmit={handleVerifyOTP} className="space-y-6">
-                                <div className="space-y-2 text-center">
-                                    <input
-                                        type="text"
-                                        maxLength={6}
-                                        required
-                                        value={otp}
-                                        onChange={(e) => setOtp(e.target.value)}
-                                        className="w-full bg-surface border border-border rounded-2xl py-6 text-center text-3xl font-black text-primary focus:outline-none focus:border-primary/50 transition-all tracking-[0.5em] placeholder:text-foreground/10"
-                                        placeholder="000000"
-                                    />
-                                </div>
-                                <button disabled={loading} className="w-full py-4 bg-primary text-white font-black rounded-2xl hover:bg-primary/80 transition-all">
-                                    {loading ? 'VERIFYING...' : 'VERIFY CODE'}
-                                </button>
-                                <button type="button" onClick={() => setStep(1)} className="w-full text-center text-xs font-bold text-gray-500 hover:text-white transition-colors">RESEND CODE</button>
-                            </form>
-                        </motion.div>
-                    )}
+                    <a
+                        href={`mailto:${supportEmail}?subject=Password%20Reset%20Request`}
+                        className="w-full py-4 px-6 bg-surface hover:bg-foreground/5 text-foreground border border-border font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all"
+                    >
+                        <FiMail className="text-primary" />
+                        <span>{supportEmail}</span>
+                    </a>
+                </div>
 
-                    {step === 3 && (
-                        <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                            <h1 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">NEW PASSWORD</h1>
-                            <p className="text-gray-500 mb-8">Create a strong password for your account.</p>
-
-                            <form onSubmit={handleResetPassword} className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-primary uppercase tracking-widest">{t('password_label')}</label>
-                                    <div className="relative">
-                                        <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
-                                        <input
-                                            type="password"
-                                            required
-                                            value={newPassword}
-                                            onChange={(e) => setNewPassword(e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-primary/50 transition-all font-medium"
-                                            placeholder="••••••••"
-                                        />
-                                    </div>
-                                </div>
-                                <button disabled={loading} className="w-full py-4 bg-primary text-white font-black rounded-2xl hover:bg-primary/80 transition-all">
-                                    {loading ? 'RESETTING...' : 'RESET PASSWORD'}
-                                </button>
-                            </form>
-                        </motion.div>
-                    )}
-
-                    {step === 4 && (
-                        <motion.div key="s4" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center group">
-                            <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                                <FiCheckCircle className="text-green-500 w-10 h-10" />
-                            </div>
-                            <h1 className="text-3xl font-black text-foreground mb-4 uppercase tracking-tighter">SUCCESS!</h1>
-                            <p className="text-foreground/40 mb-10">Your password has been updated successfully.</p>
-                            <Link href="/login" className="inline-flex px-12 py-4 bg-primary text-white font-black rounded-2xl hover:shadow-lg transition-all shadow-xl shadow-primary/10">
-                                GO TO LOGIN
-                            </Link>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                <div className="mt-8 pt-6 border-t border-border">
+                    <div className="flex items-start gap-3 bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                        <FiCheckCircle className="text-primary shrink-0 mt-0.5" />
+                        <p className="text-xs text-foreground/70 leading-relaxed font-medium">
+                            {isRtl
+                                ? 'يُرجى تجهيز رقم الهاتف المسجل به في المنصة لتسريع عملية التحقق واستعادة حسابك خلال دقائق.'
+                                : 'Please have your registered phone number or email ready so our team can verify and reset your account promptly.'}
+                        </p>
+                    </div>
+                </div>
             </motion.div>
         </div>
     );

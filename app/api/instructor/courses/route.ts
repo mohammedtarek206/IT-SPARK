@@ -16,6 +16,11 @@ export async function POST(request: NextRequest) {
         }
 
         await connectDB();
+        const User = (await import('@/models/User')).default;
+        const dbUser = await User.findById(user.userId);
+        if (!dbUser || dbUser.status !== 'active') {
+            return NextResponse.json({ error: 'Instructor account is pending approval or inactive.' }, { status: 403 });
+        }
         const data = await request.json();
 
         console.log("Course Create Data - price:", data.price, "isFree:", data.isFree);

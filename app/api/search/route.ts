@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
 
         await connectDB();
 
-        const regex = new RegExp(q, 'i');
+        const sanitizedQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').slice(0, 100);
+        const regex = new RegExp(sanitizedQ, 'i');
 
         // Search Online/Offline Courses
         const courses = await Course.find({

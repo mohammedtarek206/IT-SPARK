@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { authenticateRequest } from '@/lib/auth';
+import { logAuditEvent } from '@/lib/audit';
 import { isSafeExtension, ALLOWED_DOC_EXTENSIONS, FORBIDDEN_EXTENSIONS } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
@@ -8,9 +9,9 @@ export const runtime = 'nodejs';
 
 // Initialize Cloudinary securely from environment variables
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dcyyo6tas',
-    api_key: process.env.CLOUDINARY_API_KEY || '247213962127359',
-    api_secret: process.env.CLOUDINARY_API_SECRET || 'b-WZ-KVreSQ6ADsIwt4EDelV8L8',
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
@@ -76,6 +77,16 @@ export async function POST(request: NextRequest) {
 
         // Check if extension is safe and allowed
         if (!isSafeExtension(fileName, ALLOWED_EXTENSIONS)) {
+            await logAuditEvent({
+                eventType: 'UPLOAD_BLOCKED',
+                userId: user.userId,
+                userEmail: user.email,
+                action: 'UPLOAD_FORBIDDEN_EXTENSION',
+                target: fileName,
+                status: 'BLOCKED',
+                details: { extension },
+                request,
+            });
             return NextResponse.json(
                 { error: `File type .${extension} is not allowed for security reasons.` },
                 { status: 400 }

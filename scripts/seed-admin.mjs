@@ -1,13 +1,19 @@
 /**
- * Seed Script - Creates the admin user in the database
- * Run with: node scripts/seed-admin.mjs
+ * Secure Seed Script - Creates an admin user in the database
+ * Run with: MONGODB_URI=... ADMIN_EMAIL=... ADMIN_PASSWORD=... node scripts/seed-admin.mjs
  */
 
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// Replace with your remote MongoDB URI
-const MONGODB_URI = 'mongodb+srv://mt7592546_db_user:84UxtvjU0ddGlGEX@cluster0.vd1nml2.mongodb.net/?appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!MONGODB_URI || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.error('❌ Missing environment variables. Please provide MONGODB_URI, ADMIN_EMAIL, and ADMIN_PASSWORD.');
+    process.exit(1);
+}
 
 const UserSchema = new mongoose.Schema(
     {
@@ -35,37 +41,24 @@ async function main() {
         await mongoose.connect(MONGODB_URI);
         console.log('✅ Connected to MongoDB!');
 
-        // Check if admin already exists
-        const existingAdmin = await User.findOne({ email: 'admin@arqam.academy' });
+        const existingAdmin = await User.findOne({ email: ADMIN_EMAIL });
         if (existingAdmin) {
-            console.log('✅ Admin account already exists!');
-            console.log('📧 Email: admin@arqam.academy');
-            console.log('🔑 Password: admin_arqam_123');
+            console.log(`✅ Admin account (${ADMIN_EMAIL}) already exists!`);
             await mongoose.disconnect();
             return;
         }
 
-        // Hash password
-        const hashedPassword = await bcrypt.hash('admin_arqam_123', 12);
+        const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 12);
 
-        // Create admin user
-        const admin = await User.create({
-            name: 'Admin Arqam',
-            email: 'admin@arqam.academy',
+        await User.create({
+            name: 'Platform Admin',
+            email: ADMIN_EMAIL,
             password: hashedPassword,
             role: 'admin',
             status: 'active',
         });
 
-        console.log('');
-        console.log('🎉 Admin account created successfully!');
-        console.log('================================');
-        console.log('📧 Email:    admin@arqam.academy');
-        console.log('🔑 Password: admin_arqam_123');
-        console.log('================================');
-        console.log('');
-        console.log('Go to http://localhost:3000/login to sign in.');
-
+        console.log(`🎉 Admin account (${ADMIN_EMAIL}) created successfully!`);
     } catch (error) {
         console.error('❌ Error creating admin:', error.message);
     } finally {

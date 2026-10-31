@@ -1,6 +1,6 @@
 /** Central SEO & brand configuration for IT-SPARK */
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://it-spark.com';
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.itsparkacademy.com';
 
 export const BRAND = {
   name: 'IT-SPARK',

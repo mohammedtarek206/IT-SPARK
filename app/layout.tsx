@@ -37,14 +37,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://it-spark.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.itsparkacademy.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: 'IT-SPARK | THERE IS MUCH MORE TO LEARN',
     description: 'Professional Technology Courses & Training Platform.',
-    url: 'https://it-spark.com',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.itsparkacademy.com',
     siteName: 'IT-SPARK',
     images: [
       {
@@ -85,8 +85,8 @@ const organizationSchema = {
   name: 'IT-SPARK',
   slogan: 'THERE IS MUCH MORE TO LEARN',
   description: 'Professional Technology Learning Platform',
-  url: 'https://it-spark.com',
-  logo: 'https://it-spark.com/logo.png',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.itsparkacademy.com',
+  logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.itsparkacademy.com'}/logo.png`,
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: '01010710656',

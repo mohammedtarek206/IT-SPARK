@@ -7,18 +7,23 @@ export interface TokenPayload {
   email?: string;
 }
 
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('[CRITICAL SECURITY ERROR] JWT_SECRET environment variable is missing.');
+  }
+  return secret;
+}
+
 export function generateToken(payload: TokenPayload): string {
-  return jwt.sign(payload, process.env.JWT_SECRET || 'arqam_platform_secret_key_2026_secure', {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: '7d',
   });
 }
 
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'arqam_platform_secret_key_2026_secure'
-    ) as TokenPayload;
+    return jwt.verify(token, getJwtSecret()) as TokenPayload;
   } catch (error) {
     return null;
   }
@@ -28,6 +33,10 @@ export function getTokenFromRequest(request: NextRequest): string | null {
   const authHeader = request.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
     return authHeader.substring(7);
+  }
+  const cookieToken = request.cookies.get('token')?.value;
+  if (cookieToken) {
+    return cookieToken;
   }
   return null;
 }

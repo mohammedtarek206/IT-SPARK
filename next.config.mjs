@@ -1,4 +1,22 @@
 /** @type {import('next').NextConfig} */
+
+const cspHeader = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  img-src 'self' blob: data: https://res.cloudinary.com https://drive.google.com https://lh3.googleusercontent.com https://docs.google.com https://img.youtube.com https://i.ytimg.com https://www.googletagmanager.com https://www.google-analytics.com;
+  font-src 'self' data: https://fonts.gstatic.com;
+  media-src 'self' blob: data: https://res.cloudinary.com https://drive.google.com;
+  frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com;
+  connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://api.cloudinary.com https://res.cloudinary.com;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self' https://wa.me;
+  frame-ancestors 'self';
+`
+  .replace(/\s{2,}/g, ' ')
+  .trim();
+
 const nextConfig = {
   experimental: {
     serverActions: {
@@ -34,6 +52,10 @@ const nextConfig = {
       {
         source: '/:path*',
         headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: cspHeader,
+          },
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN',

@@ -1,0 +1,48 @@
+name: Security Audit & Build Verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-audit:
+    name: Security & Integrity Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Dependency Vulnerability Audit
+        run: npm audit --audit-level=critical
+
+      - name: Check for Uncommitted Secrets & Sensitive Strings
+        run: |
+          echo "Scanning for sensitive patterns..."
+          if grep -rn "mongodb+srv://.*:.*@" --exclude-dir={.git,.next,node_modules} .; then
+            echo "::error::Found hardcoded MongoDB Atlas credentials!"
+            exit 1
+          fi
+          if grep -rn "arqam_platform_secret_key" --exclude-dir={.git,.next,node_modules} .; then
+            echo "::error::Found hardcoded legacy JWT secret!"
+            exit 1
+          fi
+          echo "No sensitive pattern leaks detected."
+
+      - name: Verify Build
+        env:
+          JWT_SECRET: "ci_temporary_build_secret_must_be_set_in_production"
+          MONGODB_URI: "mongodb://127.0.0.1:27017/test_db"
+          NEXT_PUBLIC_SITE_URL: "https://www.itsparkacademy.com"
+        run: npm run build
