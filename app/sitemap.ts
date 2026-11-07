@@ -15,7 +15,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/apply`, changeFrequency: 'monthly', priority: 0.75, lastModified: new Date() },
     { url: `${baseUrl}/about`, changeFrequency: 'monthly', priority: 0.8, lastModified: new Date() },
     { url: `${baseUrl}/contact`, changeFrequency: 'monthly', priority: 0.8, lastModified: new Date() },
-    { url: `${baseUrl}/pricing`, changeFrequency: 'weekly', priority: 0.7, lastModified: new Date() },
     { url: `${baseUrl}/partners`, changeFrequency: 'monthly', priority: 0.65, lastModified: new Date() },
     { url: `${baseUrl}/projects`, changeFrequency: 'weekly', priority: 0.7, lastModified: new Date() },
     { url: `${baseUrl}/team`, changeFrequency: 'monthly', priority: 0.65, lastModified: new Date() },
@@ -25,8 +24,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let courseRoutes: MetadataRoute.Sitemap = [];
   try {
     if (process.env.MONGODB_URI) {
-      await backfillMissingSlugs();
       await connectDB();
+      await backfillMissingSlugs();
       const courses = await Course.find({ isActive: true, status: 'published' })
         .select('slug title _id updatedAt')
         .lean();
@@ -38,8 +37,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       }));
     }
-  } catch (error) {
-    console.error('Sitemap: course fetch error', error);
+  } catch (error: any) {
+    const errorMsg = error?.message || String(error);
+    if (errorMsg.includes('bad auth') || errorMsg.includes('authentication failed')) {
+      console.warn('⚠️ [Sitemap Notice]: MongoDB authentication failed. Verify MONGODB_URI username/password. Serving static sitemap routes.');
+    } else {
+      console.warn('⚠️ [Sitemap Notice]: Unable to append dynamic courses to sitemap:', errorMsg);
+    }
   }
 
   return [...staticRoutes, ...courseRoutes];

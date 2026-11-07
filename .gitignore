@@ -13,6 +13,9 @@ node_modules
 # Production
 /build
 
+# Database backups & forensic dumps
+backups/
+
 # Misc
 .DS_Store
 *.pem

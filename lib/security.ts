@@ -87,3 +87,12 @@ export function isSafeExtension(filename: string, allowedExtensions: string[]): 
     const lastExt = parts[parts.length - 1];
     return allowedExtensions.includes(lastExt);
 }
+
+
+/**
+ * Safely escapes regular expression special characters to prevent ReDoS / RegExp injection
+ */
+export function escapeRegex(input: string): string {
+    if (!input || typeof input !== 'string') return '';
+    return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').slice(0, 100);
+}

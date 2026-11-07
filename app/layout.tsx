@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import React from 'react';
-import { Inter, Cairo } from 'next/font/google';
+// Font loading via Tailwind / CSS
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { LanguageProvider } from '@/lib/LanguageContext';
@@ -9,8 +9,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ToastContainer from '@/components/ToastContainer';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo' });
+const inter = { className: 'font-english', variable: '--font-inter' };
+const cairo = { className: 'font-arabic', variable: '--font-cairo' };
 
 export const metadata: Metadata = {
   title: 'IT-SPARK | THERE IS MUCH MORE TO LEARN',

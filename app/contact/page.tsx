@@ -108,7 +108,7 @@ export default function ContactPage() {
               <a href="https://www.facebook.com/itsparkk" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center text-foreground/60 hover:text-[#1877F2] hover:bg-[#1877F2]/10 transition-all hover:scale-110 shadow-sm border border-border/50">
                 <FiFacebook className="w-5 h-5" />
               </a>
-              <a href="http://www.youtube.com/@itspark2129" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center text-foreground/60 hover:text-[#FF0000] hover:bg-[#FF0000]/10 transition-all hover:scale-110 shadow-sm border border-border/50">
+              <a href="https://www.youtube.com/@itspark2129" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center text-foreground/60 hover:text-[#FF0000] hover:bg-[#FF0000]/10 transition-all hover:scale-110 shadow-sm border border-border/50">
                 <FiYoutube className="w-5 h-5" />
               </a>
               <a href="https://www.instagram.com/itspark.training" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center text-foreground/60 hover:text-[#E4405F] hover:bg-[#E4405F]/10 transition-all hover:scale-110 shadow-sm border border-border/50">

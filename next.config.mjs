@@ -2,7 +2,7 @@
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com;
+  script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' blob: data: https://res.cloudinary.com https://drive.google.com https://lh3.googleusercontent.com https://docs.google.com https://img.youtube.com https://i.ytimg.com https://www.googletagmanager.com https://www.google-analytics.com;
   font-src 'self' data: https://fonts.gstatic.com;
@@ -11,18 +11,14 @@ const cspHeader = `
   connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://api.cloudinary.com https://res.cloudinary.com;
   object-src 'none';
   base-uri 'self';
-  form-action 'self' https://wa.me;
+  form-action 'self';
   frame-ancestors 'self';
+  upgrade-insecure-requests;
 `
   .replace(/\s{2,}/g, ' ')
   .trim();
 
 const nextConfig = {
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '25mb',
-    },
-  },
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
@@ -46,6 +42,20 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  async redirects() {
+    return [
+      {
+        source: '/payment',
+        destination: '/courses',
+        permanent: true,
+      },
+      {
+        source: '/pricing',
+        destination: '/courses',
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Job from '@/models/Job';
 import { authenticateRequest } from '@/lib/auth';
+import { escapeRegex } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,24 +25,25 @@ export async function GET(request: NextRequest) {
         const query: Record<string, any> = { isActive: true };
 
         if (search) {
+            const escapedSearch = escapeRegex(search);
             query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { company: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } },
-                { location: { $regex: search, $options: 'i' } },
+                { title: { $regex: escapedSearch, $options: 'i' } },
+                { company: { $regex: escapedSearch, $options: 'i' } },
+                { description: { $regex: escapedSearch, $options: 'i' } },
+                { location: { $regex: escapedSearch, $options: 'i' } },
             ];
         }
 
         if (title) {
-            query.title = { $regex: title, $options: 'i' };
+            query.title = { $regex: escapeRegex(title), $options: 'i' };
         }
 
         if (department) {
-            query.department = { $regex: department, $options: 'i' };
+            query.department = { $regex: escapeRegex(department), $options: 'i' };
         }
 
         if (location) {
-            query.location = { $regex: location, $options: 'i' };
+            query.location = { $regex: escapeRegex(location), $options: 'i' };
         }
 
         if (type) {

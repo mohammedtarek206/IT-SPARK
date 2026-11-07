@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
-// Legacy mock payment page — redirect to official checkout
+// Obsolete payment URL permanently forwarded to official courses catalog
 export default function PaymentPage() {
-    redirect('/checkout');
+    permanentRedirect('/courses');
 }

@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
             price: isFreeValue ? 0 : priceValue,
             isFree: isFreeValue,
             discountPrice: data.discountPrice ? Number(data.discountPrice) : undefined,
-            isActive: true,
-            status: 'published'
+            isActive: false,
+            status: 'pending'
         });
 
         await ensureCourseSlug(String(newCourse._id), newCourse.title, newCourse.slug);

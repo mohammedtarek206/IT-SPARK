@@ -10,7 +10,7 @@ import {
     FiUpload,
     FiInfo,
     FiCheckCircle,
-    FiCreditCard,
+    FiShield,
     FiShoppingBag,
 } from 'react-icons/fi';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -256,7 +256,7 @@ function CheckoutContent() {
 
                 <div className="flex items-center gap-3 mb-8">
                     <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                        <FiCreditCard className="text-primary text-xl" />
+                        <FiShield className="text-primary text-xl" />
                     </div>
                     <div>
                         <h1 className="text-2xl sm:text-3xl font-black text-foreground">
@@ -384,6 +384,16 @@ function CheckoutContent() {
                                             </p>
                                         </div>
                                     )}
+
+                                    <div className="p-3 bg-background/60 rounded-xl border border-border text-center space-y-1">
+                                        <p className="text-[11px] font-bold text-foreground/80 flex items-center justify-center gap-1.5">
+                                            <FiShield className="text-primary shrink-0" />
+                                            {isRtl ? 'حسابات تحويل رسمية ومعتمدة لأكاديمية IT-SPARK' : 'Official Verified IT-SPARK Academy Channels'}
+                                        </p>
+                                        <p className="text-[10px] text-foreground/50">
+                                            {isRtl ? 'يتم مراجعة وتأكيد كافة الإيصالات يدويًا بواسطة الإدارة المالية للأكاديمية فور الإرسال.' : 'All receipts are reviewed and verified directly by academy administration.'}
+                                        </p>
+                                    </div>
                                     <p className="text-[10px] text-foreground/50 text-center font-bold">
                                         {isRtl
                                             ? 'بعد التحويل ارفع صورة الإيصال أدناه'
