@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { FiTrash2, FiSearch, FiEdit2, FiCheck, FiX, FiFilter, FiDownload } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as XLSX from 'xlsx';
 
 export default function AdminTrainingRegistrationsPage() {
     const [registrations, setRegistrations] = useState<any[]>([]);
@@ -67,23 +66,57 @@ export default function AdminTrainingRegistrationsPage() {
     };
 
     const exportToExcel = () => {
-        const dataToExport = filteredData.map(reg => ({
-            'Full Name': reg.full_name,
-            'Phone': reg.phone,
-            'Email': reg.email || '',
-            'University': reg.university,
-            'Academic Year': reg.academic_year,
-            'Governorate': reg.governorate,
-            'Course Name': reg.course_name,
-            'Status': reg.status,
-            'Notes': reg.notes || '',
-            'Date': new Date(reg.createdAt).toLocaleDateString()
-        }));
+        if (!filteredData.length) return;
 
-        const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Registrations");
-        XLSX.writeFile(wb, "course_registrations.xlsx");
+        const headers = [
+            'Full Name',
+            'Phone',
+            'Email',
+            'University',
+            'Academic Year',
+            'Governorate',
+            'Course Name',
+            'Status',
+            'Notes',
+            'Date'
+        ];
+
+        const escapeCell = (cell: any) => {
+            const str = String(cell ?? '');
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const rows = filteredData.map(reg => [
+            reg.full_name || '',
+            reg.phone || '',
+            reg.email || '',
+            reg.university || '',
+            reg.academic_year || '',
+            reg.governorate || '',
+            reg.course_name || '',
+            reg.status || '',
+            reg.notes || '',
+            reg.createdAt ? new Date(reg.createdAt).toLocaleDateString() : ''
+        ]);
+
+        const csvContent = [
+            headers.map(escapeCell).join(','),
+            ...rows.map(row => row.map(escapeCell).join(','))
+        ].join('\r\n');
+
+        // UTF-8 BOM (\uFEFF) ensures Excel correctly displays Arabic text without garbled characters
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `course_registrations_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const filteredData = registrations.filter(reg => {
